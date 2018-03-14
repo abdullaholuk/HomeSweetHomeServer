@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace HomeSweetHomeServer
 {
+    //Handles JWT token operations
     public class JwtTokenHandler : IJwtTokenHandler
     {
     }

@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 
 namespace HomeSweetHomeServer.Models
 {
+    //Keeps information about user's name for client return
     [Serializable]
     [DataContract]
     public class UserModel : UserBaseModel

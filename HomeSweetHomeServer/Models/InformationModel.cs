@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 
 namespace HomeSweetHomeServer.Models
 {
+    //Keeps knowlegde about a single user information
     [Serializable]
     [DataContract]
     public class InformationModel : IdModel

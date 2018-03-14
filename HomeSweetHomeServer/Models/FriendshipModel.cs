@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 
 namespace HomeSweetHomeServer.Models
 {
+    //Keeps friendship informations
     [Serializable]
     [DataContract]
     public class FriendshipModel : IdModel

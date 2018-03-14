@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace HomeSweetHomeServer
 {
+    //Interface for token operations
     interface IJwtTokenHandler
     {
     }

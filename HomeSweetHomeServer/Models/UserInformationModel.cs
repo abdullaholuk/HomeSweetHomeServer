@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 
 namespace HomeSweetHomeServer.Models
 {
+    //Makes a brigde between user and information
     [Serializable]
     [DataContract]
     public class UserInformationModel : IdModel

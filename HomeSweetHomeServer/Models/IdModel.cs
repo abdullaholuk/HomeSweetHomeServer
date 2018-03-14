@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 
 namespace HomeSweetHomeServer.Models
 {
+    //BaseClass for any model which uses id number
     [Serializable]
     [DataContract]
     public class IdModel

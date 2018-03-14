@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 
 namespace HomeSweetHomeServer.Models
 {
+    //Keeps user authentication informations
     [Serializable]
     [DataContract]
     public class AuthenticationModel : UserBaseModel

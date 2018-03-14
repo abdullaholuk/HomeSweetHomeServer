@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 
 namespace HomeSweetHomeServer.Models
 {
+    //Keeps information about keys
     [Serializable]
     [DataContract]
     public class KeyModel : IdModel
