@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HomeSweetHomeServer.Models;
 
-namespace HomeSweetHomeServer
+namespace HomeSweetHomeServer.Services
 {
     //Handles JWT token operations
-    public class JwtTokenHandler : IJwtTokenHandler
+    public class JwtTokenService : IJwtTokenService
     {
     }
 }
