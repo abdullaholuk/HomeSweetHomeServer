@@ -8,15 +8,15 @@ namespace HomeSweetHomeServer.Models
 {
     [Serializable]
     [DataContract]
-    public class UserInformationModel : IdModel
+    public class FriendshipModel : IdModel
     {
         [DataMember]
-        public int UserId { get; set; }
+        public int User1Id { get; set; }
 
         [DataMember]
-        public string InformationId { get; set; }
+        public int User2Id { get; set; }
 
         [DataMember]
-        public string Value { get; set; }
+        public int Debt { get; set; }
     }
 }

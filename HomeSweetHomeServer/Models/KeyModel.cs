@@ -8,13 +8,10 @@ namespace HomeSweetHomeServer.Models
 {
     [Serializable]
     [DataContract]
-    public class UserInformationModel : IdModel
+    public class KeyModel : IdModel
     {
         [DataMember]
-        public int UserId { get; set; }
-
-        [DataMember]
-        public string InformationId { get; set; }
+        public string KeyName { get; set; }
 
         [DataMember]
         public string Value { get; set; }
