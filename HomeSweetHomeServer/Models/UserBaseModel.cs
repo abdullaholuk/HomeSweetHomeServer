@@ -11,5 +11,7 @@ namespace HomeSweetHomeServer.Models
     [DataContract]
     public class UserBaseModel : IdModel
     {
+        [DataMember]
+        public string UserName { get; set; }
     }
 }

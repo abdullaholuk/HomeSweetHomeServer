@@ -12,9 +12,6 @@ namespace HomeSweetHomeServer.Models
     public class AuthenticationModel : UserBaseModel
     {
         [DataMember]
-        public string UserName { get; set; }
-
-        [DataMember]
         public string Password { get; set; }
     }
 }
