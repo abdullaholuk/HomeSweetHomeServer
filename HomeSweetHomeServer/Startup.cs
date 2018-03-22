@@ -8,6 +8,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using HomeSweetHomeServer.Contexts;
+using Microsoft.EntityFrameworkCore;
+using HomeSweetHomeServer.Repositories;
+using HomeSweetHomeServer.Models;
+using HomeSweetHomeServer.Controllers;
+using Newtonsoft.Json.Serialization;
 
 namespace HomeSweetHomeServer
 {
@@ -23,7 +29,14 @@ namespace HomeSweetHomeServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+//            services.AddMvc();
+            services.AddMvc()
+                    .AddJsonOptions(a => a.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
+
+            services.AddDbContext<DatabaseContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IRepository<InformationModel>, BaseRepository<InformationModel>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,5 +49,6 @@ namespace HomeSweetHomeServer
 
             app.UseMvc();
         }
+        
     }
 }

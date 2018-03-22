@@ -6,12 +6,15 @@ using System.Runtime.Serialization;
 
 namespace HomeSweetHomeServer.Models
 {
-    //BaseClass for any user
+    //Keeps information about user's name for client return
     [Serializable]
     [DataContract]
-    public class UserBaseModel : IdModel
+    public class UserFNModel : UserModel
     {
         [DataMember]
-        public string UserName { get; set; }
+        public string FirstName { get; set; }
+
+        [DataMember]
+        public string LastName { get; set; }
     }
 }

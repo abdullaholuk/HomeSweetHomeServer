@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
+using System.ComponentModel.DataAnnotations;
 
 namespace HomeSweetHomeServer.Models
 {
-    //Keeps information about user's name for client return
+    //BaseClass for any user
     [Serializable]
     [DataContract]
-    public class UserModel : UserBaseModel
+    public class UserModel
     {
+        [Key]
         [DataMember]
-        public string FirstName { get; set; }
+        public int UserId { get; set; }
 
         [DataMember]
-        public string LastName { get; set; }
+        public string Username { get; set; }
     }
 }

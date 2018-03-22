@@ -9,9 +9,12 @@ namespace HomeSweetHomeServer.Models
     //Keeps user authentication informations
     [Serializable]
     [DataContract]
-    public class AuthenticationModel : UserBaseModel
+    public class AuthenticationModel : UserModel
     {
         [DataMember]
         public string Password { get; set; }
+
+        [DataMember]
+        public string Token { get; set; }
     }
 }

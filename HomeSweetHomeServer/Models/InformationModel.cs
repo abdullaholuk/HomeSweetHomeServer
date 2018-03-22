@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
+using System.ComponentModel.DataAnnotations;
 
 namespace HomeSweetHomeServer.Models
 {
-    //Keeps knowlegde about a single user information
+    //Keeps knowlegde about a single information
     [Serializable]
     [DataContract]
-    public class InformationModel : IdModel
+    public class InformationModel
     {
+        [Key]
+        [DataMember]
+        public int InformationId { get; set; }
+
         [DataMember]
         public string InformationName { get; set; }
 
