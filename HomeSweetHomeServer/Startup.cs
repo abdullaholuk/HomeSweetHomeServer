@@ -72,7 +72,6 @@ namespace HomeSweetHomeServer
             app.UseAuthentication();
 
             app.UseMvc();
-
         }
         
     }
