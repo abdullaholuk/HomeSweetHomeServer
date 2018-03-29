@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.ComponentModel.DataAnnotations;
-
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomeSweetHomeServer.Models
 {
@@ -17,11 +14,11 @@ namespace HomeSweetHomeServer.Models
         [DataMember]
         public int FriendshipId { get; set; }
 
-        [DataMember]
-        public int User1Id { get; set; }
-
-        [DataMember]
-        public int User2Id { get; set; }
+        [ForeignKey("User1Id")]
+        public UserModel User1 { get; set; }
+        
+        [ForeignKey("User2Id")]
+        public UserModel User2 { get; set; }
 
         [DataMember]
         public double Debt { get; set; }

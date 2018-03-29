@@ -23,8 +23,7 @@ namespace HomeSweetHomeServer.Repositories
 
         public void addUser(TEntity user)
         {
-            //var inf = _context.Database.GetDbConnection().State;
-            _context.Add(user);
+            var inf = _context.Add(user);
             _context.SaveChanges();
         }
 

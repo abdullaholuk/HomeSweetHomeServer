@@ -5,38 +5,37 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using HomeSweetHomeServer.Models;
 using HomeSweetHomeServer.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using HomeSweetHomeServer.Services;
-
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Security.Claims;
 
 namespace HomeSweetHomeServer.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
-        public IRepository<InformationModel> _repository;
+        public IRepository<AuthenticationModel> _repository;
+        public IJwtTokenService _tokenService;
 
-        public ValuesController(IRepository<InformationModel> repository)
+        public ValuesController(IRepository<AuthenticationModel> repository, IJwtTokenService tokenService)
         {
+            _tokenService = tokenService;
             _repository = repository;
         }
 
         // GET api/values
         [HttpGet]
+        //[Authorize]
         public IEnumerable<string> Get()
         {
-            /*    AuthenticationModel user = new AuthenticationModel();
-              //  user.UserId = 1;
-                user.Username = "apo";
-                user.Password = "12345";
-                user.Token = "adsadas";
-                _repository.addUser(user);
-                */
-            InformationModel info = new InformationModel();
-            info.InformationId = 1;
-            info.InformationName = "isim";
-            info.InformationType = "str";
-            _repository.addUser(info);
-
+            AuthenticationModel user = new AuthenticationModel();
+            user.Username = "apo";
+            user.Password = "12345";
+            user.Token = _tokenService.CreateToken(user);
+            _repository.addUser(user);
+           
             return new string[] { "value1", "value2" };
         }
 

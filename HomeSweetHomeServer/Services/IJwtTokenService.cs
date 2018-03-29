@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Services
 {
     //Interface for token operations
-    interface IJwtTokenService
+    public interface IJwtTokenService
     {
+        string CreateToken(UserModel user);
+     //   bool VerifyToken(string token);
     }
 }

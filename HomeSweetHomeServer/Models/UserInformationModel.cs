@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomeSweetHomeServer.Models
 {
@@ -16,11 +17,11 @@ namespace HomeSweetHomeServer.Models
         [DataMember]
         public int UserInformationId { get; set; }
 
-        [DataMember]
-        public int UserId { get; set; }
+        [ForeignKey("UserId")]
+        public UserModel User { get; set; }
 
-        [DataMember]
-        public int InformationId { get; set; }
+        [ForeignKey("InformationId")]
+        public InformationModel Information { get; set; }
 
         [DataMember]
         public string Value { get; set; }
