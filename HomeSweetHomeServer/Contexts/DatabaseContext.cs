@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using HomeSweetHomeServer.Models;
-//using System.Data.Entity.ModelConfiguration.Conventions;
 
 namespace HomeSweetHomeServer.Contexts
 {
@@ -26,6 +25,7 @@ namespace HomeSweetHomeServer.Contexts
             builder.Entity<InformationModel>().ToTable("Information");
             builder.Entity<UserInformationModel>().ToTable("UserInformation");
             builder.Entity<FriendshipModel>().ToTable("Friendship");
+            
         }
     }
 }

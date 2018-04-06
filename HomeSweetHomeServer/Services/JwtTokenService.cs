@@ -39,11 +39,11 @@ namespace HomeSweetHomeServer.Services
 
             //LifeTime
             DateTime now = DateTime.Now;
-            DateTime death = now.AddMinutes(30);
+            DateTime death = now.AddSeconds(50);
 
             //SigningCredientals
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var credientials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var credientials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             //Create Token
             var tokenObj = handler.CreateJwtSecurityToken(
@@ -55,9 +55,8 @@ namespace HomeSweetHomeServer.Services
             );
             
             return handler.WriteToken(tokenObj);
-
         }
-        /*
+        
         public bool VerifyToken(string token)
         {
             //Parts of Token
@@ -67,19 +66,12 @@ namespace HomeSweetHomeServer.Services
             string signedSignature = partsOfToken[2];
             byte[] byteSign = Base64UrlEncoder.DecodeBytes(signedSignature);
             byte[] byteHeaderAndPayload = Encoding.UTF8.GetBytes(header + '.' + payload);
-            
-           // RSACryptoServiceProvider provider = new RSACryptoServiceProvider(KEY_SIZE);
-            //provider.FromXmlString(RSAKeys.Instance.RSAPublicKey);
-            
-            SHA256Managed sha256hash = new SHA256Managed();
-            sha256hash.ComputeHash(byteHeaderAndPayload);
 
-            RSAPKCS1SignatureDeformatter deformatter = new RSAPKCS1SignatureDeformatter(provider);
-            deformatter.SetHashAlgorithm("SHA256");
-            
-            return deformatter.VerifySignature(sha256hash, byteSign);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
 
-        }*/
+            SymmetricSignatureProvider provider = new SymmetricSignatureProvider(key, SecurityAlgorithms.HmacSha512);
 
+            return provider.Verify(byteHeaderAndPayload, byteSign);
+        }
     }
 }

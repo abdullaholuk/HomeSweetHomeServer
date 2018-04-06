@@ -21,9 +21,10 @@ namespace HomeSweetHomeServer.Repositories
             _context = context;
         }
 
-        public void addUser(TEntity user)
+        //Adds given model to database
+        public void Add(TEntity entity)
         {
-            var inf = _context.Add(user);
+            _context.Add(entity);
             _context.SaveChanges();
         }
 

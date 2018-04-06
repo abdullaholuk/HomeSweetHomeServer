@@ -43,7 +43,7 @@ namespace HomeSweetHomeServer
                     ClockSkew = TimeSpan.Zero,
                 };
             });
-
+            
             services.AddMvc()
                     .AddJsonOptions(a => a.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
             
@@ -51,7 +51,15 @@ namespace HomeSweetHomeServer
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
                        
             services.AddScoped<IRepository<AuthenticationModel>, BaseRepository<AuthenticationModel>>();
+            services.AddScoped<IRepository<FriendshipModel>, BaseRepository<FriendshipModel>>();
+            services.AddScoped<IRepository<InformationModel>, BaseRepository<InformationModel>>();
+            services.AddScoped<IRepository<RegistrationModel>, BaseRepository<RegistrationModel>>();
+            services.AddScoped<IRepository<UserFNModel>, BaseRepository<UserFNModel>>();
+            services.AddScoped<IRepository<UserInformationModel>, BaseRepository<UserInformationModel>>();
+            services.AddScoped<IRepository<UserModel>, BaseRepository<UserModel>>();
+
             services.AddScoped<IJwtTokenService, JwtTokenService>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -65,8 +73,8 @@ namespace HomeSweetHomeServer
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<DatabaseContext>();
-                context.Database.EnsureCreated();
                 context.Database.Migrate();
+              //  context.Database.EnsureCreated();
             }
 
             app.UseAuthentication();

@@ -6,6 +6,6 @@ namespace HomeSweetHomeServer.Services
     public interface IJwtTokenService
     {
         string CreateToken(UserModel user);
-     //   bool VerifyToken(string token);
+        bool VerifyToken(string token);
     }
 }
