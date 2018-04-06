@@ -24,7 +24,7 @@ namespace HomeSweetHomeServer.Controllers
             _authenticationService = authenticationService;
         }
 
-        [HttpPost("register", Name = "Register")]
+        [HttpPost("Register", Name = "register")]
         public IActionResult Register([FromBody] RegistrationModel registrationModel)
         {
             if(!ModelState.IsValid)
