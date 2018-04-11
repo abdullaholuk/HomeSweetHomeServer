@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using System;
+using HomeSweetHomeServer.Exceptions;
 
 namespace HomeSweetHomeServer
 {
@@ -44,8 +45,11 @@ namespace HomeSweetHomeServer
                 };
             });
             
-            services.AddMvc()
-                    .AddJsonOptions(a => a.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(typeof(ExceptionFilter));
+                options.Filters.Add(typeof(ModelValidationFilter));
+            }).AddJsonOptions(a => a.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
             
             services.AddDbContext<DatabaseContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -67,7 +71,7 @@ namespace HomeSweetHomeServer
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+            //    app.UseDeveloperExceptionPage();
             }
             
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())

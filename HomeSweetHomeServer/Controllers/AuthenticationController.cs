@@ -9,6 +9,7 @@ using HomeSweetHomeServer.Services;
 using Newtonsoft.Json.Serialization;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authorization;
+using HomeSweetHomeServer.Exceptions;
 
 namespace HomeSweetHomeServer.Controllers
 {
@@ -24,17 +25,13 @@ namespace HomeSweetHomeServer.Controllers
             _authenticationService = authenticationService;
         }
 
-        [HttpPost("Register", Name = "register")]
-        public IActionResult Register([FromBody] RegistrationModel registrationModel)
+        [HttpPost("Register", Name = "Register")]
+        public async Task<IActionResult> Register([FromBody] RegistrationModel RegistrationForm)
         {
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            registrationModel.RegistirationDate = DateTime.UtcNow;
-
-            return Ok(registrationModel);
+            RegistrationForm.RegistirationDate = DateTime.UtcNow;
+            await _authenticationService.ControlRegisterFormAsync(RegistrationForm);
+            
+            return Ok();
         }
 
         /*

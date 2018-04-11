@@ -24,8 +24,7 @@ namespace HomeSweetHomeServer.Contexts
             builder.Entity<UserModel>().ToTable("User");
             builder.Entity<InformationModel>().ToTable("Information");
             builder.Entity<UserInformationModel>().ToTable("UserInformation");
-            builder.Entity<FriendshipModel>().ToTable("Friendship");
-            
+            builder.Entity<FriendshipModel>().ToTable("Friendship");        
         }
     }
 }
