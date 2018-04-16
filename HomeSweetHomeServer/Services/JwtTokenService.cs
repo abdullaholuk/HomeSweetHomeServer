@@ -13,7 +13,8 @@ namespace HomeSweetHomeServer.Services
     //Handles JWT token operations
     public class JwtTokenService : IJwtTokenService
     {
-        private IConfiguration _config;
+        public IConfiguration _config;
+
         public JwtTokenService(IConfiguration config)
         {
             _config = config;
@@ -32,7 +33,7 @@ namespace HomeSweetHomeServer.Services
 
             //Claims
             ClaimsIdentity identities = new ClaimsIdentity();
-            Claim claim_1 = new Claim("userId", user.UserId.ToString());
+            Claim claim_1 = new Claim("userId", user.Id.ToString());
             Claim claim_2 = new Claim("username", user.Username);
             identities.AddClaim(claim_1);
             identities.AddClaim(claim_2);

@@ -10,6 +10,7 @@ using Newtonsoft.Json.Serialization;
 using System.Net.Http;
 using Microsoft.AspNetCore.Authorization;
 using HomeSweetHomeServer.Exceptions;
+using Newtonsoft.Json;
 
 namespace HomeSweetHomeServer.Controllers
 {
@@ -19,21 +20,37 @@ namespace HomeSweetHomeServer.Controllers
     public class AuthenticationController : Controller
     {
         IAuthenticationService _authenticationService;
+        IJwtTokenService _jwtTokenService;
 
-        public AuthenticationController(IAuthenticationService authenticationService)
+        public AuthenticationController(IAuthenticationService authenticationService, IJwtTokenService jwtTokenService)
         {
             _authenticationService = authenticationService;
+            _jwtTokenService = jwtTokenService;
         }
 
         [HttpPost("Register", Name = "Register")]
-        public async Task<IActionResult> Register([FromBody] RegistrationModel RegistrationForm)
+        public async Task<IActionResult> Register([FromBody] RegistrationModel registrationForm)
         {
-            RegistrationForm.RegistirationDate = DateTime.UtcNow;
-            await _authenticationService.ControlRegisterFormAsync(RegistrationForm);
-            
+            registrationForm.RegistrationDate = DateTime.UtcNow;
+
+            await _authenticationService.ControlRegisterFormAsync(registrationForm);
+            await _authenticationService.RegisterNewUser(registrationForm);
+
             return Ok();
         }
 
+        [HttpPost("Login", Name = "Login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel login)
+        {
+            AuthenticationModel user = await _authenticationService.GetUser(login);
+            string token = _jwtTokenService.CreateToken(user);
+            /*if (user.IsVerifiedByEmail == false)
+            {
+
+            }*/
+            
+            return Ok(token);
+        }
         /*
         // GET: api/Authentication
         [HttpGet]

@@ -12,31 +12,29 @@ namespace HomeSweetHomeServer.Exceptions
     {
         public override void OnException(ExceptionContext Context)
         {
-            string Message;
-            int StatusCode;
+            string message;
+            int statusCode;
 
             Exception _exception = Context.Exception;
 
             if (_exception is CustomException) //Generated exception about any error
             {
-                var Exception = (CustomException)_exception;
-                Message = Exception.Message;
-                StatusCode = Exception.StatusCode;
+                var exception = (CustomException)_exception;
+                message = exception.Message;
+                statusCode = exception.StatusCode;
             } else //Generated about unhandled system exception
             {
-                Message = _exception.Message;
-                StatusCode = (int)HttpStatusCode.InternalServerError;
+                message = JsonConvert.SerializeObject(new Dictionary<string, string> { { "Unhandled Error", _exception.Message } }, Formatting.Indented);
+                statusCode = (int)HttpStatusCode.InternalServerError;
             }
 
             Context.ExceptionHandled = true;
             
-            string MessageJson = JsonConvert.SerializeObject(new Dictionary<string, string> { { "Message", Message } }, Formatting.Indented);
-            
             //Response creation
             HttpResponse Response = Context.HttpContext.Response;
-            Response.StatusCode = StatusCode;
+            Response.StatusCode = statusCode;
             Response.ContentType = "application/json";
-            Response.WriteAsync(MessageJson);
+            Response.WriteAsync(message);
         }
     }
 }

@@ -8,7 +8,8 @@ namespace HomeSweetHomeServer.Services
 {
     public interface IAuthenticationService
     {
-        Task ControlRegisterFormAsync(RegistrationModel RegistrationForm);
-      //  Task<UserModel> RegisterNewUser(RegistrationModel RegistrationForm);
+        Task ControlRegisterFormAsync(RegistrationModel registrationForm);
+        Task RegisterNewUser(RegistrationModel registrationForm);
+        Task<AuthenticationModel> GetUser(LoginModel login);
     }
 }

@@ -17,9 +17,9 @@ namespace HomeSweetHomeServer.Exceptions
             {
                 
                 object Errors = new BadRequestObjectResult(Context.ModelState).Value;
-                string Message = JsonConvert.SerializeObject(Errors);
+                CustomException exception = new CustomException((SerializableError)Errors, (int)HttpStatusCode.BadRequest);
 
-                throw new CustomException(Message, (int) HttpStatusCode.BadRequest);
+                exception.Throw();
             }
         }
     }

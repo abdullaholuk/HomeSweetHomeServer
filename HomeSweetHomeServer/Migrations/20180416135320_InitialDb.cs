@@ -13,37 +13,38 @@ namespace HomeSweetHomeServer.Migrations
                 name: "Information",
                 columns: table => new
                 {
-                    InformationId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     InformationName = table.Column<string>(nullable: true),
                     InformationType = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Information", x => x.InformationId);
+                    table.PrimaryKey("PK_Information", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
+                    IsVerifiedByEmail = table.Column<bool>(nullable: true),
                     Password = table.Column<string>(nullable: true),
                     Token = table.Column<string>(nullable: true),
-                    UserId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Discriminator = table.Column<string>(nullable: false),
                     Username = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_User", x => x.UserId);
+                    table.PrimaryKey("PK_User", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Friendship",
                 columns: table => new
                 {
-                    FriendshipId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Debt = table.Column<double>(nullable: false),
                     User1Id = table.Column<int>(nullable: true),
@@ -51,18 +52,18 @@ namespace HomeSweetHomeServer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Friendship", x => x.FriendshipId);
+                    table.PrimaryKey("PK_Friendship", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Friendship_User_User1Id",
                         column: x => x.User1Id,
                         principalTable: "User",
-                        principalColumn: "UserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Friendship_User_User2Id",
                         column: x => x.User2Id,
                         principalTable: "User",
-                        principalColumn: "UserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -70,7 +71,7 @@ namespace HomeSweetHomeServer.Migrations
                 name: "UserInformation",
                 columns: table => new
                 {
-                    UserInformationId = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     InformationId = table.Column<int>(nullable: true),
                     UserId = table.Column<int>(nullable: true),
@@ -78,18 +79,18 @@ namespace HomeSweetHomeServer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserInformation", x => x.UserInformationId);
+                    table.PrimaryKey("PK_UserInformation", x => x.Id);
                     table.ForeignKey(
                         name: "FK_UserInformation_Information_InformationId",
                         column: x => x.InformationId,
                         principalTable: "Information",
-                        principalColumn: "InformationId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_UserInformation_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
-                        principalColumn: "UserId",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 

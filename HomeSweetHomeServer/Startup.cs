@@ -53,17 +53,15 @@ namespace HomeSweetHomeServer
             
             services.AddDbContext<DatabaseContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-                       
-            services.AddScoped<IRepository<AuthenticationModel>, BaseRepository<AuthenticationModel>>();
-            services.AddScoped<IRepository<FriendshipModel>, BaseRepository<FriendshipModel>>();
-            services.AddScoped<IRepository<InformationModel>, BaseRepository<InformationModel>>();
-            services.AddScoped<IRepository<RegistrationModel>, BaseRepository<RegistrationModel>>();
-            services.AddScoped<IRepository<UserFNModel>, BaseRepository<UserFNModel>>();
-            services.AddScoped<IRepository<UserInformationModel>, BaseRepository<UserInformationModel>>();
-            services.AddScoped<IRepository<UserModel>, BaseRepository<UserModel>>();
+
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IInformationRepository, InformationRepository>();
+            services.AddScoped<IUserInformationRepository, UserInformationRepository>();
+            services.AddScoped<IFriendshipRepository, FriendshipRepository>();
 
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IMailService, MailService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

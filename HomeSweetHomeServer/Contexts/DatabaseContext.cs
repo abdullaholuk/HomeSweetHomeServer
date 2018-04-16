@@ -10,6 +10,10 @@ namespace HomeSweetHomeServer.Contexts
     //All database operations
     public class DatabaseContext : DbContext , IDisposable
     {
+        public DatabaseContext()
+        {
+        }
+
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options){ }
 
         //DbSet<UserModel> UserModels { get; set; } //User table

@@ -35,6 +35,6 @@ namespace HomeSweetHomeServer.Models
 
         //[Required]
         [DataType(DataType.DateTime)]
-        public DateTime RegistirationDate { get; set; }
+        public DateTime RegistrationDate { get; set; }
     }
 }

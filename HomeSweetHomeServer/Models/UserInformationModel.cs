@@ -12,7 +12,7 @@ namespace HomeSweetHomeServer.Models
     {
         [Key]
         [DataMember]
-        public int UserInformationId { get; set; }
+        public int Id { get; set; }
 
         [ForeignKey("UserId")]
         public UserModel User { get; set; }

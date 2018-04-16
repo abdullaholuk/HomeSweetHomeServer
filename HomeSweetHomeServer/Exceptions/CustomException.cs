@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace HomeSweetHomeServer.Exceptions
 {
@@ -7,20 +9,41 @@ namespace HomeSweetHomeServer.Exceptions
     public class CustomException : Exception
     {
         public int StatusCode { get; set; }
+        public SerializableError Errors { get; set; }
 
-        public CustomException(int StatusCode = (int)HttpStatusCode.InternalServerError)
+        public CustomException(int statusCode = (int)HttpStatusCode.InternalServerError)
         {
-            this.StatusCode = StatusCode;
+            Errors = new SerializableError();
+            this.StatusCode = statusCode;
         }
 
-        public CustomException(string Message, int StatusCode = (int)HttpStatusCode.InternalServerError) : base(Message)
+        public CustomException(string message, int statusCode = (int)HttpStatusCode.InternalServerError) : base(message)
         {
-            this.StatusCode = StatusCode;
+            Errors = new SerializableError();
+            this.StatusCode = statusCode;
         }
 
-        public CustomException(string Message, Exception Inner, int StatusCode = (int)HttpStatusCode.InternalServerError) : base(Message, Inner)
+        public CustomException(string message, Exception Inner, int statusCode = (int)HttpStatusCode.InternalServerError) : base(message, Inner)
         {
-            this.StatusCode = StatusCode;
+            Errors = new SerializableError();
+            this.StatusCode = statusCode;
+        }
+
+        public CustomException(SerializableError errors, int statusCode = (int)HttpStatusCode.InternalServerError)
+        {
+            Errors = errors;
+            this.StatusCode = statusCode;
+        }
+
+        public void AddError(string errorName, object errorMessage)
+        {
+            Errors.Add(errorName, errorMessage);
+        }
+
+        public void Throw()
+        {
+            string message = JsonConvert.SerializeObject(Errors);
+            throw new CustomException(message, StatusCode);
         }
     }
 }

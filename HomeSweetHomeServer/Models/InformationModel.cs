@@ -11,7 +11,7 @@ namespace HomeSweetHomeServer.Models
     {
         [Key]
         [DataMember]
-        public int InformationId { get; set; }
+        public int Id { get; set; }
 
         [DataMember]
         public string InformationName { get; set; }

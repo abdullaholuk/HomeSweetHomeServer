@@ -23,7 +23,7 @@ namespace HomeSweetHomeServer.Migrations
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.FriendshipModel", b =>
                 {
-                    b.Property<int>("FriendshipId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<double>("Debt");
@@ -32,7 +32,7 @@ namespace HomeSweetHomeServer.Migrations
 
                     b.Property<int?>("User2Id");
 
-                    b.HasKey("FriendshipId");
+                    b.HasKey("Id");
 
                     b.HasIndex("User1Id");
 
@@ -43,21 +43,21 @@ namespace HomeSweetHomeServer.Migrations
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.InformationModel", b =>
                 {
-                    b.Property<int>("InformationId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("InformationName");
 
                     b.Property<string>("InformationType");
 
-                    b.HasKey("InformationId");
+                    b.HasKey("Id");
 
                     b.ToTable("Information");
                 });
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.UserInformationModel", b =>
                 {
-                    b.Property<int>("UserInformationId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<int?>("InformationId");
@@ -66,7 +66,7 @@ namespace HomeSweetHomeServer.Migrations
 
                     b.Property<string>("Value");
 
-                    b.HasKey("UserInformationId");
+                    b.HasKey("Id");
 
                     b.HasIndex("InformationId");
 
@@ -77,7 +77,7 @@ namespace HomeSweetHomeServer.Migrations
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.UserModel", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Discriminator")
@@ -85,7 +85,7 @@ namespace HomeSweetHomeServer.Migrations
 
                     b.Property<string>("Username");
 
-                    b.HasKey("UserId");
+                    b.HasKey("Id");
 
                     b.ToTable("User");
 
@@ -95,6 +95,8 @@ namespace HomeSweetHomeServer.Migrations
             modelBuilder.Entity("HomeSweetHomeServer.Models.AuthenticationModel", b =>
                 {
                     b.HasBaseType("HomeSweetHomeServer.Models.UserModel");
+
+                    b.Property<bool>("IsVerifiedByEmail");
 
                     b.Property<string>("Password");
 
