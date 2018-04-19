@@ -11,6 +11,8 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Authorization;
 using HomeSweetHomeServer.Exceptions;
 using Newtonsoft.Json;
+using System.Web;
+using System.Net;
 
 namespace HomeSweetHomeServer.Controllers
 {
@@ -28,60 +30,85 @@ namespace HomeSweetHomeServer.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
+        //Registers sended user
         [HttpPost("Register", Name = "Register")]
         public async Task<IActionResult> Register([FromBody] RegistrationModel registrationForm)
         {
             registrationForm.RegistrationDate = DateTime.UtcNow;
 
             await _authenticationService.ControlRegisterFormAsync(registrationForm);
-            await _authenticationService.RegisterNewUser(registrationForm);
+            await _authenticationService.RegisterNewUserAsync(registrationForm);
 
             return Ok();
         }
 
+        //Logins to server and accepts JWT token for requests
         [HttpPost("Login", Name = "Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel login)
         {
-            AuthenticationModel user = await _authenticationService.GetUser(login);
+            UserModel user = await _authenticationService.GetUserAfterLoginAsync(login);
             string token = _jwtTokenService.CreateToken(user);
-            /*if (user.IsVerifiedByEmail == false)
+
+            if (user.IsVerifiedByEmail == false)
+                return StatusCode((int)HttpStatusCode.Accepted, token);
+            else
+                return Ok(token);
+        }
+
+        //Requests for send email verification code to email
+        [Authorize]
+        [HttpGet("EMailVerification", Name = "EMailVerification")]
+        public async Task<IActionResult> EMailVerification()
+        {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            var user = await _jwtTokenService.GetUserFromTokenStr(token);
+            if(user.IsVerifiedByEmail == true)
             {
-
-            }*/
-            
-            return Ok(token);
-        }
-        /*
-        // GET: api/Authentication
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Already Verified", "User already verified");
+                errors.Throw();
+            }
+            await _authenticationService.SendEmailVerificationCodeToUserAsync(user);
+            return Ok();
         }
 
-        // GET: api/Authentication/5
-        [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
+        //Verifys email
+        [Authorize]
+        [HttpPost("VerifyEmail", Name = "VerifyEmail")]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerificationCodeModel verificationCode)
         {
-            return "value";
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            var user = await _jwtTokenService.GetUserFromTokenStr(token);
+            if (user.IsVerifiedByEmail == true)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Already Verified", "User already verified");
+                errors.Throw();
+            }
+            await _authenticationService.VerifyEmailAsync(user, verificationCode);
+            return Ok();
         }
-        
-        // POST: api/Authentication
-        [HttpPost]
-        public void Post([FromBody]string value)
+
+        //Requests for forgot password verification code
+        [Authorize]
+        [HttpGet("ForgotPassword", Name = "ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword()
         {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            var user = await _jwtTokenService.GetUserFromTokenStr(token);
+            await _authenticationService.SendForgotPasswordVerificationCodeToUserAsync(user);
+            return Ok();
         }
-        
-        // PUT: api/Authentication/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+
+        //Changes password
+        [Authorize]
+        [HttpPost("ChangePassword", Name = "ChangePassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ForgotPasswordModel forgotPassword)
         {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            var user = await _jwtTokenService.GetUserFromTokenStr(token);
+            await _authenticationService.ForgotPasswordAsync(user, forgotPassword);
+            return Ok();
         }
-        
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }*/
     }
 }

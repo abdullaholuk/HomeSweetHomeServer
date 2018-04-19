@@ -7,6 +7,9 @@ using Microsoft.IdentityModel.Tokens;
 using HomeSweetHomeServer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
+using HomeSweetHomeServer.Repositories;
+using System.Threading.Tasks;
 
 namespace HomeSweetHomeServer.Services
 {
@@ -14,9 +17,11 @@ namespace HomeSweetHomeServer.Services
     public class JwtTokenService : IJwtTokenService
     {
         public IConfiguration _config;
+        public IUserRepository _userRepository;
 
-        public JwtTokenService(IConfiguration config)
+        public JwtTokenService(IConfiguration config, IUserRepository userRepository)
         {
+            _userRepository = userRepository;
             _config = config;
         }
         
@@ -40,7 +45,7 @@ namespace HomeSweetHomeServer.Services
 
             //LifeTime
             DateTime now = DateTime.Now;
-            DateTime death = now.AddSeconds(50);
+            DateTime death = now.AddMinutes(500);
 
             //SigningCredientals
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
@@ -73,6 +78,15 @@ namespace HomeSweetHomeServer.Services
             SymmetricSignatureProvider provider = new SymmetricSignatureProvider(key, SecurityAlgorithms.HmacSha512);
 
             return provider.Verify(byteHeaderAndPayload, byteSign);
+        }
+
+        //Gets user from token
+        public async Task<UserModel> GetUserFromTokenStr(string tokenstr)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(tokenstr);
+            var userId = Int32.Parse(token.Claims.SingleOrDefault(c => c.Type == "userId").Value);
+            return await _userRepository.GetByIdAsync(userId);
         }
     }
 }

@@ -35,11 +35,13 @@ namespace HomeSweetHomeServer.Exceptions
             this.StatusCode = statusCode;
         }
 
+        //Adds errors to list
         public void AddError(string errorName, object errorMessage)
         {
             Errors.Add(errorName, errorMessage);
         }
 
+        //Throws after errors added to list
         public void Throw()
         {
             string message = JsonConvert.SerializeObject(Errors);

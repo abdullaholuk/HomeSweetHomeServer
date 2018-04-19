@@ -6,23 +6,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomeSweetHomeServer.Repositories
 {
-    public class UserRepository : BaseRepository<AuthenticationModel>, IUserRepository
+    public class UserRepository : BaseRepository<UserModel>, IUserRepository
     {
         public UserRepository(DatabaseContext context) : base(context)
         {
         }
 
-        public async Task<List<AuthenticationModel>> GetAllAsync()
+        public async Task<List<UserModel>> GetAllAsync()
         {
             return await Db.ToListAsync();
         }
-
-        public async Task<AuthenticationModel> GetByIdAsync(int id)
+        
+        public async Task<UserModel> GetByIdAsync(int id)
         {
             return await Db.FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public async Task<AuthenticationModel> GetByUsernameAsync(string username)
+        public async Task<UserModel> GetByUsernameAsync(string username)
         {
             return await Db.FirstOrDefaultAsync(u => u.Username == username);
         }

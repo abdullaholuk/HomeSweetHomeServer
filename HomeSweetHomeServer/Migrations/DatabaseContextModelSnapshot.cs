@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 using System;
 
 namespace HomeSweetHomeServer.Migrations
@@ -80,31 +79,17 @@ namespace HomeSweetHomeServer.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired();
-
-                    b.Property<string>("Username");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("User");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("UserModel");
-                });
-
-            modelBuilder.Entity("HomeSweetHomeServer.Models.AuthenticationModel", b =>
-                {
-                    b.HasBaseType("HomeSweetHomeServer.Models.UserModel");
-
                     b.Property<bool>("IsVerifiedByEmail");
 
                     b.Property<string>("Password");
 
                     b.Property<string>("Token");
 
-                    b.ToTable("AuthenticationModel");
+                    b.Property<string>("Username");
 
-                    b.HasDiscriminator().HasValue("AuthenticationModel");
+                    b.HasKey("Id");
+
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.FriendshipModel", b =>

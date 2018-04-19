@@ -17,7 +17,7 @@ namespace HomeSweetHomeServer.Contexts
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options){ }
 
         //DbSet<UserModel> UserModels { get; set; } //User table
-        DbSet<AuthenticationModel> AuthenticationModels { get; set; } //User table
+        DbSet<UserModel> UserModels { get; set; } //User table
         DbSet<InformationModel> InformationModels { get; set; } //Information table
         DbSet<UserInformationModel> UserInformationModels { get; set; } //UserInformation table
         DbSet<FriendshipModel> FriendshipModels { get; set; } //Friendship table

@@ -27,12 +27,11 @@ namespace HomeSweetHomeServer.Migrations
                 name: "User",
                 columns: table => new
                 {
-                    IsVerifiedByEmail = table.Column<bool>(nullable: true),
-                    Password = table.Column<string>(nullable: true),
-                    Token = table.Column<string>(nullable: true),
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Discriminator = table.Column<string>(nullable: false),
+                    IsVerifiedByEmail = table.Column<bool>(nullable: false),
+                    Password = table.Column<string>(nullable: true),
+                    Token = table.Column<string>(nullable: true),
                     Username = table.Column<string>(nullable: true)
                 },
                 constraints: table =>

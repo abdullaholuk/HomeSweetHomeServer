@@ -38,7 +38,11 @@ namespace HomeSweetHomeServer.Migrations
 
             migrationBuilder.InsertData("Information",
                 new string[] { "InformationName", "InformationType", "Id" },
-                new object[] { "EmailVerificationDate", "DateTime", 8 });
+                new object[] { "ForgotPasswordVerificationCode", "string", 8 });
+
+            migrationBuilder.InsertData("Information",
+                new string[] { "InformationName", "InformationType", "Id" },
+                new object[] { "ForgotPasswordVerificationCodeGenerateDate", "DateTime", 9 });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -70,10 +74,14 @@ namespace HomeSweetHomeServer.Migrations
             migrationBuilder.DeleteData("Information",
                 new string[] { "InformationName", "InformationType", "Id" },
                 new object[] { "EmailVerificationCodeGenerateDate", "DateTime", 7 });
+            
+            migrationBuilder.DeleteData("Information",
+                new string[] { "InformationName", "InformationType", "Id" },
+                new object[] { "ForgotPasswordVerificationCode", "string", 8 });
 
             migrationBuilder.DeleteData("Information",
                 new string[] { "InformationName", "InformationType", "Id" },
-                new object[] { "EmailVerificationDate", "DateTime", 8 });
+                new object[] { "ForgotPasswordVerificationCodeGenerateDate", "DateTime", 9 });
         }
     }
 }

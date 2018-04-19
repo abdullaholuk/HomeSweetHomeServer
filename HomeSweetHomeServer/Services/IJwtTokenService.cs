@@ -1,4 +1,5 @@
 ﻿using HomeSweetHomeServer.Models;
+using System.Threading.Tasks;
 
 namespace HomeSweetHomeServer.Services
 {
@@ -7,5 +8,6 @@ namespace HomeSweetHomeServer.Services
     {
         string CreateToken(UserModel user);
         bool VerifyToken(string token);
+        Task<UserModel> GetUserFromTokenStr(string tokenstr);
     }
 }

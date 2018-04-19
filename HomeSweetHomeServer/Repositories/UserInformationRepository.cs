@@ -18,9 +18,14 @@ namespace HomeSweetHomeServer.Repositories
             return await Db.SingleOrDefaultAsync(ui => ui.Value == value);
         }
 
-        public async Task<List<UserInformationModel>> GetUserInformationModelsByUserIdAsync(int userId)
+        public async Task<List<UserInformationModel>> GetAllUserInformationsByUserIdAsync(int userId)
         {
             return await Db.Where(ui => ui.User.Id == userId).ToListAsync();
+        }
+
+        public async Task<UserInformationModel> GetUserInformationByIdAsync(int userId, int informationId)
+        {
+            return await Db.SingleOrDefaultAsync(ui => (ui.User.Id == userId && ui.Information.Id == informationId));
         }
     }
 }

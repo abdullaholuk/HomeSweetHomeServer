@@ -4,10 +4,10 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Repositories
 {
-    public interface IUserRepository : IBaseRepository<AuthenticationModel>
+    public interface IUserRepository : IBaseRepository<UserModel>
     {
-        Task<AuthenticationModel> GetByIdAsync(int id);
-        Task<AuthenticationModel> GetByUsernameAsync(string username);
-        Task<List<AuthenticationModel>> GetAllAsync();
+        Task<UserModel> GetByIdAsync(int id);
+        Task<UserModel> GetByUsernameAsync(string username);
+        Task<List<UserModel>> GetAllAsync();
     }
 }
