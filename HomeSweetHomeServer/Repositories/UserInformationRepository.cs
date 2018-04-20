@@ -9,13 +9,18 @@ namespace HomeSweetHomeServer.Repositories
 {
     public class UserInformationRepository : BaseRepository<UserInformationModel>, IUserInformationRepository
     {
-        public UserInformationRepository(DatabaseContext context) : base(context)
+        IUserRepository _userRepository;
+        IInformationRepository _informationRepository;
+        public UserInformationRepository(DatabaseContext context, IUserRepository userRepository, IInformationRepository informationRepository) : base(context)
         {
+            _userRepository = userRepository;
+            _informationRepository = informationRepository;
         }
-
+        
         public async Task<UserInformationModel> GetUserInformationByValueAsync(string value)
         {
-            return await Db.SingleOrDefaultAsync(ui => ui.Value == value);
+            
+           return await Db.Include(u => u.User).Include(i => i.Information).SingleOrDefaultAsync(ui => ui.Value == value);
         }
 
         public async Task<List<UserInformationModel>> GetAllUserInformationsByUserIdAsync(int userId)

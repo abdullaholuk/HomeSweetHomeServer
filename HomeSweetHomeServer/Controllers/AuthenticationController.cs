@@ -72,42 +72,59 @@ namespace HomeSweetHomeServer.Controllers
             return Ok();
         }
 
-        //Verifys email
+        //Verifies email
         [Authorize]
         [HttpPost("VerifyEmail", Name = "VerifyEmail")]
         public async Task<IActionResult> VerifyEmail([FromBody] VerificationCodeModel verificationCode)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             var user = await _jwtTokenService.GetUserFromTokenStr(token);
+
             if (user.IsVerifiedByEmail == true)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Already Verified", "User already verified");
                 errors.Throw();
             }
+
             await _authenticationService.VerifyEmailAsync(user, verificationCode);
+
             return Ok();
         }
 
         //Requests for forgot password verification code
-        [Authorize]
         [HttpGet("ForgotPassword", Name = "ForgotPassword")]
-        public async Task<IActionResult> ForgotPassword()
+        public async Task<IActionResult> ForgotPassword([FromHeader] string email)
         {
-            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            var user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _authenticationService.GetUserFromMail(email);
+
+            if(user.IsVerifiedByEmail == false)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("None Verified Email", "Your email is not verified");
+                errors.Throw();
+            }
+
             await _authenticationService.SendForgotPasswordVerificationCodeToUserAsync(user);
+
             return Ok();
         }
 
         //Changes password
-        [Authorize]
         [HttpPost("ChangePassword", Name = "ChangePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ForgotPasswordModel forgotPassword)
         {
-            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            var user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _authenticationService.GetUserFromMail(forgotPassword.Email);
+
+            if (user.IsVerifiedByEmail == false)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("None Verified Email", "Your email is not verified");
+                errors.Throw();
+            }
+
             await _authenticationService.ForgotPasswordAsync(user, forgotPassword);
+
             return Ok();
         }
     }

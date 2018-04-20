@@ -16,5 +16,6 @@ namespace HomeSweetHomeServer.Services
         Task SendForgotPasswordVerificationCodeToUserAsync(UserModel user);
         Task VerifyEmailAsync(UserModel user, VerificationCodeModel verificationCode);
         Task ForgotPasswordAsync(UserModel user, ForgotPasswordModel forgotPassword);
+        Task<UserModel> GetUserFromMail(string email);
     }
 }

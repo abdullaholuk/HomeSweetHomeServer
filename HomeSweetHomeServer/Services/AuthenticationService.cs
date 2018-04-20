@@ -327,5 +327,19 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
         }
+
+        public async Task<UserModel> GetUserFromMail(string email)
+        {
+            var Email = await _userInformationRepository.GetUserInformationByValueAsync(email);
+
+            if(Email == null)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Email Not Exist", "Email does not exist");
+                errors.Throw();
+            }
+
+            return Email.User;
+        }
     }
 }
