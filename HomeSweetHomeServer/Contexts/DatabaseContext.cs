@@ -21,14 +21,16 @@ namespace HomeSweetHomeServer.Contexts
         DbSet<InformationModel> InformationModels { get; set; } //Information table
         DbSet<UserInformationModel> UserInformationModels { get; set; } //UserInformation table
         DbSet<FriendshipModel> FriendshipModels { get; set; } //Friendship table
+        DbSet<HomeModel> HomeModels { get; set; } //Home table
         
         protected override void OnModelCreating(ModelBuilder builder)
         {
             //Table names 
-            builder.Entity<UserModel>().ToTable("User");
+            builder.Entity<UserModel>().ToTable("User").HasOne(u => u.Home).WithMany(h => h.Users);
             builder.Entity<InformationModel>().ToTable("Information");
             builder.Entity<UserInformationModel>().ToTable("UserInformation");
-            builder.Entity<FriendshipModel>().ToTable("Friendship");        
+            builder.Entity<FriendshipModel>().ToTable("Friendship");
+            builder.Entity<HomeModel>().ToTable("Home").HasMany(h => h.Users).WithOne(u => u.Home).IsRequired();
         }
     }
 }

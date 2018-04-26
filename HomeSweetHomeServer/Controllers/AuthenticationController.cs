@@ -23,11 +23,13 @@ namespace HomeSweetHomeServer.Controllers
     {
         IAuthenticationService _authenticationService;
         IJwtTokenService _jwtTokenService;
+        IFCMService _fmcService;
 
-        public AuthenticationController(IAuthenticationService authenticationService, IJwtTokenService jwtTokenService)
+        public AuthenticationController(IAuthenticationService authenticationService, IJwtTokenService jwtTokenService,IFCMService fmcService)
         {
             _authenticationService = authenticationService;
             _jwtTokenService = jwtTokenService;
+            _fmcService = fmcService;
         }
 
         //Registers sended user
@@ -35,6 +37,9 @@ namespace HomeSweetHomeServer.Controllers
         public async Task<IActionResult> Register([FromBody] RegistrationModel registrationForm)
         {
             registrationForm.RegistrationDate = DateTime.UtcNow;
+
+            registrationForm.Username = registrationForm.Username.ToLower();
+            registrationForm.Email = registrationForm.Email.ToLower();
 
             await _authenticationService.ControlRegisterFormAsync(registrationForm);
             await _authenticationService.RegisterNewUserAsync(registrationForm);
@@ -46,13 +51,14 @@ namespace HomeSweetHomeServer.Controllers
         [HttpPost("Login", Name = "Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel login)
         {
-            UserModel user = await _authenticationService.GetUserAfterLoginAsync(login);
-            string token = _jwtTokenService.CreateToken(user);
+            login.Username = login.Username.ToLower();
+
+            UserModel user = await _authenticationService.Login(login);
 
             if (user.IsVerifiedByEmail == false)
-                return StatusCode((int)HttpStatusCode.Accepted, token);
+                return StatusCode((int)HttpStatusCode.Accepted, user.Token);
             else
-                return Ok(token);
+                return Ok(user.Token);
         }
 
         //Requests for send email verification code to email
@@ -96,6 +102,8 @@ namespace HomeSweetHomeServer.Controllers
         [HttpGet("ForgotPassword", Name = "ForgotPassword")]
         public async Task<IActionResult> ForgotPassword([FromHeader] string email)
         {
+            email = email.ToLower();
+
             UserModel user = await _authenticationService.GetUserFromMail(email);
 
             if(user.IsVerifiedByEmail == false)
@@ -114,6 +122,8 @@ namespace HomeSweetHomeServer.Controllers
         [HttpPost("ChangePassword", Name = "ChangePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ForgotPasswordModel forgotPassword)
         {
+            forgotPassword.Email = forgotPassword.Email.ToLower();
+
             UserModel user = await _authenticationService.GetUserFromMail(forgotPassword.Email);
 
             if (user.IsVerifiedByEmail == false)

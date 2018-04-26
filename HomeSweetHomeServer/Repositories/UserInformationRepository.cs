@@ -17,20 +17,28 @@ namespace HomeSweetHomeServer.Repositories
             _informationRepository = informationRepository;
         }
         
-        public async Task<UserInformationModel> GetUserInformationByValueAsync(string value)
+        public async Task<UserInformationModel> GetUserInformationByValueAsync(string value, bool include = false)
         {
-            
-           return await Db.Include(u => u.User).Include(i => i.Information).SingleOrDefaultAsync(ui => ui.Value == value);
+            if (include == false)
+                return await Db.SingleOrDefaultAsync(ui => ui.Value == value);
+            else
+                return await Db.Include(u => u.User).Include(i => i.Information).SingleOrDefaultAsync(ui => ui.Value == value);
         }
 
-        public async Task<List<UserInformationModel>> GetAllUserInformationsByUserIdAsync(int userId)
+        public async Task<List<UserInformationModel>> GetAllUserInformationsByUserIdAsync(int userId, bool include = false)
         {
-            return await Db.Where(ui => ui.User.Id == userId).ToListAsync();
+            if (include == false)
+                return await Db.Where(ui => ui.User.Id == userId).ToListAsync();
+            else
+                return await Db.Include(u => u.User).Include(i => i.Information).Where(ui => ui.User.Id == userId).ToListAsync();
         }
 
-        public async Task<UserInformationModel> GetUserInformationByIdAsync(int userId, int informationId)
+        public async Task<UserInformationModel> GetUserInformationByIdAsync(int userId, int informationId, bool include = false)
         {
-            return await Db.SingleOrDefaultAsync(ui => (ui.User.Id == userId && ui.Information.Id == informationId));
+            if (include == false)
+                return await Db.SingleOrDefaultAsync(ui => (ui.User.Id == userId && ui.Information.Id == informationId));
+            else
+                return await Db.Include(u => u.User).Include(i => i.Information).SingleOrDefaultAsync(ui => (ui.User.Id == userId && ui.Information.Id == informationId));
         }
     }
 }

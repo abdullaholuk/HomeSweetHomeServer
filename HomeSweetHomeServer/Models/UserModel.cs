@@ -24,5 +24,14 @@ namespace HomeSweetHomeServer.Models
 
         [DataMember]
         public bool IsVerifiedByEmail { get; set; }
+
+        [DataMember]
+        public int Position { get; set; }
+
+        [DataMember]
+        public HomeModel Home { get; set; }
+
+        [DataMember]
+        public string DeviceId { get; set; }
     }
 }

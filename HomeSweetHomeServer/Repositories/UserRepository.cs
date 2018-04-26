@@ -12,19 +12,28 @@ namespace HomeSweetHomeServer.Repositories
         {
         }
 
-        public async Task<List<UserModel>> GetAllAsync()
+        public async Task<List<UserModel>> GetAllAsync(bool include = false)
         {
-            return await Db.ToListAsync();
+            if (include == false)
+                return await Db.ToListAsync();
+            else
+                return await Db.Include(u => u.Home).ToListAsync();
         }
-        
-        public async Task<UserModel> GetByIdAsync(int id)
+                
+        public async Task<UserModel> GetByIdAsync(int id, bool include = false)
         {
-            return await Db.FirstOrDefaultAsync(u => u.Id == id);
+            if(include == false)
+                return await Db.SingleOrDefaultAsync(u => u.Id == id);
+            else
+                return await Db.Include(u => u.Home).SingleOrDefaultAsync(u => u.Id == id);
         }
 
-        public async Task<UserModel> GetByUsernameAsync(string username)
+        public async Task<UserModel> GetByUsernameAsync(string username, bool include = false)
         {
-            return await Db.FirstOrDefaultAsync(u => u.Username == username);
+            if (include == false)
+                return await Db.SingleOrDefaultAsync(u => u.Username == username);
+            else
+                return await Db.Include(u => u.Home).SingleOrDefaultAsync(u => u.Username == username);
         }
     }
 }

@@ -58,10 +58,13 @@ namespace HomeSweetHomeServer
             services.AddScoped<IInformationRepository, InformationRepository>();
             services.AddScoped<IUserInformationRepository, UserInformationRepository>();
             services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+            services.AddScoped<IHomeRepository, HomeRepository>();
 
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IMailService, MailService>();
+            services.AddScoped<IHomeService, HomeService>();
+            services.AddScoped<IFCMService, FCMService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

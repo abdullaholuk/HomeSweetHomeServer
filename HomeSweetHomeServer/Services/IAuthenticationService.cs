@@ -11,7 +11,7 @@ namespace HomeSweetHomeServer.Services
     {
         Task ControlRegisterFormAsync(RegistrationModel registrationForm);
         Task RegisterNewUserAsync(RegistrationModel registrationForm);
-        Task<UserModel> GetUserAfterLoginAsync(LoginModel login);
+        Task<UserModel> Login(LoginModel login);
         Task SendEmailVerificationCodeToUserAsync(UserModel user);
         Task SendForgotPasswordVerificationCodeToUserAsync(UserModel user);
         Task VerifyEmailAsync(UserModel user, VerificationCodeModel verificationCode);

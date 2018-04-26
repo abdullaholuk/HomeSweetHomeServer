@@ -21,18 +21,21 @@ namespace HomeSweetHomeServer.Services
         public IUserInformationRepository _userInformationRepository;
         public IConfiguration _config;
         public IMailService _mailService;
+        public IJwtTokenService _jwtTokenService;
 
         public AuthenticationService(IInformationRepository informationRepository,
                                      IUserRepository userRepository,
                                      IUserInformationRepository userInformationRepository,
                                      IConfiguration config,
-                                     IMailService mailService)
+                                     IMailService mailService,
+                                     IJwtTokenService jwtTokenService)
         {
             _informationRepository = informationRepository;
             _userRepository = userRepository;
             _userInformationRepository = userInformationRepository;
             _config = config;
             _mailService = mailService;
+            _jwtTokenService = jwtTokenService;
         }
                       
         public async Task ControlRegisterFormAsync(RegistrationModel registrationForm)
@@ -59,19 +62,21 @@ namespace HomeSweetHomeServer.Services
 
         public async Task RegisterNewUserAsync(RegistrationModel registrationForm)
         {
-            UserModel authentication = new UserModel();
+            UserModel user = new UserModel();
             InformationModel info = new InformationModel();
             UserInformationModel userInformation = new UserInformationModel();
 
-            authentication.Username = registrationForm.Username;
-            authentication.Password = registrationForm.Password;
-            authentication.IsVerifiedByEmail = false;
+            user.Username = registrationForm.Username;
+            user.Password = registrationForm.Password;
+            user.IsVerifiedByEmail = false;
+            user.Home = null;
+            user.Position = 0;
       
-            _userRepository.Insert(authentication);
+            _userRepository.Insert(user);
 
             info = await _informationRepository.GetInformationByInformationNameAsync("FirstName");
             userInformation.Information = info;
-            userInformation.User = authentication;
+            userInformation.User = user;
             userInformation.Value = registrationForm.FirstName;
             _userInformationRepository.Insert(userInformation);
             userInformation = null;
@@ -79,7 +84,7 @@ namespace HomeSweetHomeServer.Services
             userInformation = new UserInformationModel();
             info = await _informationRepository.GetInformationByInformationNameAsync("LastName");
             userInformation.Information = info;
-            userInformation.User = authentication;
+            userInformation.User = user;
             userInformation.Value = registrationForm.LastName;
             _userInformationRepository.Insert(userInformation);
             userInformation = null;
@@ -87,7 +92,7 @@ namespace HomeSweetHomeServer.Services
             userInformation = new UserInformationModel();
             info = await _informationRepository.GetInformationByInformationNameAsync("Email");
             userInformation.Information = info;
-            userInformation.User = authentication;
+            userInformation.User = user;
             userInformation.Value = registrationForm.Email;
             _userInformationRepository.Insert(userInformation);
             userInformation = null;
@@ -95,7 +100,7 @@ namespace HomeSweetHomeServer.Services
             userInformation = new UserInformationModel();
             info = await _informationRepository.GetInformationByInformationNameAsync("PhoneNumber");
             userInformation.Information = info;
-            userInformation.User = authentication;
+            userInformation.User = user;
             userInformation.Value = registrationForm.PhoneNumber;
             _userInformationRepository.Insert(userInformation);
             userInformation = null;
@@ -103,27 +108,33 @@ namespace HomeSweetHomeServer.Services
             userInformation = new UserInformationModel();
             info = await _informationRepository.GetInformationByInformationNameAsync("RegistrationDate");
             userInformation.Information = info;
-            userInformation.User = authentication;
+            userInformation.User = user;
             userInformation.Value = String.Format("{0:u}", registrationForm.RegistrationDate);
             _userInformationRepository.Insert(userInformation);
         }
         
-        public async Task<UserModel> GetUserAfterLoginAsync(LoginModel login)
+        public async Task<UserModel> Login(LoginModel login)
         {
             UserModel user = await _userRepository.GetByUsernameAsync(login.Username);
-            CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
 
             if (user == null)
             {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Username", "Username is not registered");
                 errors.Throw();
             }
 
             if(user.Password != login.Password)
             {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Password", "Username and password is not matched");
                 errors.Throw();
             }
+
+            user.Token = _jwtTokenService.CreateToken(user);
+            user.DeviceId = login.DeviceId;
+            _userRepository.Update(user);
+
             return user;
         }
 
@@ -330,7 +341,7 @@ namespace HomeSweetHomeServer.Services
 
         public async Task<UserModel> GetUserFromMail(string email)
         {
-            var Email = await _userInformationRepository.GetUserInformationByValueAsync(email);
+            var Email = await _userInformationRepository.GetUserInformationByValueAsync(email, true);
 
             if(Email == null)
             {
