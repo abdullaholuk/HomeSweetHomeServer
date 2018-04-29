@@ -31,9 +31,9 @@ namespace HomeSweetHomeServer.Controllers
             _jwtTokenService = jwtTokenService;
         }
 
-        //Creates new home from admin user
+        //Creates new home from admin
         [HttpPost("CreateNewHome", Name = "CreateNewHome")]
-        public async Task<IActionResult> CreateNewHome([FromBody]HomeModel home)
+        public async Task<IActionResult> CreateNewHome([FromBody] HomeModel home)
         {
             home.Name = home.Name.ToLower();
 
@@ -41,6 +41,58 @@ namespace HomeSweetHomeServer.Controllers
             UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
 
             await _homeService.CreateNewHomeAsync(user, home);
+            return Ok();
+        }
+
+        //Requests admin for joining home
+        [HttpGet("JoinHomeRequest", Name = "JoinHomeRequest")]
+        public async Task<IActionResult> JoinHomeRequest([FromQuery] string joinHomeName)
+        {
+            joinHomeName = joinHomeName.ToLower();
+
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+
+            await _homeService.JoinHomeRequestAsync(user, joinHomeName);
+
+            return Ok();
+        }
+
+        //Admin accepts user's request
+        [HttpGet("JoinHomeAccept", Name = "JoinHomeAccept")]
+        public async Task<IActionResult> JoinHomeAccept([FromQuery] int requesterId, [FromQuery] bool isAccepted)
+        {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+
+            await _homeService.JoinHomeAcceptAsync(user, requesterId, isAccepted);
+
+            return Ok();
+        }
+
+        //Requests user for inviting home
+        [HttpGet("InviteHomeRequest", Name = "InviteHomeRequest")]
+        public async Task<IActionResult> InviteHomeRequest([FromQuery] string invitedUsername)
+        {
+            invitedUsername = invitedUsername.ToLower();
+
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+
+            await _homeService.InviteHomeRequestAsync(user, invitedUsername);
+
+            return Ok();
+        }
+
+        //User accepts admin's request
+        [HttpGet("InviteHomeAccept", Name = "InviteHomeAccept")]
+        public async Task<IActionResult> InviteHomeAccept([FromQuery] int invitedHomeId, [FromQuery] bool isAccepted)
+        {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+
+            await _homeService.InviteHomeAcceptAsync(user, invitedHomeId, isAccepted);
+
             return Ok();
         }
     }

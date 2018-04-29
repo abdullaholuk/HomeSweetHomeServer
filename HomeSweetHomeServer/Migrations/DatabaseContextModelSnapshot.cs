@@ -101,11 +101,11 @@ namespace HomeSweetHomeServer.Migrations
                     b.Property<int?>("HomeId")
                         .IsRequired();
 
-                    b.Property<bool>("IsVerifiedByEmail");
-
                     b.Property<string>("Password");
 
                     b.Property<int>("Position");
+
+                    b.Property<int>("Status");
 
                     b.Property<string>("Token");
 

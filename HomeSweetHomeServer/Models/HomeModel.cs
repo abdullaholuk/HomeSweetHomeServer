@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace HomeSweetHomeServer.Models
 {
+    //Keeps home informations
+    [Serializable]
+    [DataContract]
     public class HomeModel
     {
         [Key]

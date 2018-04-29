@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace HomeSweetHomeServer.Migrations
 {
-    public partial class InformationTable_v1 : Migration
+    public partial class InformationTable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -43,6 +43,10 @@ namespace HomeSweetHomeServer.Migrations
             migrationBuilder.InsertData("Information",
                 new string[] { "InformationName", "InformationType", "Id" },
                 new object[] { "ForgotPasswordVerificationCodeGenerateDate", "DateTime", 9 });
+
+            migrationBuilder.InsertData("Information",
+                new string[] { "InformationName", "InformationType", "Id" },
+                new object[] { "ReportCount", "int", 10 });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -74,7 +78,7 @@ namespace HomeSweetHomeServer.Migrations
             migrationBuilder.DeleteData("Information",
                 new string[] { "InformationName", "InformationType", "Id" },
                 new object[] { "EmailVerificationCodeGenerateDate", "DateTime", 7 });
-            
+
             migrationBuilder.DeleteData("Information",
                 new string[] { "InformationName", "InformationType", "Id" },
                 new object[] { "ForgotPasswordVerificationCode", "string", 8 });
@@ -82,6 +86,10 @@ namespace HomeSweetHomeServer.Migrations
             migrationBuilder.DeleteData("Information",
                 new string[] { "InformationName", "InformationType", "Id" },
                 new object[] { "ForgotPasswordVerificationCodeGenerateDate", "DateTime", 9 });
+
+            migrationBuilder.DeleteData("Information",
+                new string[] { "InformationName", "InformationType", "Id" },
+                new object[] { "ReportCount", "int", 10 });
         }
     }
 }

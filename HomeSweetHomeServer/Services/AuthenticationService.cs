@@ -54,7 +54,7 @@ namespace HomeSweetHomeServer.Services
 
             var PhoneNumberExist = await _userInformationRepository.GetUserInformationByValueAsync(registrationForm.PhoneNumber);
             if (PhoneNumberExist != null)
-                errors.AddError("PhoneNumber", "PhoneNumber already exist");
+                errors.AddError("PhoneNumber", "Phone number already exist");
 
             if (errors.Errors.Count != 0)
                 errors.Throw();
@@ -68,7 +68,7 @@ namespace HomeSweetHomeServer.Services
 
             user.Username = registrationForm.Username;
             user.Password = registrationForm.Password;
-            user.IsVerifiedByEmail = false;
+            user.Status = 0;
             user.Home = null;
             user.Position = 0;
       
@@ -106,6 +106,14 @@ namespace HomeSweetHomeServer.Services
             userInformation = null;
 
             userInformation = new UserInformationModel();
+            info = await _informationRepository.GetInformationByInformationNameAsync("ReportCount");
+            userInformation.Information = info;
+            userInformation.User = user;
+            userInformation.Value = "0";
+            _userInformationRepository.Insert(userInformation);
+            userInformation = null;
+
+            userInformation = new UserInformationModel();
             info = await _informationRepository.GetInformationByInformationNameAsync("RegistrationDate");
             userInformation.Information = info;
             userInformation.User = user;
@@ -134,6 +142,20 @@ namespace HomeSweetHomeServer.Services
             user.Token = _jwtTokenService.CreateToken(user);
             user.DeviceId = login.DeviceId;
             _userRepository.Update(user);
+
+            return user;
+        }
+
+        public async Task<UserModel> GetUserFromId(int id, bool include = false)
+        {
+            UserModel user = await _userRepository.GetByIdAsync(id, include);
+
+            if(user == null)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Not Exist", "User is not exist");
+                errors.Throw();
+            }
 
             return user;
         }
@@ -278,7 +300,7 @@ namespace HomeSweetHomeServer.Services
             //Verification code accepted
             if (EmailVerificationCode.Value == verification.VerificationCode)
             {
-                user.IsVerifiedByEmail = true;
+                user.Status = 1;
                 _userRepository.Update(user);
 
                 _userInformationRepository.Delete(EmailVerificationCode);
@@ -351,6 +373,54 @@ namespace HomeSweetHomeServer.Services
             }
 
             return Email.User;
+        }
+
+        public async Task<UserFullInformationModel> GetUserFullInformationAsync(int id)
+        {
+            Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
+            Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
+            Task<InformationModel> emailInfo = _informationRepository.GetInformationByInformationNameAsync("Email");
+            
+            UserModel user = await GetUserFromId(id, false);
+
+            Task<UserInformationModel> firstName = _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
+            Task<UserInformationModel> lastName = _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
+            Task<UserInformationModel> email = _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await emailInfo).Id);
+
+            UserFullInformationModel fullInfo = new UserFullInformationModel();
+
+            fullInfo.User.Id = user.Id;
+            fullInfo.User.Username = user.Username;
+            fullInfo.Position = user.Position;
+            fullInfo.Token = user.Token;
+
+            fullInfo.User.FirstName = (await firstName).Value;
+            fullInfo.User.LastName = (await lastName).Value;
+            fullInfo.Email = (await email).Value;
+            
+            if (user.Position == 0)
+            {
+                fullInfo.HomeId = 0;
+                fullInfo.Friends = null;
+                fullInfo.HomeName = null;
+            }
+            else
+            {
+                user = await GetUserFromId(id, true);
+
+                fullInfo.HomeId = user.Home.Id;
+                fullInfo.HomeName = user.Home.Name;
+
+                foreach(var friend in user.Home.Users)
+                {
+                    string friendFirstName = (await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await firstNameInfo).Id)).Value;
+                    string friendLastName = (await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await lastNameInfo).Id)).Value;
+
+                    fullInfo.Friends.Add(new UserBaseModel(friend.Id, friend.Username, friendFirstName, friendLastName));
+                }
+            }
+
+            return fullInfo;
         }
     }
 }

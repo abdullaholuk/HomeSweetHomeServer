@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace HomeSweetHomeServer.Migrations
 {
-    public partial class InitialDb : Migration
+    public partial class Db_Schema : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -29,8 +29,11 @@ namespace HomeSweetHomeServer.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    IsVerifiedByEmail = table.Column<bool>(nullable: false),
+                    DeviceId = table.Column<string>(nullable: true),
+                    HomeId = table.Column<int>(nullable: true),
                     Password = table.Column<string>(nullable: true),
+                    Position = table.Column<int>(nullable: true),
+                    Status = table.Column<int>(nullable: true),
                     Token = table.Column<string>(nullable: true),
                     Username = table.Column<string>(nullable: true)
                 },
@@ -61,6 +64,26 @@ namespace HomeSweetHomeServer.Migrations
                     table.ForeignKey(
                         name: "FK_Friendship_User_User2Id",
                         column: x => x.User2Id,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Home",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    AdminId = table.Column<int>(nullable: true),
+                    Name = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Home", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Home_User_AdminId",
+                        column: x => x.AdminId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -104,6 +127,16 @@ namespace HomeSweetHomeServer.Migrations
                 column: "User2Id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Home_AdminId",
+                table: "Home",
+                column: "AdminId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_HomeId",
+                table: "User",
+                column: "HomeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserInformation_InformationId",
                 table: "UserInformation",
                 column: "InformationId");
@@ -112,10 +145,22 @@ namespace HomeSweetHomeServer.Migrations
                 name: "IX_UserInformation_UserId",
                 table: "UserInformation",
                 column: "UserId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_User_Home_HomeId",
+                table: "User",
+                column: "HomeId",
+                principalTable: "Home",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Home_User_AdminId",
+                table: "Home");
+
             migrationBuilder.DropTable(
                 name: "Friendship");
 
@@ -127,6 +172,9 @@ namespace HomeSweetHomeServer.Migrations
 
             migrationBuilder.DropTable(
                 name: "User");
+
+            migrationBuilder.DropTable(
+                name: "Home");
         }
     }
 }

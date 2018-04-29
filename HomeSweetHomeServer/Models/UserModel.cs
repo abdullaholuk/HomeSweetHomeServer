@@ -23,7 +23,7 @@ namespace HomeSweetHomeServer.Models
         public string Token { get; set; }
 
         [DataMember]
-        public bool IsVerifiedByEmail { get; set; }
+        public int Status { get; set; }
 
         [DataMember]
         public int Position { get; set; }

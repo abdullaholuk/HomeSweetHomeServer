@@ -11,8 +11,8 @@ using System;
 namespace HomeSweetHomeServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20180425230853_Db_Home")]
-    partial class Db_Home
+    [Migration("20180426190215_Db_Schema")]
+    partial class Db_Schema
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -102,11 +102,11 @@ namespace HomeSweetHomeServer.Migrations
                     b.Property<int?>("HomeId")
                         .IsRequired();
 
-                    b.Property<bool>("IsVerifiedByEmail");
-
                     b.Property<string>("Password");
 
                     b.Property<int>("Position");
+
+                    b.Property<int>("Status");
 
                     b.Property<string>("Token");
 

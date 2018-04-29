@@ -11,8 +11,8 @@ using System;
 namespace HomeSweetHomeServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20180419220053_InitialDb")]
-    partial class InitialDb
+    [Migration("20180426190533_InformationTable")]
+    partial class InformationTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -39,6 +39,23 @@ namespace HomeSweetHomeServer.Migrations
                     b.HasIndex("User2Id");
 
                     b.ToTable("Friendship");
+                });
+
+            modelBuilder.Entity("HomeSweetHomeServer.Models.HomeModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("AdminId");
+
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.ToTable("Home");
                 });
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.InformationModel", b =>
@@ -80,15 +97,24 @@ namespace HomeSweetHomeServer.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<bool>("IsVerifiedByEmail");
+                    b.Property<string>("DeviceId");
+
+                    b.Property<int?>("HomeId")
+                        .IsRequired();
 
                     b.Property<string>("Password");
+
+                    b.Property<int>("Position");
+
+                    b.Property<int>("Status");
 
                     b.Property<string>("Token");
 
                     b.Property<string>("Username");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("HomeId");
 
                     b.ToTable("User");
                 });
@@ -104,6 +130,13 @@ namespace HomeSweetHomeServer.Migrations
                         .HasForeignKey("User2Id");
                 });
 
+            modelBuilder.Entity("HomeSweetHomeServer.Models.HomeModel", b =>
+                {
+                    b.HasOne("HomeSweetHomeServer.Models.UserModel", "Admin")
+                        .WithMany()
+                        .HasForeignKey("AdminId");
+                });
+
             modelBuilder.Entity("HomeSweetHomeServer.Models.UserInformationModel", b =>
                 {
                     b.HasOne("HomeSweetHomeServer.Models.InformationModel", "Information")
@@ -113,6 +146,14 @@ namespace HomeSweetHomeServer.Migrations
                     b.HasOne("HomeSweetHomeServer.Models.UserModel", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("HomeSweetHomeServer.Models.UserModel", b =>
+                {
+                    b.HasOne("HomeSweetHomeServer.Models.HomeModel", "Home")
+                        .WithMany("Users")
+                        .HasForeignKey("HomeId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

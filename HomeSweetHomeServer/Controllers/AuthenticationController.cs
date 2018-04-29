@@ -55,61 +55,96 @@ namespace HomeSweetHomeServer.Controllers
 
             UserModel user = await _authenticationService.Login(login);
 
-            if (user.IsVerifiedByEmail == false)
-                return StatusCode((int)HttpStatusCode.Accepted, user.Token);
+            if (user.Status == 2)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Is Banned", "User is banned from application");
+                errors.Throw();
+            }
+
+            UserFullInformationModel fullInfo = await _authenticationService.GetUserFullInformationAsync(user.Id);
+            if (user.Status == 0)
+            {
+               // fullInfo.Token = null;
+            }
+            string jsonInfo = JsonConvert.SerializeObject(fullInfo);
+
+            if (user.Status == 0)
+                //return StatusCode((int)HttpStatusCode.Accepted, user.Id);
+                return StatusCode((int)HttpStatusCode.Accepted, jsonInfo);
             else
-                return Ok(user.Token);
+                return Ok(jsonInfo);
         }
 
         //Requests for send email verification code to email
-        [Authorize]
         [HttpGet("EMailVerification", Name = "EMailVerification")]
-        public async Task<IActionResult> EMailVerification()
+        public async Task<IActionResult> EMailVerification([FromQuery] int userId)
         {
-            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            var user = await _jwtTokenService.GetUserFromTokenStr(token);
-            if(user.IsVerifiedByEmail == true)
+            var user = await _authenticationService.GetUserFromId(userId);
+
+            if (user.Status == 1)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Already Verified", "User already verified");
                 errors.Throw();
             }
+
+            if (user.Status == 2)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Is Banned", "User is banned from application");
+                errors.Throw();
+            }
+
             await _authenticationService.SendEmailVerificationCodeToUserAsync(user);
+
             return Ok();
         }
 
         //Verifies email
-        [Authorize]
         [HttpPost("VerifyEmail", Name = "VerifyEmail")]
         public async Task<IActionResult> VerifyEmail([FromBody] VerificationCodeModel verificationCode)
         {
-            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            var user = await _jwtTokenService.GetUserFromTokenStr(token);
+            var user = await _authenticationService.GetUserFromId(verificationCode.UserId);
 
-            if (user.IsVerifiedByEmail == true)
+            if (user.Status == 1)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Already Verified", "User already verified");
+                errors.Throw();
+            }
+
+            if (user.Status == 2)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Is Banned", "User is banned from application");
                 errors.Throw();
             }
 
             await _authenticationService.VerifyEmailAsync(user, verificationCode);
 
-            return Ok();
+            return Ok(user.Token);
         }
 
         //Requests for forgot password verification code
         [HttpGet("ForgotPassword", Name = "ForgotPassword")]
-        public async Task<IActionResult> ForgotPassword([FromHeader] string email)
+        public async Task<IActionResult> ForgotPassword([FromQuery] string email)
         {
             email = email.ToLower();
 
             UserModel user = await _authenticationService.GetUserFromMail(email);
 
-            if(user.IsVerifiedByEmail == false)
+            if(user.Status == 0)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("None Verified Email", "Your email is not verified");
+                errors.Throw();
+            }
+
+            if (user.Status == 2)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Is Banned", "User is banned from application");
                 errors.Throw();
             }
 
@@ -126,10 +161,17 @@ namespace HomeSweetHomeServer.Controllers
 
             UserModel user = await _authenticationService.GetUserFromMail(forgotPassword.Email);
 
-            if (user.IsVerifiedByEmail == false)
+            if (user.Status == 0)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("None Verified Email", "Your email is not verified");
+                errors.Throw();
+            }
+
+            if (user.Status == 2)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Is Banned", "User is banned from application");
                 errors.Throw();
             }
 

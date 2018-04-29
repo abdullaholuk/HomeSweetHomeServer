@@ -41,27 +41,21 @@ namespace HomeSweetHomeServer.Services
             _homeRepository = homeRepository;
         }
 
-        public async Task SendNotificationAsync(UserModel user, object notificationSettings)
+        //Send Firebase Cloud Message to given user
+        public async Task SendFCMToUserAsync(UserModel user, FCMModel fcmMessage)
         {
             string serverKey = string.Format("key={0}", _config["FCM:ServerKey"]);
             string senderId = string.Format("id={0}", _config["FCM:SenderId"]);
             string requestUri = _config["FCM:RequestUri"];
             string deviceId = user.DeviceId;
-            
-            var message = new
-            {
-                to = deviceId,
-                notification = notificationSettings,
-                priority = 10
-            };
 
-            var jsonBody = JsonConvert.SerializeObject(message);
+            var jsonMessageBody = JsonConvert.SerializeObject(fcmMessage);
 
             using (var httpRequest = new HttpRequestMessage(HttpMethod.Post, requestUri))
             {
                 httpRequest.Headers.TryAddWithoutValidation("Authorization", serverKey);
                 httpRequest.Headers.TryAddWithoutValidation("Sender", senderId);
-                httpRequest.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+                httpRequest.Content = new StringContent(jsonMessageBody, Encoding.UTF8, "application/json");
 
                 using (var httpClient = new HttpClient())
                 {
@@ -74,12 +68,11 @@ namespace HomeSweetHomeServer.Services
                     else
                     {
                         CustomException errors = new CustomException();
-                        errors.AddError("error", result.StatusCode);
+                        errors.AddError("FCM Error", "Unexpected error occured while FCM sending");
                         errors.Throw();
                     }
                 }
             }
         }
-
     }
 }

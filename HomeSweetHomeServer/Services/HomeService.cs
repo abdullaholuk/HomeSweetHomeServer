@@ -22,13 +22,17 @@ namespace HomeSweetHomeServer.Services
         public IConfiguration _config;
         public IMailService _mailService;
         public IHomeRepository _homeRepository;
+        public IFCMService _fcmService;
+        public IFriendshipRepository _friendshipRepository;
 
         public HomeService(IInformationRepository informationRepository,
                            IUserRepository userRepository,
                            IUserInformationRepository userInformationRepository,
                            IConfiguration config,
                            IMailService mailService,
-                           IHomeRepository homeRepository)
+                           IHomeRepository homeRepository,
+                           IFCMService fcmService,
+                           IFriendshipRepository friendshipRepository)
         {
             _informationRepository = informationRepository;
             _userRepository = userRepository;
@@ -36,7 +40,11 @@ namespace HomeSweetHomeServer.Services
             _config = config;
             _mailService = mailService;
             _homeRepository = homeRepository;
+            _fcmService = fcmService;
+            _friendshipRepository = friendshipRepository;
         }
+
+        //Admin creates the home
         public async Task CreateNewHomeAsync(UserModel user, HomeModel home)
         {
             if(user.Position != 0)
@@ -51,7 +59,7 @@ namespace HomeSweetHomeServer.Services
             if(isHomeExist != null)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("Home Name Exist", "Home name already exist");
+                errors.AddError("Home Name Exist", "Home name has already exist");
                 errors.Throw();
             }
             
@@ -64,6 +72,235 @@ namespace HomeSweetHomeServer.Services
 
             user.Home = home;
             _userRepository.Update(user);
+        }
+
+        //User requests to admin for joining home
+        public async Task JoinHomeRequestAsync(UserModel user, string joinHomeName)
+        {
+            Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
+            Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
+
+            if (user.Position != 0)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Has Home", "User has home already");
+                errors.Throw();
+            }
+
+            var home = await _homeRepository.GetByHomeNameAsync(joinHomeName, true);
+
+            if (home == null)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Home Name Not Exist", "Home name has not exist");
+                errors.Throw();
+            }
+
+            //User waiting for admin's accept
+
+            UserInformationModel firstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
+            UserInformationModel lastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
+            
+            FCMModel fcm = new FCMModel(home.Admin.DeviceId, new Dictionary<string, object>(), new Dictionary<string, object>(), "JoinHomeRequest");
+            
+            fcm.notification.Add("title", "Home Join Request");
+            fcm.notification.Add("body", String.Format("{0} {1} ({2}) requests to join your home", firstName.Value, lastName.Value, user.Username));
+
+            fcm.data.Add("UserId", user.Id);
+
+            await _fcmService.SendFCMToUserAsync(home.Admin, fcm);
+
+            return;
+        }
+
+        //Admin accepts or rejects user's request
+        public async Task JoinHomeAcceptAsync(UserModel user, int requesterId, bool isAccepted)
+        {
+            Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
+            Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
+
+            if (user.Position != 2)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Authorisation Constraint", "You are not authorized for this request, you must be administrator of home");
+                errors.Throw();
+            }
+            
+            Task<UserModel> admin = _userRepository.GetByIdAsync(user.Id, true);
+
+            UserModel requester = await _userRepository.GetByIdAsync(requesterId);
+
+            if (requester == null)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Invalid User Id", "User not exist");
+                errors.Throw();
+            }
+            
+            if(requester.Position != 0)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Bad Request", "Requester has already home");
+                errors.Throw();
+            }
+
+            if (isAccepted == true)
+            {
+                requester.Position = 1;
+
+                UserInformationModel requesterFirstName = await _userInformationRepository.GetUserInformationByIdAsync(requester.Id, (await firstNameInfo).Id);
+                UserInformationModel requesterLastName = await _userInformationRepository.GetUserInformationByIdAsync(requester.Id, (await lastNameInfo).Id);
+
+                HomeModel home = (await admin).Home;
+
+                FCMModel fcmRequester = new FCMModel(requester.DeviceId, data: new Dictionary<string, object>(), type : "AllFriends");
+
+                List<UserBaseModel> friendsBaseModels = new List<UserBaseModel>();
+                UserBaseModel requesterBaseModel = new UserBaseModel(requester.Id, requester.Username, requesterFirstName.Value, requesterLastName.Value);
+
+                foreach (var friend in home.Users)
+                {
+                    FriendshipModel friendship = new FriendshipModel(user, friend, 0);
+                    Task insertFriendship = _friendshipRepository.InsertAsync(friendship);
+
+                    //Sends notification to all friends 
+                    FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), new Dictionary<string, object>(), "NewFriend");
+
+                    fcmFriend.notification.Add("title", "New Home Friend");
+                    fcmFriend.notification.Add("body", String.Format("{0} {1} ({2}) ", requesterFirstName.Value, requesterLastName.Value, requester.Username));
+
+                    fcmFriend.data.Add("Friend", requesterBaseModel);
+
+                    await _fcmService.SendFCMToUserAsync(friend, fcmFriend);
+
+                    //Sends all friends to requester
+                    UserInformationModel friendFirstName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await firstNameInfo).Id);
+                    UserInformationModel friendLastName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await lastNameInfo).Id);
+
+                    friendsBaseModels.Add(new UserBaseModel(friend.Id, friend.Username, friendFirstName.Value, friendLastName.Value));
+
+                    await insertFriendship;
+                }
+
+                home.Users.Add(requester);
+                _homeRepository.Update(home);
+
+                requester.Home = home;
+                _userRepository.Update(requester);
+
+                fcmRequester.data.Add("Friends", friendsBaseModels);
+                await _fcmService.SendFCMToUserAsync(requester, fcmRequester);
+            }
+        }
+
+        //Admin request to user for inviting home
+        public async Task InviteHomeRequestAsync(UserModel user, string invitedUsername)
+        {
+            Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
+            Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
+
+            if (user.Position != 2)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Authorisation Constraint", "You are not authorized for this request, you must be administrator of home");
+                errors.Throw();
+            }
+
+            var home = (await _userRepository.GetByIdAsync(user.Id, true)).Home;
+
+            //Admin waiting for user's accept
+
+            UserModel invitedUser = await _userRepository.GetByUsernameAsync(invitedUsername);
+
+            if(invitedUser.Position != 0)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Has Home", "You can not invite a user who already has home");
+                errors.Throw();
+            }
+
+            UserInformationModel firstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
+            UserInformationModel lastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
+
+            FCMModel fcm = new FCMModel(invitedUser.DeviceId, new Dictionary<string, object>(), new Dictionary<string, object>(), "InviteHomeRequest");
+
+            fcm.notification.Add("title", "Home Invite Request");
+            fcm.notification.Add("body", String.Format("{0} {1} ({2}) invites to join his/her home", firstName.Value, lastName.Value, user.Username));
+
+            fcm.data.Add("InvitedHomeId", home.Id);
+
+            await _fcmService.SendFCMToUserAsync(invitedUser, fcm);
+            
+            return;
+        }
+
+        //User accepts or rejects user's request
+        public async Task InviteHomeAcceptAsync(UserModel user, int invitedHomeId, bool isAccepted)
+        {
+            Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
+            Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
+
+            if (user.Position != 0)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Has Home", "User can not accept invite requests while already has home");
+                errors.Throw();
+            }
+
+            HomeModel home = await _homeRepository.GetByIdAsync(invitedHomeId, true);
+
+            if (home == null)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Invalid Home Id", "Home not exist");
+                errors.Throw();
+            }
+
+            if (isAccepted == true)
+            {   user.Position = 1;
+
+                UserInformationModel userFirstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
+                UserInformationModel userLastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
+
+                List<UserBaseModel> friendsBaseModels = new List<UserBaseModel>();
+                UserBaseModel userBaseModel = new UserBaseModel(user.Id, user.Username, userFirstName.Value, userLastName.Value);
+
+                FCMModel fcmUser = new FCMModel(user.DeviceId, data: new Dictionary<string, object>(), type: "AllFriends");
+
+                foreach (var friend in home.Users)
+                {
+                    FriendshipModel friendship = new FriendshipModel(user, friend, 0);
+                    Task insertFriendship = _friendshipRepository.InsertAsync(friendship);
+                    
+                    //Sends notification to all friends 
+                    FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), new Dictionary<string, object>(), "NewFriend");
+
+                    fcmFriend.notification.Add("title", "New Home Friend");
+                    fcmFriend.notification.Add("body", String.Format("{0} {1} ({2}) ", userFirstName.Value, userLastName.Value, user.Username));
+
+                    fcmFriend.data.Add("Friend", userBaseModel);
+                    
+                    await _fcmService.SendFCMToUserAsync(friend, fcmFriend);
+
+                    //Sends all friends to requester
+                    UserInformationModel friendFirstName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await firstNameInfo).Id);
+                    UserInformationModel friendLastName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await lastNameInfo).Id);
+    
+                    friendsBaseModels.Add(new UserBaseModel(friend.Id, friend.Username, friendFirstName.Value, friendLastName.Value));
+
+                    await insertFriendship;
+
+                }
+
+                home.Users.Add(user);
+                _homeRepository.Update(home);
+
+                user.Home = home;
+                _userRepository.Update(user);
+
+                fcmUser.data.Add("Friends", friendsBaseModels);
+                await _fcmService.SendFCMToUserAsync(user, fcmUser);
+            }
         }
     }
 }

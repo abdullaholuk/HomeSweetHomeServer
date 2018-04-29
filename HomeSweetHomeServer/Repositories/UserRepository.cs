@@ -25,7 +25,7 @@ namespace HomeSweetHomeServer.Repositories
             if(include == false)
                 return await Db.SingleOrDefaultAsync(u => u.Id == id);
             else
-                return await Db.Include(u => u.Home).SingleOrDefaultAsync(u => u.Id == id);
+                return await Db.Include(u => u.Home).ThenInclude(h => h.Users).SingleOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<UserModel> GetByUsernameAsync(string username, bool include = false)

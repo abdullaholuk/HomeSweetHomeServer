@@ -8,6 +8,6 @@ namespace HomeSweetHomeServer.Services
 {
     public interface IFCMService
     {
-        Task SendNotificationAsync(UserModel user, object notificationSetting);
+        Task SendFCMToUserAsync(UserModel user, FCMModel fcmMessage);
     }
 }
