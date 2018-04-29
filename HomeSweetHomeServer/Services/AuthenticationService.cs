@@ -401,15 +401,13 @@ namespace HomeSweetHomeServer.Services
             if (user.Position == 0)
             {
                 fullInfo.NumberOfFriends = 0;
-                fullInfo.HomeId = 0;
                 fullInfo.Friends = null;
                 fullInfo.HomeName = null;
             }
             else
             {
                 user = await GetUserFromId(id, true);
-
-                fullInfo.HomeId = user.Home.Id;
+                
                 fullInfo.HomeName = user.Home.Name;
                 fullInfo.NumberOfFriends = user.Home.Users.Count;
 
