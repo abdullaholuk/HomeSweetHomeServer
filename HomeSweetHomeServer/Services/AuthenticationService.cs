@@ -400,6 +400,7 @@ namespace HomeSweetHomeServer.Services
             
             if (user.Position == 0)
             {
+                fullInfo.NumberOfFriends = 0;
                 fullInfo.HomeId = 0;
                 fullInfo.Friends = null;
                 fullInfo.HomeName = null;
@@ -410,6 +411,7 @@ namespace HomeSweetHomeServer.Services
 
                 fullInfo.HomeId = user.Home.Id;
                 fullInfo.HomeName = user.Home.Name;
+                fullInfo.NumberOfFriends = user.Home.Users.Count;
 
                 foreach(var friend in user.Home.Users)
                 {

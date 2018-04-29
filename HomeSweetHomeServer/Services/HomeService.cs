@@ -188,6 +188,7 @@ namespace HomeSweetHomeServer.Services
                 requester.Home = home;
                 _userRepository.Update(requester);
 
+                fcmRequester.data.Add("NumberOfFriends", home.Users.Count - 1);
                 fcmRequester.data.Add("Friends", friendsBaseModels);
                 await _fcmService.SendFCMToUserAsync(requester, fcmRequester);
             }
@@ -298,6 +299,7 @@ namespace HomeSweetHomeServer.Services
                 user.Home = home;
                 _userRepository.Update(user);
 
+                fcmUser.data.Add("NumberOfFriends", home.Users.Count - 1);
                 fcmUser.data.Add("Friends", friendsBaseModels);
                 await _fcmService.SendFCMToUserAsync(user, fcmUser);
             }

@@ -117,6 +117,8 @@ namespace HomeSweetHomeServer.Models
 
         public string HomeName { get; set; }
 
+        public int NumberOfFriends { get; set; }
+
         public List<UserBaseModel> Friends { get; set; }
 
         public UserFullInformationModel()
