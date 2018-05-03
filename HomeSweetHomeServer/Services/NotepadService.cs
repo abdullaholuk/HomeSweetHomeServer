@@ -188,10 +188,34 @@ namespace HomeSweetHomeServer.Services
                 errors.AddError("Home Not Exist", "User is not member of a home");
                 errors.Throw();
             }
-            
+
+            if(note.Id == 0)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Id Not Exist", "Id field is required");
+                errors.Throw();
+            }
+
             user = await _userRepository.GetByIdAsync(user.Id, true);
-            note.Home = user.Home;
-            note.LastUpdated = DateTime.UtcNow;
+            NotepadModel old = await _notepadRepository.GetNoteById(note.Id, true);
+
+            if(old == null)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Note Not Exist", "Note is not exist");
+                errors.Throw();
+            }
+
+            if (old.Home != user.Home)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Note Not Belongs Home", "Note does not belong this home");
+                errors.Throw();
+            }
+
+            old.Title = note.Title;
+            old.Content = note.Content;
+            old.LastUpdated = DateTime.UtcNow;;
             
             foreach (var friend in user.Home.Users)
             {
@@ -199,7 +223,7 @@ namespace HomeSweetHomeServer.Services
                 await _fcmService.SendFCMAsync(fcm);
             }
 
-            await _notepadRepository.UpdateAsync(note);
+            await _notepadRepository.UpdateAsync(old);
         }
     }
 }
