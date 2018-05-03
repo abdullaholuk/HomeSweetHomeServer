@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 //Models for action parameters at authentication controller 
@@ -75,14 +76,23 @@ namespace HomeSweetHomeServer.Models
     }
 
     //Basic user informations
+    [Serializable]
+    [DataContract]
     public class UserBaseModel
     {
+        [DataMember]
         public int Id { get; set; }
 
+        [DataMember]
         public string Username { get; set; }
 
+        [DataMember]
+        public int Position { get; set; }
+
+        [DataMember]
         public string FirstName { get; set; }
 
+        [DataMember]
         public string LastName { get; set; }
 
         public UserBaseModel()
@@ -90,33 +100,40 @@ namespace HomeSweetHomeServer.Models
 
         }
 
-        public UserBaseModel(int id, string username, string firstName, string lastName)
+        public UserBaseModel(int id, string username, int position, string firstName, string lastName)
         {
             Id = id;
             Username = username;
+            Position = position;
             FirstName = firstName;
             LastName = lastName;
         }
-
     }
 
     //User's full information
+    [Serializable]
+    [DataContract]
     public class UserFullInformationModel
     {
+        [DataMember]
         public UserBaseModel User { get; set; }
 
+        [DataMember]
         public string Token { get; set; }
 
+        [DataMember]
         public string Email { get; set; }
 
+        [DataMember]
         public string PhoneNumber { get; set; }
 
-        public int Position { get; set; }
-
+        [DataMember]
         public string HomeName { get; set; }
 
+        [DataMember]
         public int NumberOfFriends { get; set; }
 
+        [DataMember]
         public List<UserBaseModel> Friends { get; set; }
 
         public UserFullInformationModel()
@@ -124,6 +141,5 @@ namespace HomeSweetHomeServer.Models
             User = new UserBaseModel();
             Friends = new List<UserBaseModel>();
         }
-
     }
 }

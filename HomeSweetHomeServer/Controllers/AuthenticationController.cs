@@ -18,18 +18,17 @@ namespace HomeSweetHomeServer.Controllers
 {
     [Produces("application/json")]
     [Route("api/Authentication")]
-    
     public class AuthenticationController : Controller
     {
         IAuthenticationService _authenticationService;
         IJwtTokenService _jwtTokenService;
-        IFCMService _fmcService;
+        IFCMService _fcmService;
 
-        public AuthenticationController(IAuthenticationService authenticationService, IJwtTokenService jwtTokenService,IFCMService fmcService)
+        public AuthenticationController(IAuthenticationService authenticationService, IJwtTokenService jwtTokenService,IFCMService fcmService)
         {
             _authenticationService = authenticationService;
             _jwtTokenService = jwtTokenService;
-            _fmcService = fmcService;
+            _fcmService = fcmService;
         }
 
         //Registers sended user
@@ -67,13 +66,14 @@ namespace HomeSweetHomeServer.Controllers
             {
                // fullInfo.Token = null;
             }
-            string jsonInfo = JsonConvert.SerializeObject(fullInfo);
 
             if (user.Status == 0)
                 //return StatusCode((int)HttpStatusCode.Accepted, user.Id);
-                return StatusCode((int)HttpStatusCode.Accepted, jsonInfo);
+                return StatusCode((int)HttpStatusCode.Accepted, fullInfo);
+                //return StatusCode((int)HttpStatusCode.Accepted, user.Token);
             else
-                return Ok(jsonInfo);
+                //return Ok(jsonInfo);
+                return Ok(user.Token);
         }
 
         //Requests for send email verification code to email
@@ -81,20 +81,6 @@ namespace HomeSweetHomeServer.Controllers
         public async Task<IActionResult> EMailVerification([FromQuery] int userId)
         {
             var user = await _authenticationService.GetUserFromId(userId);
-
-            if (user.Status == 1)
-            {
-                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("User Already Verified", "User already verified");
-                errors.Throw();
-            }
-
-            if (user.Status == 2)
-            {
-                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("User Is Banned", "User is banned from application");
-                errors.Throw();
-            }
 
             await _authenticationService.SendEmailVerificationCodeToUserAsync(user);
 
@@ -106,20 +92,6 @@ namespace HomeSweetHomeServer.Controllers
         public async Task<IActionResult> VerifyEmail([FromBody] VerificationCodeModel verificationCode)
         {
             var user = await _authenticationService.GetUserFromId(verificationCode.UserId);
-
-            if (user.Status == 1)
-            {
-                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("User Already Verified", "User already verified");
-                errors.Throw();
-            }
-
-            if (user.Status == 2)
-            {
-                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("User Is Banned", "User is banned from application");
-                errors.Throw();
-            }
 
             await _authenticationService.VerifyEmailAsync(user, verificationCode);
 
@@ -134,20 +106,6 @@ namespace HomeSweetHomeServer.Controllers
 
             UserModel user = await _authenticationService.GetUserFromMail(email);
 
-            if(user.Status == 0)
-            {
-                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("None Verified Email", "Your email is not verified");
-                errors.Throw();
-            }
-
-            if (user.Status == 2)
-            {
-                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("User Is Banned", "User is banned from application");
-                errors.Throw();
-            }
-
             await _authenticationService.SendForgotPasswordVerificationCodeToUserAsync(user);
 
             return Ok();
@@ -160,20 +118,6 @@ namespace HomeSweetHomeServer.Controllers
             forgotPassword.Email = forgotPassword.Email.ToLower();
 
             UserModel user = await _authenticationService.GetUserFromMail(forgotPassword.Email);
-
-            if (user.Status == 0)
-            {
-                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("None Verified Email", "Your email is not verified");
-                errors.Throw();
-            }
-
-            if (user.Status == 2)
-            {
-                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("User Is Banned", "User is banned from application");
-                errors.Throw();
-            }
 
             await _authenticationService.ForgotPasswordAsync(user, forgotPassword);
 

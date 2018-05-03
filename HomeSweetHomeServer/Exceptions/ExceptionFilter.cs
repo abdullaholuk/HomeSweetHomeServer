@@ -24,7 +24,7 @@ namespace HomeSweetHomeServer.Exceptions
                 statusCode = exception.StatusCode;
             } else //Generated about unhandled system exception
             {
-                message = JsonConvert.SerializeObject(new Dictionary<string, string> { { "Unhandled Error", _exception.Message } }, Formatting.Indented);
+                message = JsonConvert.SerializeObject(new Dictionary<string, string> { { "Unhandled Error", _exception.Message } });
                 statusCode = (int)HttpStatusCode.InternalServerError;
             }
 

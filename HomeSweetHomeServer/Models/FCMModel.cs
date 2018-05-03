@@ -23,16 +23,15 @@ namespace HomeSweetHomeServer.Models
         
         public FCMModel(string deviceId, 
                         Dictionary<string, object> notification = null,
-                        Dictionary<string, object> data = null,
                         string type = "BasicNotification",
                         string priority = "high")
         {
             to = deviceId;
             this.priority = priority;
             this.notification = notification;
-            this.data = data;
+            data = new Dictionary<string, object>();
 
-            this.data.Add("FcmType", type);
+            data.Add("FcmType", type);
         }
     }
 }

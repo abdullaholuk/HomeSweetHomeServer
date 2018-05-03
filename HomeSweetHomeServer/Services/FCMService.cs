@@ -42,12 +42,11 @@ namespace HomeSweetHomeServer.Services
         }
 
         //Send Firebase Cloud Message to given user
-        public async Task SendFCMToUserAsync(UserModel user, FCMModel fcmMessage)
+        public async Task SendFCMAsync(FCMModel fcmMessage)
         {
             string serverKey = string.Format("key={0}", _config["FCM:ServerKey"]);
             string senderId = string.Format("id={0}", _config["FCM:SenderId"]);
             string requestUri = _config["FCM:RequestUri"];
-            string deviceId = user.DeviceId;
 
             var jsonMessageBody = JsonConvert.SerializeObject(fcmMessage);
 

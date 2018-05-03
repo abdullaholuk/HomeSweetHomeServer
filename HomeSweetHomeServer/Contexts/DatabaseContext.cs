@@ -22,7 +22,8 @@ namespace HomeSweetHomeServer.Contexts
         DbSet<UserInformationModel> UserInformationModels { get; set; } //UserInformation table
         DbSet<FriendshipModel> FriendshipModels { get; set; } //Friendship table
         DbSet<HomeModel> HomeModels { get; set; } //Home table
-        
+        DbSet<NotepadModel> NotepadModels { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             //Table names 
@@ -31,6 +32,7 @@ namespace HomeSweetHomeServer.Contexts
             builder.Entity<UserInformationModel>().ToTable("UserInformation");
             builder.Entity<FriendshipModel>().ToTable("Friendship");
             builder.Entity<HomeModel>().ToTable("Home").HasMany(h => h.Users).WithOne(u => u.Home).IsRequired();
+            builder.Entity<NotepadModel>().ToTable("Notepad");
         }
     }
 }

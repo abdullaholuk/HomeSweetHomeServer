@@ -162,6 +162,20 @@ namespace HomeSweetHomeServer.Services
 
         public async Task SendEmailVerificationCodeToUserAsync(UserModel user)
         {
+            if (user.Status == 1)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Already Verified", "User already verified");
+                errors.Throw();
+            }
+
+            if (user.Status == 2)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Is Banned", "User is banned from application");
+                errors.Throw();
+            }
+
             string verificationCode = new Random().Next(100000, 1000000).ToString();
 
             Task<UserInformationModel> FirstName = _userInformationRepository.GetUserInformationByIdAsync(user.Id,
@@ -186,7 +200,7 @@ namespace HomeSweetHomeServer.Services
             mail.Subject = "Verification Code";
             mail.Content = "Your email verification code is :" + verificationCode;
 
-            _mailService.SendMail(mail);
+            Task sendMail = _mailService.SendMailAsync(mail);
 
             //First time email verification code send
             if (EmailVerificationCode == null)
@@ -213,10 +227,25 @@ namespace HomeSweetHomeServer.Services
                 EmailVerificationCodeGenerateDate.Value = String.Format("{0:u}", DateTime.UtcNow);
                 _userInformationRepository.Update(EmailVerificationCodeGenerateDate);
             }
+            await sendMail;
         }
 
         public async Task SendForgotPasswordVerificationCodeToUserAsync(UserModel user)
         {
+            if (user.Status == 0)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("None Verified Email", "Your email is not verified");
+                errors.Throw();
+            }
+
+            if (user.Status == 2)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Is Banned", "User is banned from application");
+                errors.Throw();
+            }
+
             string verificationCode = new Random().Next(100000, 1000000).ToString();
 
             Task<UserInformationModel> FirstName = _userInformationRepository.GetUserInformationByIdAsync(user.Id,
@@ -241,7 +270,7 @@ namespace HomeSweetHomeServer.Services
             mail.Subject = "Verification Code";
             mail.Content = "Your password change verification code is :" + verificationCode;
 
-            _mailService.SendMail(mail);
+            Task sendMail = _mailService.SendMailAsync(mail);
 
             //First time verification code send
             if (ForgotPasswordVerificationCode == null)
@@ -268,10 +297,25 @@ namespace HomeSweetHomeServer.Services
                 ForgotPasswordVerificationCodeGenerateDate.Value = String.Format("{0:u}", DateTime.UtcNow);
                 _userInformationRepository.Update(ForgotPasswordVerificationCodeGenerateDate);
             }
+            await sendMail;
         }
 
         public async Task VerifyEmailAsync(UserModel user, VerificationCodeModel verification)
         {
+            if (user.Status == 1)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Already Verified", "User already verified");
+                errors.Throw();
+            }
+
+            if (user.Status == 2)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Is Banned", "User is banned from application");
+                errors.Throw();
+            }
+
             InformationModel EmailVerificationCodeInfo = await _informationRepository.GetInformationByInformationNameAsync("EmailVerificationCode");
             InformationModel EmailVerificationCodeGenerateDateInfo = await _informationRepository.GetInformationByInformationNameAsync("EmailVerificationCodeGenerateDate");
 
@@ -318,6 +362,20 @@ namespace HomeSweetHomeServer.Services
 
         public async Task ForgotPasswordAsync(UserModel user, ForgotPasswordModel forgotPassword)
         {
+            if (user.Status == 0)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("None Verified Email", "Your email is not verified");
+                errors.Throw();
+            }
+
+            if (user.Status == 2)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Is Banned", "User is banned from application");
+                errors.Throw();
+            }
+
             InformationModel ForgotPasswordVerificationCodeInfo = await _informationRepository.GetInformationByInformationNameAsync("ForgotPasswordVerificationCode");
             InformationModel ForgotPasswordVerificationCodeGenerateDateInfo = await _informationRepository.GetInformationByInformationNameAsync("ForgotPasswordVerificationCodeGenerateDate");
 
@@ -380,24 +438,27 @@ namespace HomeSweetHomeServer.Services
             Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
             Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
             Task<InformationModel> emailInfo = _informationRepository.GetInformationByInformationNameAsync("Email");
-            
-            UserModel user = await GetUserFromId(id, false);
+            Task<InformationModel> phoneNumberInfo = _informationRepository.GetInformationByInformationNameAsync("PhoneNumber");
+
+            UserModel user = await GetUserFromId(id);
 
             Task<UserInformationModel> firstName = _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
             Task<UserInformationModel> lastName = _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
             Task<UserInformationModel> email = _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await emailInfo).Id);
-
+            Task<UserInformationModel> phoneNumber = _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await phoneNumberInfo).Id);
+            
             UserFullInformationModel fullInfo = new UserFullInformationModel();
 
             fullInfo.User.Id = user.Id;
             fullInfo.User.Username = user.Username;
-            fullInfo.Position = user.Position;
+            fullInfo.User.Position = user.Position;
             fullInfo.Token = user.Token;
 
             fullInfo.User.FirstName = (await firstName).Value;
             fullInfo.User.LastName = (await lastName).Value;
             fullInfo.Email = (await email).Value;
-            
+            fullInfo.PhoneNumber = (await phoneNumber).Value;
+
             if (user.Position == 0)
             {
                 fullInfo.NumberOfFriends = 0;
@@ -416,7 +477,7 @@ namespace HomeSweetHomeServer.Services
                     string friendFirstName = (await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await firstNameInfo).Id)).Value;
                     string friendLastName = (await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await lastNameInfo).Id)).Value;
 
-                    fullInfo.Friends.Add(new UserBaseModel(friend.Id, friend.Username, friendFirstName, friendLastName));
+                    fullInfo.Friends.Add(new UserBaseModel(friend.Id, friend.Username, friend.Position, friendFirstName, friendLastName));
                 }
             }
 

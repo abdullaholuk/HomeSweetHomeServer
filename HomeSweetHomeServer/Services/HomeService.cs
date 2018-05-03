@@ -101,24 +101,23 @@ namespace HomeSweetHomeServer.Services
             UserInformationModel firstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
             UserInformationModel lastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
             
-            FCMModel fcm = new FCMModel(home.Admin.DeviceId, new Dictionary<string, object>(), new Dictionary<string, object>(), "JoinHomeRequest");
+            FCMModel fcm = new FCMModel(home.Admin.DeviceId, new Dictionary<string, object>(), "JoinHomeRequest");
             
             fcm.notification.Add("title", "Home Join Request");
             fcm.notification.Add("body", String.Format("{0} {1} ({2}) requests to join your home", firstName.Value, lastName.Value, user.Username));
 
             fcm.data.Add("UserId", user.Id);
 
-            await _fcmService.SendFCMToUserAsync(home.Admin, fcm);
-
-            return;
+            await _fcmService.SendFCMAsync(fcm);
         }
 
         //Admin accepts or rejects user's request
         public async Task JoinHomeAcceptAsync(UserModel user, int requesterId, bool isAccepted)
         {
+            Task<UserModel> getAdmin = _userRepository.GetByIdAsync(user.Id, true);
             Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
             Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
-
+           
             if (user.Position != 2)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
@@ -126,8 +125,6 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
             
-            Task<UserModel> admin = _userRepository.GetByIdAsync(user.Id, true);
-
             UserModel requester = await _userRepository.GetByIdAsync(requesterId);
 
             if (requester == null)
@@ -144,6 +141,8 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
 
+            user = await getAdmin;
+
             if (isAccepted == true)
             {
                 requester.Position = 1;
@@ -151,12 +150,14 @@ namespace HomeSweetHomeServer.Services
                 UserInformationModel requesterFirstName = await _userInformationRepository.GetUserInformationByIdAsync(requester.Id, (await firstNameInfo).Id);
                 UserInformationModel requesterLastName = await _userInformationRepository.GetUserInformationByIdAsync(requester.Id, (await lastNameInfo).Id);
 
-                HomeModel home = (await admin).Home;
+                HomeModel home = user.Home;
 
-                FCMModel fcmRequester = new FCMModel(requester.DeviceId, data: new Dictionary<string, object>(), type : "AllFriends");
+                FCMModel fcmRequester = new FCMModel(requester.DeviceId, new Dictionary<string, object>(), "AllFriends");
+                fcmRequester.notification.Add("title", "Join Home Request");
+                fcmRequester.notification.Add("body", "Your join home request is accepted by home admin");
 
                 List<UserBaseModel> friendsBaseModels = new List<UserBaseModel>();
-                UserBaseModel requesterBaseModel = new UserBaseModel(requester.Id, requester.Username, requesterFirstName.Value, requesterLastName.Value);
+                UserBaseModel requesterBaseModel = new UserBaseModel(requester.Id, requester.Username, requester.Position, requesterFirstName.Value, requesterLastName.Value);
 
                 foreach (var friend in home.Users)
                 {
@@ -164,20 +165,20 @@ namespace HomeSweetHomeServer.Services
                     Task insertFriendship = _friendshipRepository.InsertAsync(friendship);
 
                     //Sends notification to all friends 
-                    FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), new Dictionary<string, object>(), "NewFriend");
+                    FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), "NewFriend");
 
                     fcmFriend.notification.Add("title", "New Home Friend");
                     fcmFriend.notification.Add("body", String.Format("{0} {1} ({2}) ", requesterFirstName.Value, requesterLastName.Value, requester.Username));
 
                     fcmFriend.data.Add("Friend", requesterBaseModel);
 
-                    await _fcmService.SendFCMToUserAsync(friend, fcmFriend);
+                    await _fcmService.SendFCMAsync(fcmFriend);
 
                     //Sends all friends to requester
                     UserInformationModel friendFirstName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await firstNameInfo).Id);
                     UserInformationModel friendLastName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await lastNameInfo).Id);
 
-                    friendsBaseModels.Add(new UserBaseModel(friend.Id, friend.Username, friendFirstName.Value, friendLastName.Value));
+                    friendsBaseModels.Add(new UserBaseModel(friend.Id, friend.Username, friend.Position, friendFirstName.Value, friendLastName.Value));
 
                     await insertFriendship;
                 }
@@ -190,7 +191,7 @@ namespace HomeSweetHomeServer.Services
 
                 fcmRequester.data.Add("NumberOfFriends", home.Users.Count - 1);
                 fcmRequester.data.Add("Friends", friendsBaseModels);
-                await _fcmService.SendFCMToUserAsync(requester, fcmRequester);
+                await _fcmService.SendFCMAsync(fcmRequester);
             }
         }
 
@@ -213,6 +214,13 @@ namespace HomeSweetHomeServer.Services
 
             UserModel invitedUser = await _userRepository.GetByUsernameAsync(invitedUsername);
 
+            if(invitedUser == null)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Not Exist", "User is not exist");
+                errors.Throw();
+            }
+
             if(invitedUser.Position != 0)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
@@ -223,19 +231,17 @@ namespace HomeSweetHomeServer.Services
             UserInformationModel firstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
             UserInformationModel lastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
 
-            FCMModel fcm = new FCMModel(invitedUser.DeviceId, new Dictionary<string, object>(), new Dictionary<string, object>(), "InviteHomeRequest");
+            FCMModel fcm = new FCMModel(invitedUser.DeviceId, new Dictionary<string, object>(), "InviteHomeRequest");
 
             fcm.notification.Add("title", "Home Invite Request");
             fcm.notification.Add("body", String.Format("{0} {1} ({2}) invites to join his/her home", firstName.Value, lastName.Value, user.Username));
 
             fcm.data.Add("InvitedHomeId", home.Id);
 
-            await _fcmService.SendFCMToUserAsync(invitedUser, fcm);
-            
-            return;
+            await _fcmService.SendFCMAsync(fcm);
         }
 
-        //User accepts or rejects user's request
+        //User accepts or rejects admin's request
         public async Task InviteHomeAcceptAsync(UserModel user, int invitedHomeId, bool isAccepted)
         {
             Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
@@ -258,15 +264,16 @@ namespace HomeSweetHomeServer.Services
             }
 
             if (isAccepted == true)
-            {   user.Position = 1;
+            {
+                user.Position = 1;
 
                 UserInformationModel userFirstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
                 UserInformationModel userLastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
 
                 List<UserBaseModel> friendsBaseModels = new List<UserBaseModel>();
-                UserBaseModel userBaseModel = new UserBaseModel(user.Id, user.Username, userFirstName.Value, userLastName.Value);
+                UserBaseModel userBaseModel = new UserBaseModel(user.Id, user.Username, user.Position, userFirstName.Value, userLastName.Value);
 
-                FCMModel fcmUser = new FCMModel(user.DeviceId, data: new Dictionary<string, object>(), type: "AllFriends");
+                FCMModel fcmUser = new FCMModel(user.DeviceId, type: "AllFriends");
 
                 foreach (var friend in home.Users)
                 {
@@ -274,20 +281,20 @@ namespace HomeSweetHomeServer.Services
                     Task insertFriendship = _friendshipRepository.InsertAsync(friendship);
                     
                     //Sends notification to all friends 
-                    FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), new Dictionary<string, object>(), "NewFriend");
+                    FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), "NewFriend");
 
                     fcmFriend.notification.Add("title", "New Home Friend");
                     fcmFriend.notification.Add("body", String.Format("{0} {1} ({2}) ", userFirstName.Value, userLastName.Value, user.Username));
 
                     fcmFriend.data.Add("Friend", userBaseModel);
                     
-                    await _fcmService.SendFCMToUserAsync(friend, fcmFriend);
+                    await _fcmService.SendFCMAsync(fcmFriend);
 
                     //Sends all friends to requester
                     UserInformationModel friendFirstName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await firstNameInfo).Id);
                     UserInformationModel friendLastName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await lastNameInfo).Id);
     
-                    friendsBaseModels.Add(new UserBaseModel(friend.Id, friend.Username, friendFirstName.Value, friendLastName.Value));
+                    friendsBaseModels.Add(new UserBaseModel(friend.Id, friend.Username, friend.Position, friendFirstName.Value, friendLastName.Value));
 
                     await insertFriendship;
 
@@ -301,7 +308,7 @@ namespace HomeSweetHomeServer.Services
 
                 fcmUser.data.Add("NumberOfFriends", home.Users.Count - 1);
                 fcmUser.data.Add("Friends", friendsBaseModels);
-                await _fcmService.SendFCMToUserAsync(user, fcmUser);
+                await _fcmService.SendFCMAsync(fcmUser);
             }
         }
     }

@@ -9,6 +9,6 @@ namespace HomeSweetHomeServer.Services
     //Interface for mail operations
     public interface IMailService
     {
-        void SendMail(EMailModel mail);
+        Task SendMailAsync(EMailModel mail);
     }
 }

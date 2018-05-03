@@ -19,7 +19,6 @@ namespace HomeSweetHomeServer.Controllers
     [Produces("application/json")]
     [Route("api/Home")]
     [Authorize]
-
     public class HomeController : Controller
     {
         IHomeService _homeService;

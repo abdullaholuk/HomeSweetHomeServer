@@ -21,7 +21,7 @@ namespace HomeSweetHomeServer.Services
             _config = config;
         }
                 
-        public void SendMail(EMailModel mail)
+        public async Task SendMailAsync(EMailModel mail)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(mail.FromName, mail.FromAddress));
@@ -36,13 +36,9 @@ namespace HomeSweetHomeServer.Services
             using (var emailClient = new SmtpClient())
             {
                 emailClient.Connect(_config["EMailConfiguration:SmtpServer"], Convert.ToInt32(_config["EMailConfiguration:SmtpPort"]), true);
-
                 emailClient.AuthenticationMechanisms.Remove("XOAUTH2");
-
                 emailClient.Authenticate(_config["EMailConfiguration:SmtpUsername"], _config["EMailConfiguration:SmtpPassword"]);
-
-                emailClient.Send(message);
-
+                await emailClient.SendAsync(message);
                 emailClient.Disconnect(true);
             }
         }
