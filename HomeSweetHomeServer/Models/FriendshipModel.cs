@@ -29,5 +29,10 @@ namespace HomeSweetHomeServer.Models
             User2 = user2;
             Debt = debt;
         }
+
+        public FriendshipModel()
+        {
+
+        }
     }
 }

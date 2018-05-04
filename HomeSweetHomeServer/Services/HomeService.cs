@@ -106,7 +106,10 @@ namespace HomeSweetHomeServer.Services
             fcm.notification.Add("title", "Home Join Request");
             fcm.notification.Add("body", String.Format("{0} {1} ({2}) requests to join your home", firstName.Value, lastName.Value, user.Username));
 
-            fcm.data.Add("UserId", user.Id);
+            fcm.data.Add("RequesterId", user.Id);
+            fcm.data.Add("RequesterUsername", user.Username);
+            fcm.data.Add("RequesterName", firstName.Value);
+            fcm.data.Add("RequesterLastName", lastName.Value);
 
             await _fcmService.SendFCMAsync(fcm);
         }
@@ -137,7 +140,7 @@ namespace HomeSweetHomeServer.Services
             if(requester.Position != 0)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("Bad Request", "Requester has already home");
+                errors.AddError("Requester Has Home", "Requester has already home");
                 errors.Throw();
             }
 
@@ -157,11 +160,11 @@ namespace HomeSweetHomeServer.Services
                 fcmRequester.notification.Add("body", "Your join home request is accepted by home admin");
 
                 List<UserBaseModel> friendsBaseModels = new List<UserBaseModel>();
-                UserBaseModel requesterBaseModel = new UserBaseModel(requester.Id, requester.Username, requester.Position, requesterFirstName.Value, requesterLastName.Value);
+                UserBaseModel requesterBaseModel = new UserBaseModel(requester.Id, requester.Username, requester.Position, requesterFirstName.Value, requesterLastName.Value, 0);
 
                 foreach (var friend in home.Users)
                 {
-                    FriendshipModel friendship = new FriendshipModel(user, friend, 0);
+                    FriendshipModel friendship = new FriendshipModel(requester, friend, 0);
                     Task insertFriendship = _friendshipRepository.InsertAsync(friendship);
 
                     //Sends notification to all friends 
@@ -178,7 +181,7 @@ namespace HomeSweetHomeServer.Services
                     UserInformationModel friendFirstName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await firstNameInfo).Id);
                     UserInformationModel friendLastName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await lastNameInfo).Id);
 
-                    friendsBaseModels.Add(new UserBaseModel(friend.Id, friend.Username, friend.Position, friendFirstName.Value, friendLastName.Value));
+                    friendsBaseModels.Add(new UserBaseModel(friend.Id, friend.Username, friend.Position, friendFirstName.Value, friendLastName.Value, 0));
 
                     await insertFriendship;
                 }
@@ -237,6 +240,9 @@ namespace HomeSweetHomeServer.Services
             fcm.notification.Add("body", String.Format("{0} {1} ({2}) invites to join his/her home", firstName.Value, lastName.Value, user.Username));
 
             fcm.data.Add("InvitedHomeId", home.Id);
+            fcm.data.Add("InviterUsername", user.Username);
+            fcm.data.Add("InviterFirstName", firstName.Value);
+            fcm.data.Add("InviterLastName", lastName.Value);
 
             await _fcmService.SendFCMAsync(fcm);
         }
@@ -271,7 +277,7 @@ namespace HomeSweetHomeServer.Services
                 UserInformationModel userLastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
 
                 List<UserBaseModel> friendsBaseModels = new List<UserBaseModel>();
-                UserBaseModel userBaseModel = new UserBaseModel(user.Id, user.Username, user.Position, userFirstName.Value, userLastName.Value);
+                UserBaseModel userBaseModel = new UserBaseModel(user.Id, user.Username, user.Position, userFirstName.Value, userLastName.Value, 0);
 
                 FCMModel fcmUser = new FCMModel(user.DeviceId, type: "AllFriends");
 
@@ -294,7 +300,7 @@ namespace HomeSweetHomeServer.Services
                     UserInformationModel friendFirstName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await firstNameInfo).Id);
                     UserInformationModel friendLastName = await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await lastNameInfo).Id);
     
-                    friendsBaseModels.Add(new UserBaseModel(friend.Id, friend.Username, friend.Position, friendFirstName.Value, friendLastName.Value));
+                    friendsBaseModels.Add(new UserBaseModel(friend.Id, friend.Username, friend.Position, friendFirstName.Value, friendLastName.Value, 0));
 
                     await insertFriendship;
 
@@ -309,6 +315,42 @@ namespace HomeSweetHomeServer.Services
                 fcmUser.data.Add("NumberOfFriends", home.Users.Count - 1);
                 fcmUser.data.Add("Friends", friendsBaseModels);
                 await _fcmService.SendFCMAsync(fcmUser);
+            }
+        }
+
+        public async Task LendToFriend(UserModel from, UserModel to, double lend)
+        {
+            if (to == null)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Friend Not Found", "Friend not found for lend");
+                errors.Throw();
+            }
+
+            if (from.Position == 0 || to.Position == 0)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Home Not Exist", "User is not member of a home");
+                errors.Throw();
+            }
+
+            FriendshipModel friendship = await _friendshipRepository.GetFriendshipByIdAsync(from.Id, to.Id);
+            if(friendship == null)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Friendship Not Found", "Friendship not found for lend");
+                errors.Throw();
+            }
+
+            if(friendship.User1.Id == from.Id)
+            {
+                friendship.Debt -= lend;
+                await _friendshipRepository.UpdateAsync(friendship);
+            }
+            else
+            {
+                friendship.Debt += lend;
+                await _friendshipRepository.UpdateAsync(friendship);
             }
         }
     }

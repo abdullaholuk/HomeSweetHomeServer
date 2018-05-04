@@ -23,11 +23,13 @@ namespace HomeSweetHomeServer.Controllers
     {
         IHomeService _homeService;
         IJwtTokenService _jwtTokenService;
+        IAuthenticationService _authenticationService;
 
-        public HomeController(IHomeService homeService, IJwtTokenService jwtTokenService)
+        public HomeController(IHomeService homeService, IJwtTokenService jwtTokenService, IAuthenticationService authenticationService)
         {
             _homeService = homeService;
             _jwtTokenService = jwtTokenService;
+            _authenticationService = authenticationService;
         }
 
         //Creates new home from admin
@@ -93,6 +95,19 @@ namespace HomeSweetHomeServer.Controllers
             await _homeService.InviteHomeAcceptAsync(user, invitedHomeId, isAccepted);
 
             return Ok();
+        }
+
+        [HttpGet("LendToFriend", Name = "LendToFriend")]
+        public async Task<IActionResult> LendToFriend([FromQuery] int toId, [FromQuery] double lend)
+        {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            UserModel from = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel to = await _authenticationService.GetUserFromId(toId);
+
+            await _homeService.LendToFriend(from, to, lend);
+
+            return Ok();
+
         }
     }
 }

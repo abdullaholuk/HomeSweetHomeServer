@@ -95,18 +95,22 @@ namespace HomeSweetHomeServer.Models
         [DataMember]
         public string LastName { get; set; }
 
+        [DataMember]
+        public double Debt { get; set; }
+
         public UserBaseModel()
         {
 
         }
 
-        public UserBaseModel(int id, string username, int position, string firstName, string lastName)
+        public UserBaseModel(int id, string username, int position, string firstName, string lastName, double debt)
         {
             Id = id;
             Username = username;
             Position = position;
             FirstName = firstName;
             LastName = lastName;
+            Debt = debt;
         }
     }
 

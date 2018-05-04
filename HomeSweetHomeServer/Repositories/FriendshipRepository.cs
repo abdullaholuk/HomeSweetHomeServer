@@ -11,5 +11,27 @@ namespace HomeSweetHomeServer.Repositories
         public FriendshipRepository(DatabaseContext context) : base(context)
         {
         }
+
+        public async Task<FriendshipModel> GetFriendshipByIdAsync(int user1Id, int user2Id, bool include = false)
+        {
+            if(include == false)
+            {
+                var friendship = await Db.SingleOrDefaultAsync(f => f.User1.Id == user1Id && f.User2.Id == user2Id);
+
+                if(friendship == null)
+                    friendship = await Db.SingleOrDefaultAsync(f => f.User1.Id == user2Id && f.User2.Id == user1Id);
+
+                return friendship;
+            }
+            else
+            {
+                var friendship = await Db.Include(f => f.User1).Include(f => f.User2).SingleOrDefaultAsync(f => f.User1.Id == user1Id && f.User2.Id == user2Id);
+
+                if (friendship == null)
+                    friendship = await Db.Include(f => f.User1).Include(f => f.User2).SingleOrDefaultAsync(f => f.User1.Id == user2Id && f.User2.Id == user1Id);
+
+                return friendship;
+            }
+        }
     }
 }

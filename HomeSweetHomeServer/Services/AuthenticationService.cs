@@ -22,13 +22,15 @@ namespace HomeSweetHomeServer.Services
         public IConfiguration _config;
         public IMailService _mailService;
         public IJwtTokenService _jwtTokenService;
+        public IFriendshipRepository _friendshipRepository;
 
         public AuthenticationService(IInformationRepository informationRepository,
                                      IUserRepository userRepository,
                                      IUserInformationRepository userInformationRepository,
                                      IConfiguration config,
                                      IMailService mailService,
-                                     IJwtTokenService jwtTokenService)
+                                     IJwtTokenService jwtTokenService,
+                                     IFriendshipRepository friendshipRepository)
         {
             _informationRepository = informationRepository;
             _userRepository = userRepository;
@@ -36,6 +38,7 @@ namespace HomeSweetHomeServer.Services
             _config = config;
             _mailService = mailService;
             _jwtTokenService = jwtTokenService;
+            _friendshipRepository = friendshipRepository;
         }
                       
         public async Task ControlRegisterFormAsync(RegistrationModel registrationForm)
@@ -452,6 +455,7 @@ namespace HomeSweetHomeServer.Services
             fullInfo.User.Id = user.Id;
             fullInfo.User.Username = user.Username;
             fullInfo.User.Position = user.Position;
+            fullInfo.User.Debt = 0;
             fullInfo.Token = user.Token;
 
             fullInfo.User.FirstName = (await firstName).Value;
@@ -470,14 +474,32 @@ namespace HomeSweetHomeServer.Services
                 user = await GetUserFromId(id, true);
                 
                 fullInfo.HomeName = user.Home.Name;
-                fullInfo.NumberOfFriends = user.Home.Users.Count;
+                fullInfo.NumberOfFriends = user.Home.Users.Count - 1;
 
                 foreach(var friend in user.Home.Users)
                 {
+                    if (friend.Equals(user))
+                        continue;
+
                     string friendFirstName = (await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await firstNameInfo).Id)).Value;
                     string friendLastName = (await _userInformationRepository.GetUserInformationByIdAsync(friend.Id, (await lastNameInfo).Id)).Value;
 
-                    fullInfo.Friends.Add(new UserBaseModel(friend.Id, friend.Username, friend.Position, friendFirstName, friendLastName));
+                    double debt = 0;
+                    FriendshipModel friendship = await _friendshipRepository.GetFriendshipByIdAsync(user.Id, friend.Id);
+
+                    if(friendship == null)
+                    {
+                        CustomException errors = new CustomException();
+                        errors.AddError("Unexpected Error Occured", "Friendship does not exist");
+                        errors.Throw();
+                    }
+                  
+                    if (friendship.User1.Id == user.Id)
+                        debt = friendship.Debt;
+                    else
+                        debt = -friendship.Debt;
+
+                    fullInfo.Friends.Add(new UserBaseModel(friend.Id, friend.Username, friend.Position, friendFirstName, friendLastName, debt));
                 }
             }
 

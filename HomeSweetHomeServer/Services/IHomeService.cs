@@ -13,5 +13,6 @@ namespace HomeSweetHomeServer.Services
         Task JoinHomeAcceptAsync(UserModel user, int requesterId, bool isAccepted);
         Task InviteHomeRequestAsync(UserModel user, string invitedUsername);
         Task InviteHomeAcceptAsync(UserModel user, int invitedHomeId, bool isAccepted);
+        Task LendToFriend(UserModel from, UserModel to, double lend);
     }
 }

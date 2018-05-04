@@ -30,6 +30,7 @@ namespace HomeSweetHomeServer.Controllers
             _notepadService = notepadService;
         }
 
+        //Synchronizes clients notepad
         [HttpPost("Synchronize", Name = "SynchronizeNotepad")]
         public async Task<IActionResult> Synchronize([FromBody] ClientNotepadContextModel client)
         {
@@ -41,6 +42,7 @@ namespace HomeSweetHomeServer.Controllers
             return Ok(res);
         }
 
+        //Adds note
         [HttpPost("AddNote", Name = "AddNote")]
         public async Task<IActionResult> AddNote([FromBody] NotepadModel note)
         {
@@ -52,6 +54,7 @@ namespace HomeSweetHomeServer.Controllers
             return Ok();
         }
 
+        //Deletes note
         [HttpGet("DeleteNote", Name = "DeleteNote")]
         public async Task<IActionResult> DeleteNote([FromQuery] int noteId)
         {
@@ -63,6 +66,7 @@ namespace HomeSweetHomeServer.Controllers
             return Ok();
         }
 
+        //Updates note
         [HttpPost("UpdateNote", Name = "UpdateNote")]
         public async Task<IActionResult> UpdateNote([FromBody] NotepadModel note)
         {
