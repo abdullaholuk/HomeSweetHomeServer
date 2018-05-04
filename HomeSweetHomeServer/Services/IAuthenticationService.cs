@@ -6,7 +6,7 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Services
 {
-    //Interface for authentication operations, register, login, verify email, forgot password
+    //Interface about authentication operations, register, login, verify email, forgot password
     public interface IAuthenticationService
     {
         Task ControlRegisterFormAsync(RegistrationModel registrationForm);

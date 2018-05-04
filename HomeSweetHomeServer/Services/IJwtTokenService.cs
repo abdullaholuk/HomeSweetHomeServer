@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace HomeSweetHomeServer.Services
 {
-    //Interface for token operations
+    //Interface about token operations
     public interface IJwtTokenService
     {
         string CreateToken(UserModel user);

@@ -6,7 +6,7 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Services
 {
-    //Interface for notepad operations
+    //Interface about notepad operations
     public interface INotepadService
     {
         Task<List<SynchronizeModel<NotepadModel>>> SynchronizeNotepad(UserModel user, ClientNotepadContextModel client);

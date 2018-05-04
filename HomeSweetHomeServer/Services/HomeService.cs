@@ -318,8 +318,9 @@ namespace HomeSweetHomeServer.Services
             }
         }
 
-        public async Task LendToFriend(UserModel from, UserModel to, double lend)
-        {
+        //User gives money to his/her friend
+        public async Task GiveMoneyToFriend(UserModel from, UserModel to, double givenMoney)
+        { 
             if (to == null)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
@@ -344,13 +345,39 @@ namespace HomeSweetHomeServer.Services
 
             if(friendship.User1.Id == from.Id)
             {
-                friendship.Debt -= lend;
-                await _friendshipRepository.UpdateAsync(friendship);
+                friendship.Debt -= givenMoney;
+                Task update = _friendshipRepository.UpdateAsync(friendship);
+
+                FCMModel fcmFrom = new FCMModel(from.DeviceId, type: "GiveMoney");
+                fcmFrom.data.Add("ToId", to.Id);
+                fcmFrom.data.Add("NewDebt", friendship.Debt);
+                Task sendFCMFrom = _fcmService.SendFCMAsync(fcmFrom);
+
+                FCMModel fcmTo = new FCMModel(to.DeviceId, type: "TakeMoney");
+                fcmTo.data.Add("FromId", from.Id);
+                fcmTo.data.Add("NewDebt", -friendship.Debt);
+
+                await _fcmService.SendFCMAsync(fcmTo);
+                await sendFCMFrom;
+                await update;
             }
             else
             {
-                friendship.Debt += lend;
-                await _friendshipRepository.UpdateAsync(friendship);
+                friendship.Debt += givenMoney;
+                Task update = _friendshipRepository.UpdateAsync(friendship);
+
+                FCMModel fcmFrom = new FCMModel(from.DeviceId, type: "GiveMoney");
+                fcmFrom.data.Add("ToId", to.Id);
+                fcmFrom.data.Add("NewDebt", -friendship.Debt);
+                Task sendFCMFrom = _fcmService.SendFCMAsync(fcmFrom);
+
+                FCMModel fcmTo = new FCMModel(to.DeviceId, type: "TakeMoney");
+                fcmTo.data.Add("FromId", from.Id);
+                fcmTo.data.Add("NewDebt", friendship.Debt);
+
+                await _fcmService.SendFCMAsync(fcmTo);
+                await sendFCMFrom;
+                await update;
             }
         }
     }

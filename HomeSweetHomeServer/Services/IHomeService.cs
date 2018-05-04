@@ -6,6 +6,7 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Services
 {
+    //Interface about home operations
     public interface IHomeService
     {
         Task CreateNewHomeAsync(UserModel user, HomeModel home);
@@ -13,6 +14,6 @@ namespace HomeSweetHomeServer.Services
         Task JoinHomeAcceptAsync(UserModel user, int requesterId, bool isAccepted);
         Task InviteHomeRequestAsync(UserModel user, string invitedUsername);
         Task InviteHomeAcceptAsync(UserModel user, int invitedHomeId, bool isAccepted);
-        Task LendToFriend(UserModel from, UserModel to, double lend);
+        Task GiveMoneyToFriend(UserModel from, UserModel to, double givenMoney);
     }
 }

@@ -97,17 +97,17 @@ namespace HomeSweetHomeServer.Controllers
             return Ok();
         }
 
-        [HttpGet("LendToFriend", Name = "LendToFriend")]
-        public async Task<IActionResult> LendToFriend([FromQuery] int toId, [FromQuery] double lend)
+        //User gives money to his/her friend
+        [HttpGet("GiveMoneyToFriend", Name = "GiveMoneyToFriend")]
+        public async Task<IActionResult> GiveMoneyToFriend([FromQuery] int toId, [FromQuery] double givenMoney)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel from = await _jwtTokenService.GetUserFromTokenStr(token);
             UserModel to = await _authenticationService.GetUserFromId(toId);
 
-            await _homeService.LendToFriend(from, to, lend);
+            await _homeService.GiveMoneyToFriend(from, to, givenMoney);
 
             return Ok();
-
         }
     }
 }
