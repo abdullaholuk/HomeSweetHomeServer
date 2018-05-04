@@ -122,6 +122,7 @@ namespace HomeSweetHomeServer.Services
             return update;
         }
 
+        //User adds note
         public async Task AddNote(UserModel user, NotepadModel note)
         {
             if (user.Position == 0)
@@ -144,6 +145,7 @@ namespace HomeSweetHomeServer.Services
             await _notepadRepository.InsertAsync(note);
         }
 
+        //User deletes note
         public async Task DeleteNote(UserModel user, int noteId)
         {
             if (user.Position == 0)
@@ -180,6 +182,7 @@ namespace HomeSweetHomeServer.Services
             await _notepadRepository.DeleteAsync(note);
         }
 
+        //User updates note
         public async Task UpdateNote(UserModel user, NotepadModel note)
         {
             if (user.Position == 0)
