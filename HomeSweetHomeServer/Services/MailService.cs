@@ -12,6 +12,7 @@ using MailKit.Net.Smtp;
 
 namespace HomeSweetHomeServer.Services
 {
+    //Sends mail to user
     public class MailService : IMailService
     {
         public IConfiguration _config;

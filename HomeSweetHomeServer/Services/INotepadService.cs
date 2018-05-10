@@ -9,9 +9,9 @@ namespace HomeSweetHomeServer.Services
     //Interface about notepad operations
     public interface INotepadService
     {
-        Task<List<NotepadModel>> SynchronizeNotepad(UserModel user);
-        Task AddNote(UserModel user, NotepadModel note);
-        Task DeleteNote(UserModel user, int noteId);
-        Task UpdateNote(UserModel user, NotepadModel note);
+        Task<List<NotepadModel>> SynchronizeNotepadAsync(UserModel user);
+        Task AddNoteAsync(UserModel user, NotepadModel note);
+        Task DeleteNoteAsync(UserModel user, int noteId);
+        Task UpdateNoteAsync(UserModel user, NotepadModel note);
     }
 }

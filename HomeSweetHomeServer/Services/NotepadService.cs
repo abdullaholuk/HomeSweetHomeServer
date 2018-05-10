@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HomeSweetHomeServer.Services
 {
+    //Handles notepad operations
     public class NotepadService : INotepadService
     {
         public IInformationRepository _informationRepository;
@@ -46,9 +47,9 @@ namespace HomeSweetHomeServer.Services
             _friendshipRepository = friendshipRepository;
             _notepadRepository = notepadRepository;
         }
-        
-        //Responses client to notepad last update state
-        public async Task<List<NotepadModel>> SynchronizeNotepad(UserModel user)
+
+        //Synchronizes clients notepad
+        public async Task<List<NotepadModel>> SynchronizeNotepadAsync(UserModel user)
         {
             if(user.Position == 0)
             {
@@ -56,12 +57,14 @@ namespace HomeSweetHomeServer.Services
                 errors.AddError("Home Not Exist", "User is not member of a home");
                 errors.Throw();
             }
-                        
+
+            user = await _userRepository.GetByIdAsync(user.Id, true);
+
             return await _notepadRepository.GetAllNoteByHomeIdAsync(user.Home.Id);
         }
 
         //User adds note
-        public async Task AddNote(UserModel user, NotepadModel note)
+        public async Task AddNoteAsync(UserModel user, NotepadModel note)
         {
             if (user.Position == 0)
             {
@@ -73,7 +76,6 @@ namespace HomeSweetHomeServer.Services
             user = await _userRepository.GetByIdAsync(user.Id, true);
             note.Home = user.Home;
 
-
             await _notepadRepository.InsertAsync(note);
 
             foreach (var friend in user.Home.Users)
@@ -82,10 +84,11 @@ namespace HomeSweetHomeServer.Services
                 fcm.data.Add("NewNote", note);
                 await _fcmService.SendFCMAsync(fcm);
             }
+
         }
 
         //User deletes note
-        public async Task DeleteNote(UserModel user, int noteId)
+        public async Task DeleteNoteAsync(UserModel user, int noteId)
         {
             if (user.Position == 0)
             {
@@ -123,7 +126,7 @@ namespace HomeSweetHomeServer.Services
         }
 
         //User updates note
-        public async Task UpdateNote(UserModel user, NotepadModel note)
+        public async Task UpdateNoteAsync(UserModel user, NotepadModel note)
         {
             if (user.Position == 0)
             {
@@ -135,7 +138,7 @@ namespace HomeSweetHomeServer.Services
             if(note.Id == 0)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("Id Not Exist", "Id field is required");
+                errors.AddError("Id Not Exist", "Notepad id field is required");
                 errors.Throw();
             }
 
@@ -149,7 +152,7 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
 
-            if (old.Home != user.Home)
+            if (old.Id != note.Id)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Note Not Belongs Home", "Note does not belong this home");
@@ -158,16 +161,15 @@ namespace HomeSweetHomeServer.Services
 
             old.Title = note.Title;
             old.Content = note.Content;
-            
-            await _notepadRepository.UpdateAsync(old);
 
+            await _notepadRepository.UpdateAsync(old);
+            
             foreach (var friend in user.Home.Users)
             {
                 FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadUpdate");
                 fcm.data.Add("UpdatedNote", old);
                 await _fcmService.SendFCMAsync(fcm);
             }
-
         }
     }
 }

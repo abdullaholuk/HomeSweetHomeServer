@@ -52,7 +52,7 @@ namespace HomeSweetHomeServer.Controllers
         {
             login.Username = login.Username.ToLower();
 
-            UserModel user = await _authenticationService.Login(login);
+            UserModel user = await _authenticationService.LoginAsync(login);
 
             if (user.Status == 2)
             {
@@ -80,7 +80,7 @@ namespace HomeSweetHomeServer.Controllers
         [HttpGet("EMailVerification", Name = "EMailVerification")]
         public async Task<IActionResult> EMailVerification([FromQuery] int userId)
         {
-            var user = await _authenticationService.GetUserFromId(userId);
+            var user = await _authenticationService.GetUserFromIdAsync(userId);
 
             await _authenticationService.SendEmailVerificationCodeToUserAsync(user);
 
@@ -91,7 +91,7 @@ namespace HomeSweetHomeServer.Controllers
         [HttpPost("VerifyEmail", Name = "VerifyEmail")]
         public async Task<IActionResult> VerifyEmail([FromBody] VerificationCodeModel verificationCode)
         {
-            var user = await _authenticationService.GetUserFromId(verificationCode.UserId);
+            var user = await _authenticationService.GetUserFromIdAsync(verificationCode.UserId);
 
             await _authenticationService.VerifyEmailAsync(user, verificationCode);
 
@@ -104,7 +104,7 @@ namespace HomeSweetHomeServer.Controllers
         {
             email = email.ToLower();
 
-            UserModel user = await _authenticationService.GetUserFromMail(email);
+            UserModel user = await _authenticationService.GetUserFromMailAsync(email);
 
             await _authenticationService.SendForgotPasswordVerificationCodeToUserAsync(user);
 
@@ -117,7 +117,7 @@ namespace HomeSweetHomeServer.Controllers
         {
             forgotPassword.Email = forgotPassword.Email.ToLower();
 
-            UserModel user = await _authenticationService.GetUserFromMail(forgotPassword.Email);
+            UserModel user = await _authenticationService.GetUserFromMailAsync(forgotPassword.Email);
 
             await _authenticationService.ForgotPasswordAsync(user, forgotPassword);
 
