@@ -12,7 +12,7 @@ namespace HomeSweetHomeServer.Models
     public class LoginModel
     {
         [Required]
-       
+        [StringLength(20)]
         public string Username { get; set; }
 
         [Required]
@@ -36,18 +36,18 @@ namespace HomeSweetHomeServer.Models
     public class RegistrationModel
     {
         [Required]
- 
+        [StringLength(20)]
         public string Username { get; set; }
 
         [Required]
         public string Password { get; set; }
 
         [Required]
-
+        [StringLength(20)]
         public string FirstName { get; set; }
 
         [Required]
-
+        [StringLength(20)]
         public string LastName { get; set; }
 
         [Required]
