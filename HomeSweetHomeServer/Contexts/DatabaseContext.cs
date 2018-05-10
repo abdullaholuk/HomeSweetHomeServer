@@ -22,7 +22,9 @@ namespace HomeSweetHomeServer.Contexts
         DbSet<UserInformationModel> UserInformationModels { get; set; } //UserInformation table
         DbSet<FriendshipModel> FriendshipModels { get; set; } //Friendship table
         DbSet<HomeModel> HomeModels { get; set; } //Home table
-        DbSet<NotepadModel> NotepadModels { get; set; }
+        DbSet<NotepadModel> NotepadModels { get; set; } //Notepad table
+        DbSet<MaterialModel> MaterialModels { get; set; } //Material table
+        DbSet<ShoppingListModel> ShoppingModels { get; set; } //Shopping table
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -33,6 +35,8 @@ namespace HomeSweetHomeServer.Contexts
             builder.Entity<FriendshipModel>().ToTable("Friendship");
             builder.Entity<HomeModel>().ToTable("Home").HasMany(h => h.Users).WithOne(u => u.Home).IsRequired();
             builder.Entity<NotepadModel>().ToTable("Notepad");
+            builder.Entity<MaterialModel>().ToTable("Material");
+            builder.Entity<ShoppingListModel>().ToTable("ShoppingList");
         }
     }
 }

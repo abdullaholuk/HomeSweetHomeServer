@@ -31,13 +31,13 @@ namespace HomeSweetHomeServer.Controllers
         }
 
         //Synchronizes clients notepad
-        [HttpPost("Synchronize", Name = "SynchronizeNotepad")]
-        public async Task<IActionResult> Synchronize([FromBody] ClientNotepadContextModel client)
+        [HttpGet("Synchronize", Name = "SynchronizeNotepad")]
+        public async Task<IActionResult> Synchronize()
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
 
-            var res = await _notepadService.SynchronizeNotepad(user, client);
+            var res = await _notepadService.SynchronizeNotepad(user);
             
             return Ok(res);
         }

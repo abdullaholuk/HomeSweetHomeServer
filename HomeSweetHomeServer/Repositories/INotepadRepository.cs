@@ -8,7 +8,7 @@ namespace HomeSweetHomeServer.Repositories
 {
     public interface INotepadRepository : IBaseRepository<NotepadModel>
     {
-        Task<List<NotepadModel>> GetAllNoteByHomeId(int homeId, bool include = false);
-        Task<NotepadModel> GetNoteById(int id, bool include = false);
+        Task<List<NotepadModel>> GetAllNoteByHomeIdAsync(int homeId, bool include = false);
+        Task<NotepadModel> GetNoteByIdAsync(int id, bool include = false);
     }
 }

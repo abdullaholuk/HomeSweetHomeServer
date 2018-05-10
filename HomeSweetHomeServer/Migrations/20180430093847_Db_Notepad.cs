@@ -21,7 +21,6 @@ namespace HomeSweetHomeServer.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Content = table.Column<string>(nullable: true),
                     HomeId = table.Column<int>(nullable: true),
-                    LastUpdated = table.Column<DateTime>(nullable: false),
                     Title = table.Column<string>(nullable: true)
                 },
                 constraints: table =>

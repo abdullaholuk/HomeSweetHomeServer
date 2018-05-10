@@ -13,7 +13,7 @@ namespace HomeSweetHomeServer.Repositories
         {
         }
 
-        public async Task<List<NotepadModel>> GetAllNoteByHomeId(int homeId, bool include = false)
+        public async Task<List<NotepadModel>> GetAllNoteByHomeIdAsync(int homeId, bool include = false)
         {
             if (include == false)
                 return await Db.Where(n => n.Home.Id == homeId).ToListAsync();
@@ -21,7 +21,7 @@ namespace HomeSweetHomeServer.Repositories
                 return await Db.Where(n => n.Home.Id == homeId).Include(n => n.Home).ThenInclude(h => h.Users).ToListAsync(); 
         }
 
-        public async Task<NotepadModel> GetNoteById(int id, bool include = false)
+        public async Task<NotepadModel> GetNoteByIdAsync(int id, bool include = false)
         {
             if (include == false)
                 return await Db.SingleOrDefaultAsync(n => n.Id == id);

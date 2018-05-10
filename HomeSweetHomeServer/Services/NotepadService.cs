@@ -48,7 +48,7 @@ namespace HomeSweetHomeServer.Services
         }
         
         //Responses client to notepad last update state
-        public async Task<List<SynchronizeModel<NotepadModel>>> SynchronizeNotepad(UserModel user, ClientNotepadContextModel client)
+        public async Task<List<NotepadModel>> SynchronizeNotepad(UserModel user)
         {
             if(user.Position == 0)
             {
@@ -57,69 +57,7 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
                         
-            List<SynchronizeModel<NotepadModel>> update = new List<SynchronizeModel<NotepadModel>>();
-
-            List<NotepadModel> serverState = await _notepadRepository.GetAllNoteByHomeId(user.Home.Id);
-            List<SyncModel> clientState = client.LastState.OrderBy(n => n.Id).ToList();
-
-            int i = 0, j = 0;
-
-            while(i < serverState.Count && j < clientState.Count)
-            {
-
-                if(serverState[i].Id == clientState[j].Id)
-                {
-                    if(serverState[i].LastUpdated.CompareTo(clientState[j].LastUpdated) == 1)
-                    {
-                        //Update client
-                        update.Add(new SynchronizeModel<NotepadModel>(serverState[i].Id, 2,
-                                      new NotepadModel(serverState[i].Id,
-                                                       user.Home,
-                                                       serverState[i].Title,
-                                                       serverState[i].Content,
-                                                       serverState[i].LastUpdated)));
-                    }
-                    i++; j++;
-                }
-                else if(serverState[i].Id < clientState[i].Id)
-                {
-                    //Add to client
-                    update.Add(new SynchronizeModel<NotepadModel>(serverState[i].Id, 0,
-                                      new NotepadModel(serverState[i].Id,
-                                                       user.Home,
-                                                       serverState[i].Title,
-                                                       serverState[i].Content,
-                                                       serverState[i].LastUpdated)));
-                    i++;
-                }
-                else
-                {
-                    //Delete from client
-                    update.Add(new SynchronizeModel<NotepadModel>(clientState[j].Id, 1, null));
-                    j++;
-                }
-            }
-
-            while(i < serverState.Count)
-            {
-                //Add to client
-                update.Add(new SynchronizeModel<NotepadModel>(serverState[i].Id, 0,
-                                      new NotepadModel(serverState[i].Id,
-                                                       user.Home,
-                                                       serverState[i].Title,
-                                                       serverState[i].Content,
-                                                       serverState[i].LastUpdated)));
-                i++;
-            }
-
-            while(j < clientState.Count)
-            {
-                //Delete from client
-                update.Add(new SynchronizeModel<NotepadModel>(clientState[j].Id, 1, null));
-                j++;
-            }
-
-            return update;
+            return await _notepadRepository.GetAllNoteByHomeIdAsync(user.Home.Id);
         }
 
         //User adds note
@@ -134,11 +72,11 @@ namespace HomeSweetHomeServer.Services
 
             user = await _userRepository.GetByIdAsync(user.Id, true);
             note.Home = user.Home;
-            note.LastUpdated = DateTime.UtcNow;
 
             foreach (var friend in user.Home.Users)
             {
-                FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadUpdate");
+                FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadAdd");
+                fcm.data.Add("NewNote", note);
                 await _fcmService.SendFCMAsync(fcm);
             }
 
@@ -157,7 +95,7 @@ namespace HomeSweetHomeServer.Services
 
             user = await _userRepository.GetByIdAsync(user.Id, true);
 
-            NotepadModel note = await _notepadRepository.GetNoteById(noteId, true);
+            NotepadModel note = await _notepadRepository.GetNoteByIdAsync(noteId, true);
 
             if(note == null)
             {
@@ -175,7 +113,8 @@ namespace HomeSweetHomeServer.Services
 
             foreach (var friend in user.Home.Users)
             {
-                FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadUpdate");
+                FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadDelete");
+                fcm.data.Add("DeletedNote", note);
                 await _fcmService.SendFCMAsync(fcm);
             }
 
@@ -200,7 +139,7 @@ namespace HomeSweetHomeServer.Services
             }
 
             user = await _userRepository.GetByIdAsync(user.Id, true);
-            NotepadModel old = await _notepadRepository.GetNoteById(note.Id, true);
+            NotepadModel old = await _notepadRepository.GetNoteByIdAsync(note.Id, true);
 
             if(old == null)
             {
@@ -218,11 +157,11 @@ namespace HomeSweetHomeServer.Services
 
             old.Title = note.Title;
             old.Content = note.Content;
-            old.LastUpdated = DateTime.UtcNow;;
             
             foreach (var friend in user.Home.Users)
             {
                 FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadUpdate");
+                fcm.data.Add("UpdatedNote", old);
                 await _fcmService.SendFCMAsync(fcm);
             }
 

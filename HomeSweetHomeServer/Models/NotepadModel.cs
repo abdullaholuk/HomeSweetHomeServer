@@ -27,17 +27,13 @@ namespace HomeSweetHomeServer.Models
         [DataMember]
         [MinLength(1)]
         public string Content { get; set; }
-        
-        [DataType(DataType.DateTime)]
-        public DateTime LastUpdated { get; set; }
 
-        public NotepadModel(int id, HomeModel home, string title, string content, DateTime lastUpdated)
+        public NotepadModel(int id, HomeModel home, string title, string content)
         {
             Id = id;
             Home = home;
             Title = title;
             Content = content;
-            LastUpdated = lastUpdated;
         }
 
         public NotepadModel()
