@@ -73,14 +73,15 @@ namespace HomeSweetHomeServer.Services
             user = await _userRepository.GetByIdAsync(user.Id, true);
             note.Home = user.Home;
 
+
+            await _notepadRepository.InsertAsync(note);
+
             foreach (var friend in user.Home.Users)
             {
                 FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadAdd");
                 fcm.data.Add("NewNote", note);
                 await _fcmService.SendFCMAsync(fcm);
             }
-
-            await _notepadRepository.InsertAsync(note);
         }
 
         //User deletes note
@@ -114,7 +115,7 @@ namespace HomeSweetHomeServer.Services
             foreach (var friend in user.Home.Users)
             {
                 FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadDelete");
-                fcm.data.Add("DeletedNote", note);
+                fcm.data.Add("DeletedNote", note.Id);
                 await _fcmService.SendFCMAsync(fcm);
             }
 
@@ -158,6 +159,8 @@ namespace HomeSweetHomeServer.Services
             old.Title = note.Title;
             old.Content = note.Content;
             
+            await _notepadRepository.UpdateAsync(old);
+
             foreach (var friend in user.Home.Users)
             {
                 FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadUpdate");
@@ -165,7 +168,6 @@ namespace HomeSweetHomeServer.Services
                 await _fcmService.SendFCMAsync(fcm);
             }
 
-            await _notepadRepository.UpdateAsync(old);
         }
     }
 }
