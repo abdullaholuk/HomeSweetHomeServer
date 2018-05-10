@@ -12,14 +12,15 @@ namespace HomeSweetHomeServer.Models
         [Key]
         [DataMember]
         public int Id { get; set; }
-
-        [ForeignKey("MaterialId")]
-        public MaterialModel Material { get; set; }
-
+        
         [ForeignKey("HomeId")]
         public HomeModel Home { get; set; }
 
         [DataMember]
-        public int Status { get; set; }
+
+        public string List { get; set; }
+
+        [DataMember]
+        public string Status { get; set; }
     }
 }

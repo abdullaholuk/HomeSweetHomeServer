@@ -11,7 +11,7 @@ using System;
 namespace HomeSweetHomeServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20180510122428_Db_ShoppingList")]
+    [Migration("20180510182645_Db_ShoppingList")]
     partial class Db_ShoppingList
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -72,18 +72,6 @@ namespace HomeSweetHomeServer.Migrations
                     b.ToTable("Information");
                 });
 
-            modelBuilder.Entity("HomeSweetHomeServer.Models.MaterialModel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("MaterialName");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Material");
-                });
-
             modelBuilder.Entity("HomeSweetHomeServer.Models.NotepadModel", b =>
                 {
                     b.Property<int>("Id")
@@ -112,15 +100,13 @@ namespace HomeSweetHomeServer.Migrations
 
                     b.Property<int?>("HomeId");
 
-                    b.Property<int?>("MaterialId");
+                    b.Property<string>("List");
 
-                    b.Property<int>("Status");
+                    b.Property<string>("Status");
 
                     b.HasKey("Id");
 
                     b.HasIndex("HomeId");
-
-                    b.HasIndex("MaterialId");
 
                     b.ToTable("ShoppingList");
                 });
@@ -202,10 +188,6 @@ namespace HomeSweetHomeServer.Migrations
                     b.HasOne("HomeSweetHomeServer.Models.HomeModel", "Home")
                         .WithMany()
                         .HasForeignKey("HomeId");
-
-                    b.HasOne("HomeSweetHomeServer.Models.MaterialModel", "Material")
-                        .WithMany()
-                        .HasForeignKey("MaterialId");
                 });
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.UserInformationModel", b =>

@@ -12,14 +12,9 @@ namespace HomeSweetHomeServer.Repositories
         public ShoppingListRepository(DatabaseContext context) : base(context)
         {
         }
-
-        public async Task<ShoppingListModel> GetShoppingListItemById(int homeId, int materialId, bool include = false)
+        /*
+        public async Task<ShoppingListModel> GetHomeShoppingListByIdAsync(int homeId)
         {
-            if (include == false)
-                return await Db.SingleOrDefaultAsync(s => s.Home.Id == homeId && s.Material.Id == materialId);
-            else
-                return await Db.Include(s => s.Home).ThenInclude(h => h.Users).Include(s => s.Material).
-                                SingleOrDefaultAsync(s => s.Home.Id == homeId && s.Material.Id == materialId);
-        }
+        }*/
     }
 }

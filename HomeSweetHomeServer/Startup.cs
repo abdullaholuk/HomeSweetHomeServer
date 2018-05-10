@@ -60,7 +60,6 @@ namespace HomeSweetHomeServer
             services.AddScoped<IFriendshipRepository, FriendshipRepository>();
             services.AddScoped<IHomeRepository, HomeRepository>();
             services.AddScoped<INotepadRepository, NotepadRepository>();
-            services.AddScoped<IMaterialRepository, MaterialRepository>();
             services.AddScoped<IShoppingListRepository, ShoppingListRepository>();
 
             services.AddScoped<IJwtTokenService, JwtTokenService>();
