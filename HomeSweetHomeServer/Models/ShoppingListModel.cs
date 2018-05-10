@@ -25,7 +25,8 @@ namespace HomeSweetHomeServer.Models
         public string Status { get; set; }
 
         public ShoppingListModel()
-        { }
+        {
+        }
 
         public ShoppingListModel(HomeModel home, string list = "", string status = "")
         {
