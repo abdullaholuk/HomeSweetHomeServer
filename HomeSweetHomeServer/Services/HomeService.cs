@@ -24,6 +24,7 @@ namespace HomeSweetHomeServer.Services
         public IHomeRepository _homeRepository;
         public IFCMService _fcmService;
         public IFriendshipRepository _friendshipRepository;
+        public IShoppingListRepository _shoppingListRepository;
 
         public HomeService(IInformationRepository informationRepository,
                            IUserRepository userRepository,
@@ -32,7 +33,8 @@ namespace HomeSweetHomeServer.Services
                            IMailService mailService,
                            IHomeRepository homeRepository,
                            IFCMService fcmService,
-                           IFriendshipRepository friendshipRepository)
+                           IFriendshipRepository friendshipRepository,
+                           IShoppingListRepository shoppingListRepository)
         {
             _informationRepository = informationRepository;
             _userRepository = userRepository;
@@ -42,6 +44,7 @@ namespace HomeSweetHomeServer.Services
             _homeRepository = homeRepository;
             _fcmService = fcmService;
             _friendshipRepository = friendshipRepository;
+            _shoppingListRepository = shoppingListRepository;
         }
 
         //Admin creates the home
@@ -72,6 +75,9 @@ namespace HomeSweetHomeServer.Services
 
             user.Home = home;
             _userRepository.Update(user);
+
+            _shoppingListRepository.Insert(new ShoppingListModel(home));
+
         }
 
         //User requests to admin for joining home
@@ -319,7 +325,7 @@ namespace HomeSweetHomeServer.Services
         }
 
         //User gives money to his/her friend
-        public async Task GiveMoneyToFriend(UserModel from, UserModel to, double givenMoney)
+        public async Task GiveMoneyToFriendAsync(UserModel from, UserModel to, double givenMoney)
         { 
             if (to == null)
             {

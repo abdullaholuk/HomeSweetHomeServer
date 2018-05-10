@@ -124,7 +124,7 @@ namespace HomeSweetHomeServer.Services
             _userInformationRepository.Insert(userInformation);
         }
         
-        public async Task<UserModel> Login(LoginModel login)
+        public async Task<UserModel> LoginAsync(LoginModel login)
         {
             UserModel user = await _userRepository.GetByUsernameAsync(login.Username);
 
@@ -149,7 +149,7 @@ namespace HomeSweetHomeServer.Services
             return user;
         }
 
-        public async Task<UserModel> GetUserFromId(int id, bool include = false)
+        public async Task<UserModel> GetUserFromIdAsync(int id, bool include = false)
         {
             UserModel user = await _userRepository.GetByIdAsync(id, include);
 
@@ -422,7 +422,7 @@ namespace HomeSweetHomeServer.Services
             }
         }
 
-        public async Task<UserModel> GetUserFromMail(string email)
+        public async Task<UserModel> GetUserFromMailAsync(string email)
         {
             var Email = await _userInformationRepository.GetUserInformationByValueAsync(email, true);
 
@@ -443,7 +443,7 @@ namespace HomeSweetHomeServer.Services
             Task<InformationModel> emailInfo = _informationRepository.GetInformationByInformationNameAsync("Email");
             Task<InformationModel> phoneNumberInfo = _informationRepository.GetInformationByInformationNameAsync("PhoneNumber");
 
-            UserModel user = await GetUserFromId(id);
+            UserModel user = await GetUserFromIdAsync(id);
 
             Task<UserInformationModel> firstName = _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
             Task<UserInformationModel> lastName = _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
@@ -471,7 +471,7 @@ namespace HomeSweetHomeServer.Services
             }
             else
             {
-                user = await GetUserFromId(id, true);
+                user = await GetUserFromIdAsync(id, true);
                 
                 fullInfo.HomeName = user.Home.Name;
                 fullInfo.NumberOfFriends = user.Home.Users.Count - 1;

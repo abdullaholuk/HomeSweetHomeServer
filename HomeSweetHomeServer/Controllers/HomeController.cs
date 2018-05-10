@@ -103,9 +103,9 @@ namespace HomeSweetHomeServer.Controllers
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel from = await _jwtTokenService.GetUserFromTokenStr(token);
-            UserModel to = await _authenticationService.GetUserFromId(toId);
+            UserModel to = await _authenticationService.GetUserFromIdAsync(toId);
 
-            await _homeService.GiveMoneyToFriend(from, to, givenMoney);
+            await _homeService.GiveMoneyToFriendAsync(from, to, givenMoney);
 
             return Ok();
         }

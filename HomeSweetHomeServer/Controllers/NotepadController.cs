@@ -37,7 +37,7 @@ namespace HomeSweetHomeServer.Controllers
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
 
-            var res = await _notepadService.SynchronizeNotepad(user);
+            var res = await _notepadService.SynchronizeNotepadAsync(user);
             
             return Ok(res);
         }
@@ -49,7 +49,7 @@ namespace HomeSweetHomeServer.Controllers
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
             
-            await _notepadService.AddNote(user, note);
+            await _notepadService.AddNoteAsync(user, note);
 
             return Ok();
         }
@@ -61,7 +61,7 @@ namespace HomeSweetHomeServer.Controllers
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
 
-            await _notepadService.DeleteNote(user, noteId);
+            await _notepadService.DeleteNoteAsync(user, noteId);
 
             return Ok();
         }
@@ -73,7 +73,7 @@ namespace HomeSweetHomeServer.Controllers
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
 
-            await _notepadService.UpdateNote(user, note);
+            await _notepadService.UpdateNoteAsync(user, note);
 
             return Ok();
         }

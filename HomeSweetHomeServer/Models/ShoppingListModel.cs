@@ -17,10 +17,21 @@ namespace HomeSweetHomeServer.Models
         public HomeModel Home { get; set; }
 
         [DataMember]
-
+        [Required]
         public string List { get; set; }
 
         [DataMember]
+        [Required]
         public string Status { get; set; }
+
+        public ShoppingListModel()
+        { }
+
+        public ShoppingListModel(HomeModel home, string list = "", string status = "")
+        {
+            Home = home;
+            List = list;
+            Status = status;
+        }
     }
 }
