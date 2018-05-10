@@ -71,8 +71,6 @@ namespace HomeSweetHomeServer.Services
 
             _shoppingListRepository.Update(old);
 
-            //annenı sıkıyım burak
-
             foreach (var friend in user.Home.Users)
             {
                 FCMModel fcm = new FCMModel(friend.DeviceId, type: "ShoppingListUpdate");
