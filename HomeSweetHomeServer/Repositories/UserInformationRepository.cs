@@ -26,7 +26,7 @@ namespace HomeSweetHomeServer.Repositories
                 return await Db.Include(u => u.User).Include(i => i.Information).SingleOrDefaultAsync(ui => ui.Value == value);
         }
 
-        //Gets user informations by user id
+        //Gets all user informations by user id
         public async Task<List<UserInformationModel>> GetAllUserInformationsByUserIdAsync(int userId, bool include = false)
         {
             if (include == false)
