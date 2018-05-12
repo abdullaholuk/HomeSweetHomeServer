@@ -6,6 +6,7 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Repositories
 {
+    //Interface about home repository operations
     public interface IHomeRepository : IBaseRepository<HomeModel>
     {
         Task<HomeModel> GetByIdAsync(int id, bool include = false);

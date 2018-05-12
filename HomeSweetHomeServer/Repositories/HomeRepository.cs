@@ -14,6 +14,7 @@ namespace HomeSweetHomeServer.Repositories
             
         }
 
+        //Gets home by home id
         public async Task<HomeModel> GetByIdAsync(int id, bool include = false)
         {
             if (include == false)
@@ -22,6 +23,7 @@ namespace HomeSweetHomeServer.Repositories
                 return await Db.Include(h => h.Admin).Include(h => h.Users).SingleOrDefaultAsync(u => u.Id == id);
         }
 
+        //Gets home by home name
         public async Task<HomeModel> GetByHomeNameAsync(string name, bool include = false)
         {
             if (include == false)

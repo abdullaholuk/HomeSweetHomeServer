@@ -6,18 +6,18 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Services
 {
-    //Interface about authentication operations, register, login, verify email, forgot password
+    //Interface about authentication operations
     public interface IAuthenticationService
     {
         Task ControlRegisterFormAsync(RegistrationModel registrationForm);
         Task RegisterNewUserAsync(RegistrationModel registrationForm);
         Task<UserModel> LoginAsync(LoginModel login);
-        Task<UserModel> GetUserFromIdAsync(int id, bool include = false);
+        Task<UserModel> GetUserByIdAsync(int id, bool include = false);
         Task SendEmailVerificationCodeToUserAsync(UserModel user);
         Task SendForgotPasswordVerificationCodeToUserAsync(UserModel user);
         Task VerifyEmailAsync(UserModel user, VerificationCodeModel verificationCode);
         Task ForgotPasswordAsync(UserModel user, ForgotPasswordModel forgotPassword);
-        Task<UserModel> GetUserFromMailAsync(string email);
+        Task<UserModel> GetUserByMailAsync(string email);
         Task<UserFullInformationModel> GetUserFullInformationAsync(int id);
     }
 }

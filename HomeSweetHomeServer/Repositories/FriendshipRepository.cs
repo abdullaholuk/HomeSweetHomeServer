@@ -12,6 +12,7 @@ namespace HomeSweetHomeServer.Repositories
         {
         }
 
+        //Gets friendship by user1 and user2 id
         public async Task<FriendshipModel> GetFriendshipByIdAsync(int user1Id, int user2Id, bool include = false)
         {
             if(include == false)

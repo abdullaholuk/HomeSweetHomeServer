@@ -35,7 +35,7 @@ namespace HomeSweetHomeServer.Controllers
         public async Task<IActionResult> Synchronize()
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
             var res = await _notepadService.SynchronizeNotepadAsync(user);
             
@@ -47,7 +47,7 @@ namespace HomeSweetHomeServer.Controllers
         public async Task<IActionResult> AddNote([FromBody] NotepadModel note)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
             
             await _notepadService.AddNoteAsync(user, note);
 
@@ -59,7 +59,7 @@ namespace HomeSweetHomeServer.Controllers
         public async Task<IActionResult> DeleteNote([FromQuery] int noteId)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
             await _notepadService.DeleteNoteAsync(user, noteId);
 
@@ -71,7 +71,7 @@ namespace HomeSweetHomeServer.Controllers
         public async Task<IActionResult> UpdateNote([FromBody] NotepadModel note)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
             await _notepadService.UpdateNoteAsync(user, note);
 

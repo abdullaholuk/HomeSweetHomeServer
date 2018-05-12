@@ -40,7 +40,8 @@ namespace HomeSweetHomeServer.Services
             _jwtTokenService = jwtTokenService;
             _friendshipRepository = friendshipRepository;
         }
-                      
+                
+        //Controls registration form is valid
         public async Task ControlRegisterFormAsync(RegistrationModel registrationForm)
         {
             CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
@@ -63,6 +64,7 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
         }
 
+        //Registers new user
         public async Task RegisterNewUserAsync(RegistrationModel registrationForm)
         {
             UserModel user = new UserModel();
@@ -71,9 +73,9 @@ namespace HomeSweetHomeServer.Services
 
             user.Username = registrationForm.Username;
             user.Password = registrationForm.Password;
-            user.Status = 0;
+            user.Status = (int)UserStatus.NotValid;
             user.Home = null;
-            user.Position = 0;
+            user.Position = (int)UserPosition.HasNotHome;
       
             _userRepository.Insert(user);
 
@@ -124,6 +126,7 @@ namespace HomeSweetHomeServer.Services
             _userInformationRepository.Insert(userInformation);
         }
         
+        //Logins user
         public async Task<UserModel> LoginAsync(LoginModel login)
         {
             UserModel user = await _userRepository.GetByUsernameAsync(login.Username);
@@ -142,6 +145,13 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
 
+            if (user.Status == (int)UserStatus.Banned)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("User Is Banned", "User is banned from application");
+                errors.Throw();
+            }
+
             user.Token = _jwtTokenService.CreateToken(user);
             user.DeviceId = login.DeviceId;
             _userRepository.Update(user);
@@ -149,7 +159,8 @@ namespace HomeSweetHomeServer.Services
             return user;
         }
 
-        public async Task<UserModel> GetUserFromIdAsync(int id, bool include = false)
+        //Gets user from user id
+        public async Task<UserModel> GetUserByIdAsync(int id, bool include = false)
         {
             UserModel user = await _userRepository.GetByIdAsync(id, include);
 
@@ -163,16 +174,17 @@ namespace HomeSweetHomeServer.Services
             return user;
         }
 
+        //Sends email verification code to user
         public async Task SendEmailVerificationCodeToUserAsync(UserModel user)
         {
-            if (user.Status == 1)
+            if (user.Status == (int)UserStatus.Valid)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Already Verified", "User already verified");
                 errors.Throw();
             }
 
-            if (user.Status == 2)
+            if (user.Status == (int)UserStatus.Banned)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Is Banned", "User is banned from application");
@@ -233,16 +245,17 @@ namespace HomeSweetHomeServer.Services
             await sendMail;
         }
 
+        //Sends forgot password verification code to user
         public async Task SendForgotPasswordVerificationCodeToUserAsync(UserModel user)
         {
-            if (user.Status == 0)
+            if (user.Status == (int)UserStatus.NotValid)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("None Verified Email", "Your email is not verified");
                 errors.Throw();
             }
 
-            if (user.Status == 2)
+            if (user.Status == (int)UserStatus.Banned)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Is Banned", "User is banned from application");
@@ -303,16 +316,17 @@ namespace HomeSweetHomeServer.Services
             await sendMail;
         }
 
+        //Verifies email
         public async Task VerifyEmailAsync(UserModel user, VerificationCodeModel verification)
         {
-            if (user.Status == 1)
+            if (user.Status == (int)UserStatus.Valid)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Already Verified", "User already verified");
                 errors.Throw();
             }
 
-            if (user.Status == 2)
+            if (user.Status == (int)UserStatus.Banned)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Is Banned", "User is banned from application");
@@ -347,7 +361,7 @@ namespace HomeSweetHomeServer.Services
             //Verification code accepted
             if (EmailVerificationCode.Value == verification.VerificationCode)
             {
-                user.Status = 1;
+                user.Status = (int)UserStatus.Valid;
                 _userRepository.Update(user);
 
                 _userInformationRepository.Delete(EmailVerificationCode);
@@ -363,16 +377,17 @@ namespace HomeSweetHomeServer.Services
             }
         }
 
+        //Changes forgotten password
         public async Task ForgotPasswordAsync(UserModel user, ForgotPasswordModel forgotPassword)
         {
-            if (user.Status == 0)
+            if (user.Status == (int)UserStatus.NotValid)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("None Verified Email", "Your email is not verified");
                 errors.Throw();
             }
 
-            if (user.Status == 2)
+            if (user.Status == (int)UserStatus.Banned)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Is Banned", "User is banned from application");
@@ -422,7 +437,8 @@ namespace HomeSweetHomeServer.Services
             }
         }
 
-        public async Task<UserModel> GetUserFromMailAsync(string email)
+        //Gets user from email
+        public async Task<UserModel> GetUserByMailAsync(string email)
         {
             var Email = await _userInformationRepository.GetUserInformationByValueAsync(email, true);
 
@@ -436,6 +452,7 @@ namespace HomeSweetHomeServer.Services
             return Email.User;
         }
 
+        //Gets user full information
         public async Task<UserFullInformationModel> GetUserFullInformationAsync(int id)
         {
             Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
@@ -443,7 +460,7 @@ namespace HomeSweetHomeServer.Services
             Task<InformationModel> emailInfo = _informationRepository.GetInformationByInformationNameAsync("Email");
             Task<InformationModel> phoneNumberInfo = _informationRepository.GetInformationByInformationNameAsync("PhoneNumber");
 
-            UserModel user = await GetUserFromIdAsync(id);
+            UserModel user = await GetUserByIdAsync(id);
 
             Task<UserInformationModel> firstName = _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
             Task<UserInformationModel> lastName = _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
@@ -463,7 +480,7 @@ namespace HomeSweetHomeServer.Services
             fullInfo.Email = (await email).Value;
             fullInfo.PhoneNumber = (await phoneNumber).Value;
 
-            if (user.Position == 0)
+            if (user.Position == (int)UserPosition.HasNotHome)
             {
                 fullInfo.NumberOfFriends = 0;
                 fullInfo.Friends = null;
@@ -471,7 +488,7 @@ namespace HomeSweetHomeServer.Services
             }
             else
             {
-                user = await GetUserFromIdAsync(id, true);
+                user = await GetUserByIdAsync(id, true);
                 
                 fullInfo.HomeName = user.Home.Name;
                 fullInfo.NumberOfFriends = user.Home.Users.Count - 1;

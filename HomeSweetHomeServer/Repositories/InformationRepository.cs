@@ -12,11 +12,13 @@ namespace HomeSweetHomeServer.Repositories
         {
         }
 
+        //Gets all informations
         public async Task<List<InformationModel>> GetAllAsync()
         {
             return await Db.ToListAsync();
         }
 
+        //Gets information by information id
         public async Task<InformationModel> GetInformationByInformationNameAsync(string name)
         {
             return await Db.SingleOrDefaultAsync(i => i.InformationName == name);

@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace HomeSweetHomeServer.Services
 {
-    //Handles JWT token operations
     public class JwtTokenService : IJwtTokenService
     {
         public IConfiguration _config;
@@ -81,7 +80,7 @@ namespace HomeSweetHomeServer.Services
         }
 
         //Gets user from token
-        public async Task<UserModel> GetUserFromTokenStr(string tokenstr)
+        public async Task<UserModel> GetUserFromTokenStrAsync(string tokenstr)
         {
             var handler = new JwtSecurityTokenHandler();
             var token = handler.ReadJwtToken(tokenstr);

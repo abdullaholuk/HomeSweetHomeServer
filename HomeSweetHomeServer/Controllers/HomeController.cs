@@ -39,7 +39,7 @@ namespace HomeSweetHomeServer.Controllers
             home.Name = home.Name.ToLower();
 
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
             await _homeService.CreateNewHomeAsync(user, home);
             return Ok();
@@ -52,7 +52,7 @@ namespace HomeSweetHomeServer.Controllers
             joinHomeName = joinHomeName.ToLower();
 
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
             await _homeService.JoinHomeRequestAsync(user, joinHomeName);
 
@@ -64,7 +64,7 @@ namespace HomeSweetHomeServer.Controllers
         public async Task<IActionResult> JoinHomeAccept([FromQuery] int requesterId, [FromQuery] bool isAccepted)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
             await _homeService.JoinHomeAcceptAsync(user, requesterId, isAccepted);
 
@@ -78,7 +78,7 @@ namespace HomeSweetHomeServer.Controllers
             invitedUsername = invitedUsername.ToLower();
 
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
             await _homeService.InviteHomeRequestAsync(user, invitedUsername);
 
@@ -90,7 +90,7 @@ namespace HomeSweetHomeServer.Controllers
         public async Task<IActionResult> InviteHomeAccept([FromQuery] int invitedHomeId, [FromQuery] bool isAccepted)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
             await _homeService.InviteHomeAcceptAsync(user, invitedHomeId, isAccepted);
 
@@ -98,14 +98,14 @@ namespace HomeSweetHomeServer.Controllers
         }
 
         //User gives money to his/her friend
-        [HttpGet("GiveMoneyToFriend", Name = "GiveMoneyToFriend")]
-        public async Task<IActionResult> GiveMoneyToFriend([FromQuery] int toId, [FromQuery] double givenMoney)
+        [HttpGet("TransferMoneyToFriend", Name = "TransferMoneyToFriend")]
+        public async Task<IActionResult> TransferMoneyToFriend([FromQuery] int toId, [FromQuery] double givenMoney)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel from = await _jwtTokenService.GetUserFromTokenStr(token);
-            UserModel to = await _authenticationService.GetUserFromIdAsync(toId);
+            UserModel from = await _jwtTokenService.GetUserFromTokenStrAsync(token);
+            UserModel to = await _authenticationService.GetUserByIdAsync(toId);
 
-            await _homeService.GiveMoneyToFriendAsync(from, to, givenMoney);
+            await _homeService.TransferMoneyToFriendAsync(from, to, givenMoney);
 
             return Ok();
         }

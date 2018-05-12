@@ -6,6 +6,7 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Repositories
 {
+    //Interface about notepad repository operations
     public interface INotepadRepository : IBaseRepository<NotepadModel>
     {
         Task<List<NotepadModel>> GetAllNoteByHomeIdAsync(int homeId, bool include = false);

@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HomeSweetHomeServer.Services
 {
-    //Handles notepad operations
     public class NotepadService : INotepadService
     {
         public IInformationRepository _informationRepository;
@@ -51,7 +50,7 @@ namespace HomeSweetHomeServer.Services
         //Synchronizes clients notepad
         public async Task<List<NotepadModel>> SynchronizeNotepadAsync(UserModel user)
         {
-            if(user.Position == 0)
+            if(user.Position == (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Home Not Exist", "User is not member of a home");
@@ -66,7 +65,7 @@ namespace HomeSweetHomeServer.Services
         //User adds note
         public async Task AddNoteAsync(UserModel user, NotepadModel note)
         {
-            if (user.Position == 0)
+            if (user.Position == (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Home Not Exist", "User is not member of a home");
@@ -90,7 +89,7 @@ namespace HomeSweetHomeServer.Services
         //User deletes note
         public async Task DeleteNoteAsync(UserModel user, int noteId)
         {
-            if (user.Position == 0)
+            if (user.Position == (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Home Not Exist", "User is not member of a home");
@@ -128,7 +127,7 @@ namespace HomeSweetHomeServer.Services
         //User updates note
         public async Task UpdateNoteAsync(UserModel user, NotepadModel note)
         {
-            if (user.Position == 0)
+            if (user.Position == (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Home Not Exist", "User is not member of a home");

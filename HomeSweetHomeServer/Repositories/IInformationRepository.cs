@@ -4,6 +4,7 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Repositories
 {
+    //Interface about information repository operations
     public interface IInformationRepository : IBaseRepository<InformationModel>
     {
         Task<List<InformationModel>> GetAllAsync();

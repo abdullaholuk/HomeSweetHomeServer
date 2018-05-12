@@ -15,7 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HomeSweetHomeServer.Services
 {
-    //Handles shopping list operations
     public class ShoppingListService : IShoppingListService
     {
         IShoppingListRepository _shoppingListRepository;
@@ -34,7 +33,7 @@ namespace HomeSweetHomeServer.Services
         //Synchronizes clients shopping list
         public async Task<ShoppingListModel> SynchronizeShoppingListAsync(UserModel user)
         {
-            if(user.Position == 0)
+            if(user.Position == (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Home Not Exist", "User is not member of a home");
@@ -47,9 +46,9 @@ namespace HomeSweetHomeServer.Services
         }
 
         //Updates shopping list
-        public async Task UpdateShoppingList(UserModel user, ShoppingListModel shoppingList)
+        public async Task UpdateShoppingListAsync(UserModel user, ShoppingListModel shoppingList)
         {
-            if (user.Position == 0)
+            if (user.Position == (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Home Not Exist", "User is not member of a home");

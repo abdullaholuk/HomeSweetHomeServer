@@ -13,6 +13,7 @@ namespace HomeSweetHomeServer.Repositories
         {
         }
         
+        //Gets home shopping list by shopping list id
         public async Task<ShoppingListModel> GetHomeShoppingListByIdAsync(int homeId, bool include = false)
         {
             if (include == false)

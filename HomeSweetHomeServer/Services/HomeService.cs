@@ -50,7 +50,7 @@ namespace HomeSweetHomeServer.Services
         //Admin creates the home
         public async Task CreateNewHomeAsync(UserModel user, HomeModel home)
         {
-            if(user.Position != 0)
+            if(user.Position != (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Has Home", "User has home already");
@@ -66,7 +66,7 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
             
-            user.Position = 2;
+            user.Position = (int)UserPosition.Admin;
 
             home.Admin = user;
             home.Users = new List<UserModel>();
@@ -86,7 +86,7 @@ namespace HomeSweetHomeServer.Services
             Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
             Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
 
-            if (user.Position != 0)
+            if (user.Position != (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Has Home", "User has home already");
@@ -127,7 +127,7 @@ namespace HomeSweetHomeServer.Services
             Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
             Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
            
-            if (user.Position != 2)
+            if (user.Position != (int)UserPosition.Admin)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Authorisation Constraint", "You are not authorized for this request, you must be administrator of home");
@@ -143,7 +143,7 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
             
-            if(requester.Position != 0)
+            if(requester.Position != (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Requester Has Home", "Requester has already home");
@@ -154,7 +154,7 @@ namespace HomeSweetHomeServer.Services
 
             if (isAccepted == true)
             {
-                requester.Position = 1;
+                requester.Position = (int)UserPosition.HasHome;
 
                 UserInformationModel requesterFirstName = await _userInformationRepository.GetUserInformationByIdAsync(requester.Id, (await firstNameInfo).Id);
                 UserInformationModel requesterLastName = await _userInformationRepository.GetUserInformationByIdAsync(requester.Id, (await lastNameInfo).Id);
@@ -210,7 +210,7 @@ namespace HomeSweetHomeServer.Services
             Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
             Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
 
-            if (user.Position != 2)
+            if (user.Position != (int)UserPosition.Admin)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Authorisation Constraint", "You are not authorized for this request, you must be administrator of home");
@@ -230,7 +230,7 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
 
-            if(invitedUser.Position != 0)
+            if(invitedUser.Position != (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Has Home", "You can not invite a user who already has home");
@@ -259,7 +259,7 @@ namespace HomeSweetHomeServer.Services
             Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
             Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
 
-            if (user.Position != 0)
+            if (user.Position != (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("User Has Home", "User can not accept invite requests while already has home");
@@ -277,7 +277,7 @@ namespace HomeSweetHomeServer.Services
 
             if (isAccepted == true)
             {
-                user.Position = 1;
+                user.Position = (int)UserPosition.HasHome;
 
                 UserInformationModel userFirstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
                 UserInformationModel userLastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
@@ -309,7 +309,6 @@ namespace HomeSweetHomeServer.Services
                     friendsBaseModels.Add(new UserBaseModel(friend.Id, friend.Username, friend.Position, friendFirstName.Value, friendLastName.Value, 0));
 
                     await insertFriendship;
-
                 }
 
                 home.Users.Add(user);
@@ -325,7 +324,7 @@ namespace HomeSweetHomeServer.Services
         }
 
         //User gives money to his/her friend
-        public async Task GiveMoneyToFriendAsync(UserModel from, UserModel to, double givenMoney)
+        public async Task TransferMoneyToFriendAsync(UserModel from, UserModel to, double givenMoney)
         { 
             if (to == null)
             {
@@ -334,7 +333,7 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
 
-            if (from.Position == 0 || to.Position == 0)
+            if (from.Position == (int)UserPosition.HasNotHome || to.Position == (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Home Not Exist", "User is not member of a home");

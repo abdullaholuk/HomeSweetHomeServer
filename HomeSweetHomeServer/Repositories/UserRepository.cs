@@ -12,6 +12,7 @@ namespace HomeSweetHomeServer.Repositories
         {
         }
 
+        //Gets all users
         public async Task<List<UserModel>> GetAllAsync(bool include = false)
         {
             if (include == false)
@@ -19,7 +20,8 @@ namespace HomeSweetHomeServer.Repositories
             else
                 return await Db.Include(u => u.Home).ToListAsync();
         }
-                
+        
+        //Gets user by user id
         public async Task<UserModel> GetByIdAsync(int id, bool include = false)
         {
             if(include == false)
@@ -28,6 +30,7 @@ namespace HomeSweetHomeServer.Repositories
                 return await Db.Include(u => u.Home).ThenInclude(h => h.Users).SingleOrDefaultAsync(u => u.Id == id);
         }
 
+        //Gets user by username
         public async Task<UserModel> GetByUsernameAsync(string username, bool include = false)
         {
             if (include == false)

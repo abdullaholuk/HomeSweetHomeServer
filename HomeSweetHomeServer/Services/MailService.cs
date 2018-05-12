@@ -12,7 +12,6 @@ using MailKit.Net.Smtp;
 
 namespace HomeSweetHomeServer.Services
 {
-    //Sends mail to user
     public class MailService : IMailService
     {
         public IConfiguration _config;
@@ -21,7 +20,8 @@ namespace HomeSweetHomeServer.Services
         {
             _config = config;
         }
-                
+        
+        //Sends given mail
         public async Task SendMailAsync(EMailModel mail)
         {
             var message = new MimeMessage();

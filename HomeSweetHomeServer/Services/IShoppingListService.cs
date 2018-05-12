@@ -6,10 +6,10 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Services
 {
-    //Interface about shopping list
+    //Interface about shopping list operations
     public interface IShoppingListService
     {
         Task<ShoppingListModel> SynchronizeShoppingListAsync(UserModel user);
-        Task UpdateShoppingList(UserModel user, ShoppingListModel shoppingList);
+        Task UpdateShoppingListAsync(UserModel user, ShoppingListModel shoppingList);
     }
 }

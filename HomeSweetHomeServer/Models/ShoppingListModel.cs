@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomeSweetHomeServer.Models
 {
+    //Shopping list information
     [Serializable]
     [DataContract]
     public class ShoppingListModel

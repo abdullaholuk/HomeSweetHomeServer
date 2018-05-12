@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace HomeSweetHomeServer.Repositories
 {
-    //Base repository operations
+    //Interface about base repository operations
     public interface IBaseRepository<TEntity> where TEntity : class 
     {
         Task InsertAsync(TEntity entity);

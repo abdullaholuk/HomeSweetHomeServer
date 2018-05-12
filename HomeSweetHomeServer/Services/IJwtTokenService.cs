@@ -8,6 +8,6 @@ namespace HomeSweetHomeServer.Services
     {
         string CreateToken(UserModel user);
         bool VerifyToken(string token);
-        Task<UserModel> GetUserFromTokenStr(string tokenstr);
+        Task<UserModel> GetUserFromTokenStrAsync(string tokenstr);
     }
 }

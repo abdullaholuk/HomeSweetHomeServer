@@ -34,4 +34,18 @@ namespace HomeSweetHomeServer.Models
         [DataMember]
         public string DeviceId { get; set; }
     }
+
+    public enum UserStatus
+    {
+        NotValid = 0,
+        Valid = 1,
+        Banned = 2
+    }
+
+    public enum UserPosition
+    {
+        HasNotHome = 0,
+        HasHome = 1,
+        Admin = 2
+    }
 }

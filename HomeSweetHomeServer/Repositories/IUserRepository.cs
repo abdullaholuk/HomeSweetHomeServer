@@ -4,6 +4,7 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Repositories
 {
+    //Interface about user repository operations
     public interface IUserRepository : IBaseRepository<UserModel>
     {
         Task<UserModel> GetByIdAsync(int id, bool include = false);

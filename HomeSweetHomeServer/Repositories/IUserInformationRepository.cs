@@ -4,6 +4,7 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Repositories
 {
+    //Interface about user information repository operations
     public interface IUserInformationRepository : IBaseRepository<UserInformationModel>
     {
         Task<UserInformationModel> GetUserInformationByValueAsync(string value, bool include = false);

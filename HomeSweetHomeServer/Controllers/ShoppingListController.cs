@@ -34,7 +34,7 @@ namespace HomeSweetHomeServer.Controllers
         public async Task<IActionResult> Synchronize()
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
             var res = await _shoppingListService.SynchronizeShoppingListAsync(user);
 
@@ -46,9 +46,9 @@ namespace HomeSweetHomeServer.Controllers
         public async Task<IActionResult> UpdateShoppingList([FromBody] ShoppingListModel shoppingList)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel user = await _jwtTokenService.GetUserFromTokenStr(token);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
-            await _shoppingListService.UpdateShoppingList(user, shoppingList);
+            await _shoppingListService.UpdateShoppingListAsync(user, shoppingList);
 
             return Ok();
         }

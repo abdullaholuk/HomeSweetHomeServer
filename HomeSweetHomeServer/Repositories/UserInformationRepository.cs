@@ -17,6 +17,7 @@ namespace HomeSweetHomeServer.Repositories
             _informationRepository = informationRepository;
         }
         
+        //Gets user information by value
         public async Task<UserInformationModel> GetUserInformationByValueAsync(string value, bool include = false)
         {
             if (include == false)
@@ -25,6 +26,7 @@ namespace HomeSweetHomeServer.Repositories
                 return await Db.Include(u => u.User).Include(i => i.Information).SingleOrDefaultAsync(ui => ui.Value == value);
         }
 
+        //Gets user informations by user id
         public async Task<List<UserInformationModel>> GetAllUserInformationsByUserIdAsync(int userId, bool include = false)
         {
             if (include == false)
@@ -33,6 +35,7 @@ namespace HomeSweetHomeServer.Repositories
                 return await Db.Include(u => u.User).Include(i => i.Information).Where(ui => ui.User.Id == userId).ToListAsync();
         }
 
+        //Gets spesific user information by user id and information id
         public async Task<UserInformationModel> GetUserInformationByIdAsync(int userId, int informationId, bool include = false)
         {
             if (include == false)

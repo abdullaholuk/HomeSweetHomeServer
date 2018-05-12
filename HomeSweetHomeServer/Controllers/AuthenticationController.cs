@@ -54,20 +54,13 @@ namespace HomeSweetHomeServer.Controllers
 
             UserModel user = await _authenticationService.LoginAsync(login);
 
-            if (user.Status == 2)
-            {
-                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
-                errors.AddError("User Is Banned", "User is banned from application");
-                errors.Throw();
-            }
-
             UserFullInformationModel fullInfo = await _authenticationService.GetUserFullInformationAsync(user.Id);
-            if (user.Status == 0)
+            if (user.Status == (int)UserStatus.NotValid)
             {
                // fullInfo.Token = null;
             }
 
-            if (user.Status == 0)
+            if (user.Status == (int)UserStatus.NotValid)
                 //return StatusCode((int)HttpStatusCode.Accepted, user.Id);
                 return StatusCode((int)HttpStatusCode.Accepted, fullInfo);
                 //return StatusCode((int)HttpStatusCode.Accepted, user.Token);
@@ -80,7 +73,7 @@ namespace HomeSweetHomeServer.Controllers
         [HttpGet("EMailVerification", Name = "EMailVerification")]
         public async Task<IActionResult> EMailVerification([FromQuery] int userId)
         {
-            var user = await _authenticationService.GetUserFromIdAsync(userId);
+            var user = await _authenticationService.GetUserByIdAsync(userId);
 
             await _authenticationService.SendEmailVerificationCodeToUserAsync(user);
 
@@ -91,7 +84,7 @@ namespace HomeSweetHomeServer.Controllers
         [HttpPost("VerifyEmail", Name = "VerifyEmail")]
         public async Task<IActionResult> VerifyEmail([FromBody] VerificationCodeModel verificationCode)
         {
-            var user = await _authenticationService.GetUserFromIdAsync(verificationCode.UserId);
+            var user = await _authenticationService.GetUserByIdAsync(verificationCode.UserId);
 
             await _authenticationService.VerifyEmailAsync(user, verificationCode);
 
@@ -104,7 +97,7 @@ namespace HomeSweetHomeServer.Controllers
         {
             email = email.ToLower();
 
-            UserModel user = await _authenticationService.GetUserFromMailAsync(email);
+            UserModel user = await _authenticationService.GetUserByMailAsync(email);
 
             await _authenticationService.SendForgotPasswordVerificationCodeToUserAsync(user);
 
@@ -117,7 +110,7 @@ namespace HomeSweetHomeServer.Controllers
         {
             forgotPassword.Email = forgotPassword.Email.ToLower();
 
-            UserModel user = await _authenticationService.GetUserFromMailAsync(forgotPassword.Email);
+            UserModel user = await _authenticationService.GetUserByMailAsync(forgotPassword.Email);
 
             await _authenticationService.ForgotPasswordAsync(user, forgotPassword);
 
