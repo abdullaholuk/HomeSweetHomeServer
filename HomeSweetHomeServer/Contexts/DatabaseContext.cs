@@ -24,6 +24,8 @@ namespace HomeSweetHomeServer.Contexts
         DbSet<HomeModel> HomeModels { get; set; } //Home table
         DbSet<NotepadModel> NotepadModels { get; set; } //Notepad table
         DbSet<ShoppingListModel> ShoppingModels { get; set; } //Shopping table
+        DbSet<ExpenseModel> ExpenseModels { get; set; } //Expense table
+        DbSet<UserExpenseModel> UserExpenseModels { get; set; } //UserExpense table
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -35,6 +37,8 @@ namespace HomeSweetHomeServer.Contexts
             builder.Entity<HomeModel>().ToTable("Home").HasMany(h => h.Users).WithOne(u => u.Home).IsRequired();
             builder.Entity<NotepadModel>().ToTable("Notepad");
             builder.Entity<ShoppingListModel>().ToTable("ShoppingList");
+            builder.Entity<ExpenseModel>().ToTable("Expense");
+            builder.Entity<UserExpenseModel>().ToTable("UserExpense");
         }
     }
 }
