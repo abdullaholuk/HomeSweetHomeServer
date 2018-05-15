@@ -19,5 +19,14 @@ namespace HomeSweetHomeServer.Models
 
         [ForeignKey("ExpenseId")]
         public ExpenseModel Expense { get; set; }
+
+        public UserExpenseModel()
+        { }
+
+        public UserExpenseModel(UserModel user, ExpenseModel expense)
+        {
+            User = user;
+            Expense = expense;
+        }
     }
 }

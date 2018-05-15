@@ -14,33 +14,30 @@ namespace HomeSweetHomeServer.Repositories
         }
 
         //Gets all user expenses by user id
-        public async Task<List<UserExpenseModel>> GetAllUserExpenseByUserId(int userId, bool include = false)
+        public async Task<List<UserExpenseModel>> GetAllUserExpenseByUserIdAsync(int userId, bool include = false)
         {
             if (include == false)
                 return await Db.Where(ue => ue.User.Id == userId).ToListAsync();
             else
-                return await Db.Include(ue => ue.User).ThenInclude(u => u.Home).
-                    ThenInclude(h => h.Users).Include(ue => ue.Expense).Where(ue => ue.User.Id == userId).ToListAsync();
+                return await Db.Include(ue => ue.User).Include(ue => ue.Expense).Where(ue => ue.User.Id == userId).ToListAsync();
         }
 
         //Gets all user expenses by expense id
-        public async Task<List<UserExpenseModel>> GetAllUserExpenseByExpenseId(int expenseId, bool include = false)
+        public async Task<List<UserExpenseModel>> GetAllUserExpenseByExpenseIdAsync(int expenseId, bool include = false)
         {
             if (include == false)
                 return await Db.Where(ue => ue.User.Id == expenseId).ToListAsync();
             else
-                return await Db.Include(ue => ue.User).ThenInclude(u => u.Home).
-                    ThenInclude(h => h.Users).Include(ue => ue.Expense).Where(ue => ue.Expense.Id == expenseId).ToListAsync();
+                return await Db.Include(ue => ue.User).Include(ue => ue.Expense).Where(ue => ue.Expense.Id == expenseId).ToListAsync();
         }
 
         //Gets specific user expense by user expense id
-        public async Task<UserExpenseModel> GetUserExpenseById(int id, bool include = false)
+        public async Task<UserExpenseModel> GetUserExpenseByIdAsync(int id, bool include = false)
         {
             if (include == false)
                 return await Db.SingleOrDefaultAsync(ue => ue.Id == id);
             else
-                return await Db.Include(ue => ue.User).ThenInclude(u => u.Home).
-                    ThenInclude(h => h.Users).Include(ue => ue.Expense).SingleOrDefaultAsync(ue => ue.Id == id);
+                return await Db.Include(ue => ue.User).Include(ue => ue.Expense).SingleOrDefaultAsync(ue => ue.Id == id);
         }
     }
 }

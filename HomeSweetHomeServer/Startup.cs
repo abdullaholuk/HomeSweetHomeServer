@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using System;
 using HomeSweetHomeServer.Exceptions;
+using Newtonsoft.Json;
 
 namespace HomeSweetHomeServer
 {
@@ -44,7 +45,7 @@ namespace HomeSweetHomeServer
                     ClockSkew = TimeSpan.Zero,
                 };
             });
-            
+
             services.AddMvc(options =>
             {
                 options.Filters.Add(typeof(ExceptionFilter));

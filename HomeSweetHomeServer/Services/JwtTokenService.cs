@@ -15,8 +15,8 @@ namespace HomeSweetHomeServer.Services
 {
     public class JwtTokenService : IJwtTokenService
     {
-        public IConfiguration _config;
-        public IUserRepository _userRepository;
+        IConfiguration _config;
+        IUserRepository _userRepository;
 
         public JwtTokenService(IConfiguration config, IUserRepository userRepository)
         {

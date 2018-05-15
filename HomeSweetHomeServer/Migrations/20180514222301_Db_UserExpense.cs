@@ -9,35 +9,28 @@ namespace HomeSweetHomeServer.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Status",
-                table: "ShoppingList",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldNullable: true);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "List",
-                table: "ShoppingList",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldNullable: true);
-
             migrationBuilder.CreateTable(
                 name: "Expense",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    AuthorId = table.Column<int>(nullable: true),
                     Content = table.Column<string>(nullable: true),
                     Cost = table.Column<double>(nullable: false),
-                    Date = table.Column<DateTime>(nullable: true),
                     EType = table.Column<int>(nullable: false),
-                    Title = table.Column<string>(nullable: true)
+                    LastUpdated = table.Column<DateTime>(nullable: false),
+                    Title = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Expense", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Expense_User_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -46,8 +39,8 @@ namespace HomeSweetHomeServer.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    ExpenseId = table.Column<int>(nullable: false),
-                    UserId = table.Column<int>(nullable: false)
+                    ExpenseId = table.Column<int>(nullable: true),
+                    UserId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -67,6 +60,11 @@ namespace HomeSweetHomeServer.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Expense_AuthorId",
+                table: "Expense",
+                column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserExpense_ExpenseId",
                 table: "UserExpense",
                 column: "ExpenseId");
@@ -84,18 +82,6 @@ namespace HomeSweetHomeServer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Expense");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Status",
-                table: "ShoppingList",
-                nullable: true,
-                oldClrType: typeof(string));
-
-            migrationBuilder.AlterColumn<string>(
-                name: "List",
-                table: "ShoppingList",
-                nullable: true,
-                oldClrType: typeof(string));
         }
     }
 }

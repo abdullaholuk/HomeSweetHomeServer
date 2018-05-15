@@ -13,9 +13,12 @@ namespace HomeSweetHomeServer.Repositories
         }
 
         //Gets expense by expense id
-        public async Task<ExpenseModel> GetExpenseById(int id)
+        public async Task<ExpenseModel> GetExpenseByIdAsync(int id, bool include = false)
         {
-            return await Db.SingleOrDefaultAsync(e => e.Id == id);
+            if (include == false)
+                return await Db.SingleOrDefaultAsync(e => e.Id == id);
+            else
+                return await Db.Include(e => e.Author).SingleOrDefaultAsync(e => e.Id == id);
         }
     }
 }

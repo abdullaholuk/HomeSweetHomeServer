@@ -25,17 +25,22 @@ namespace HomeSweetHomeServer.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int?>("AuthorId");
+
                     b.Property<string>("Content");
 
                     b.Property<double>("Cost");
 
-                    b.Property<DateTime>("Date");
-
                     b.Property<int>("EType");
 
-                    b.Property<string>("Title");
+                    b.Property<DateTime>("LastUpdated");
+
+                    b.Property<string>("Title")
+                        .IsRequired();
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
 
                     b.ToTable("Expense");
                 });
@@ -195,6 +200,13 @@ namespace HomeSweetHomeServer.Migrations
                     b.HasIndex("HomeId");
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("HomeSweetHomeServer.Models.ExpenseModel", b =>
+                {
+                    b.HasOne("HomeSweetHomeServer.Models.UserModel", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId");
                 });
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.FriendshipModel", b =>

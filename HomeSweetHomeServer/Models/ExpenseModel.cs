@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomeSweetHomeServer.Models
 {
@@ -14,19 +15,40 @@ namespace HomeSweetHomeServer.Models
         public int Id { get; set; }
 
         [DataMember]
+        [Required]
         public int EType { get; set; }
 
         [DataMember]
+        [Required]
         public double Cost { get; set; }
 
-        [DataMember]
-        public DateTime Date { get; set; }
+        [ForeignKey("AuthorId")]
+        public UserModel Author { get; set; }
 
         [DataMember]
+        public DateTime LastUpdated { get; set; }
+
+        [DataMember]
+        [Required]
         public string Title { get; set; }
 
         [DataMember]
         public string Content { get; set; }
+
+        public ExpenseModel()
+        {
+
+        }
+
+        public ExpenseModel(int eType, double cost, UserModel author, DateTime lastUpdated, string title, string content)
+        {
+            EType = eType;
+            Cost = cost;
+            Author = author;
+            LastUpdated = lastUpdated;
+            Title = title;
+            Content = content;
+        }
     }
    
     public enum ExpenseType
@@ -34,7 +56,8 @@ namespace HomeSweetHomeServer.Models
         HouseRent = 1,
         Bill = 2,
         Shopping = 3,
-        TransferMoney = 4,
-        Others = 5
+        Lend = 4,
+        Borrow = 5,
+        Others = 6
     }
 }

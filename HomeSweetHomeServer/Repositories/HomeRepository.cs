@@ -20,7 +20,7 @@ namespace HomeSweetHomeServer.Repositories
             if (include == false)
                 return await Db.SingleOrDefaultAsync(h => h.Id == id);
             else
-                return await Db.Include(h => h.Admin).Include(h => h.Users).SingleOrDefaultAsync(u => u.Id == id);
+                return await Db.Include(h => h.Admin).Include(h => h.Users).SingleOrDefaultAsync(h => h.Id == id);
         }
 
         //Gets home by home name

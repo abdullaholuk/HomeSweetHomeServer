@@ -19,12 +19,12 @@ namespace HomeSweetHomeServer.Services
 {
     public class FCMService : IFCMService
     {
-        public IInformationRepository _informationRepository;
-        public IUserRepository _userRepository;
-        public IUserInformationRepository _userInformationRepository;
-        public IConfiguration _config;
-        public IMailService _mailService;
-        public IHomeRepository _homeRepository;
+        IInformationRepository _informationRepository;
+        IUserRepository _userRepository;
+        IUserInformationRepository _userInformationRepository;
+        IConfiguration _config;
+        IMailService _mailService;
+        IHomeRepository _homeRepository;
 
         public FCMService(IInformationRepository informationRepository,
                            IUserRepository userRepository,

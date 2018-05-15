@@ -16,15 +16,15 @@ namespace HomeSweetHomeServer.Services
 {
     public class NotepadService : INotepadService
     {
-        public IInformationRepository _informationRepository;
-        public IUserRepository _userRepository;
-        public IUserInformationRepository _userInformationRepository;
-        public IConfiguration _config;
-        public IMailService _mailService;
-        public IHomeRepository _homeRepository;
-        public IFCMService _fcmService;
-        public IFriendshipRepository _friendshipRepository;
-        public INotepadRepository _notepadRepository;
+        IInformationRepository _informationRepository;
+        IUserRepository _userRepository;
+        IUserInformationRepository _userInformationRepository;
+        IConfiguration _config;
+        IMailService _mailService;
+        IHomeRepository _homeRepository;
+        IFCMService _fcmService;
+        IFriendshipRepository _friendshipRepository;
+        INotepadRepository _notepadRepository;
 
         public NotepadService(IInformationRepository informationRepository,
                            IUserRepository userRepository,

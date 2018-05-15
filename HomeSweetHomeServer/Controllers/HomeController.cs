@@ -97,6 +97,7 @@ namespace HomeSweetHomeServer.Controllers
             return Ok();
         }
 
+        /*
         //User gives money to his/her friend
         [HttpGet("TransferMoneyToFriend", Name = "TransferMoneyToFriend")]
         public async Task<IActionResult> TransferMoneyToFriend([FromQuery] int toId, [FromQuery] double givenMoney)
@@ -108,6 +109,6 @@ namespace HomeSweetHomeServer.Controllers
             await _homeService.TransferMoneyToFriendAsync(from, to, givenMoney);
 
             return Ok();
-        }
+        }*/
     }
 }

@@ -16,15 +16,15 @@ namespace HomeSweetHomeServer.Services
 {
     public class HomeService : IHomeService
     {
-        public IInformationRepository _informationRepository;
-        public IUserRepository _userRepository;
-        public IUserInformationRepository _userInformationRepository;
-        public IConfiguration _config;
-        public IMailService _mailService;
-        public IHomeRepository _homeRepository;
-        public IFCMService _fcmService;
-        public IFriendshipRepository _friendshipRepository;
-        public IShoppingListRepository _shoppingListRepository;
+        IInformationRepository _informationRepository;
+        IUserRepository _userRepository;
+        IUserInformationRepository _userInformationRepository;
+        IConfiguration _config;
+        IMailService _mailService;
+        IHomeRepository _homeRepository;
+        IFCMService _fcmService;
+        IFriendshipRepository _friendshipRepository;
+        IShoppingListRepository _shoppingListRepository;
 
         public HomeService(IInformationRepository informationRepository,
                            IUserRepository userRepository,
@@ -159,7 +159,7 @@ namespace HomeSweetHomeServer.Services
                 UserInformationModel requesterFirstName = await _userInformationRepository.GetUserInformationByIdAsync(requester.Id, (await firstNameInfo).Id);
                 UserInformationModel requesterLastName = await _userInformationRepository.GetUserInformationByIdAsync(requester.Id, (await lastNameInfo).Id);
 
-                HomeModel home = user.Home;
+                HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
 
                 FCMModel fcmRequester = new FCMModel(requester.DeviceId, new Dictionary<string, object>(), "AllFriends");
                 fcmRequester.notification.Add("title", "Join Home Request");

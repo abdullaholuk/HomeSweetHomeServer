@@ -57,5 +57,11 @@ namespace HomeSweetHomeServer.Repositories
             Db.Update(entity);
             await Context.SaveChangesAsync();
         }
+
+        public void CloseConnection()
+        {
+            Context.Database.GetDbConnection().Close();
+            Context.Database.GetDbConnection().Open();
+        }
     }
 }

@@ -8,5 +8,6 @@ namespace HomeSweetHomeServer.Services
 {
     public interface IUserExpenseService
     {
+        Task AddExpenseAsync(UserModel user, ExpenseModel expense, List<int> participants);
     }
 }

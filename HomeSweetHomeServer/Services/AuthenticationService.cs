@@ -16,13 +16,14 @@ namespace HomeSweetHomeServer.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
-        public IInformationRepository _informationRepository;
-        public IUserRepository _userRepository;
-        public IUserInformationRepository _userInformationRepository;
-        public IConfiguration _config;
-        public IMailService _mailService;
-        public IJwtTokenService _jwtTokenService;
-        public IFriendshipRepository _friendshipRepository;
+        IInformationRepository _informationRepository;
+        IUserRepository _userRepository;
+        IUserInformationRepository _userInformationRepository;
+        IConfiguration _config;
+        IMailService _mailService;
+        IJwtTokenService _jwtTokenService;
+        IFriendshipRepository _friendshipRepository;
+        IHomeRepository _homeRepository;
 
         public AuthenticationService(IInformationRepository informationRepository,
                                      IUserRepository userRepository,
@@ -30,7 +31,8 @@ namespace HomeSweetHomeServer.Services
                                      IConfiguration config,
                                      IMailService mailService,
                                      IJwtTokenService jwtTokenService,
-                                     IFriendshipRepository friendshipRepository)
+                                     IFriendshipRepository friendshipRepository,
+                                     IHomeRepository homeRepository)
         {
             _informationRepository = informationRepository;
             _userRepository = userRepository;
@@ -39,6 +41,7 @@ namespace HomeSweetHomeServer.Services
             _mailService = mailService;
             _jwtTokenService = jwtTokenService;
             _friendshipRepository = friendshipRepository;
+            _homeRepository = homeRepository;
         }
                 
         //Controls registration form is valid
@@ -489,11 +492,12 @@ namespace HomeSweetHomeServer.Services
             else
             {
                 user = await GetUserByIdAsync(id, true);
+                HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
                 
-                fullInfo.HomeName = user.Home.Name;
-                fullInfo.NumberOfFriends = user.Home.Users.Count - 1;
-
-                foreach(var friend in user.Home.Users)
+                fullInfo.HomeName = home.Name;
+                fullInfo.NumberOfFriends = home.Users.Count - 1;
+                
+                foreach(var friend in home.Users)
                 {
                     if (friend.Equals(user))
                         continue;

@@ -14,7 +14,7 @@ namespace HomeSweetHomeServer.Services
 {
     public class MailService : IMailService
     {
-        public IConfiguration _config;
+        IConfiguration _config;
 
         public MailService(IConfiguration config)
         {

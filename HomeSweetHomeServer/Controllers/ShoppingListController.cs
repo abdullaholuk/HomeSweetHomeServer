@@ -23,6 +23,7 @@ namespace HomeSweetHomeServer.Controllers
     {
         IJwtTokenService _jwtTokenService;
         IShoppingListService _shoppingListService;
+
         public ShoppingListController(IJwtTokenService jwtTokenService, IShoppingListService shoppingListService)
         {
             _jwtTokenService = jwtTokenService;
