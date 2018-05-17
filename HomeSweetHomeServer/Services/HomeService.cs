@@ -385,5 +385,40 @@ namespace HomeSweetHomeServer.Services
                 await update;
             }
         }
+
+        //User request to quit home
+        public async Task LeaveHome(UserModel user)
+        {
+            if(user.Position == (int)UserPosition.HasNotHome)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Home Not Exist", "User is not member of a home");
+                errors.Throw();
+            }
+
+            user = await _userRepository.GetByIdAsync(user.Id, true);
+            HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
+            
+            if(home.Users.Count != 1)
+            {
+
+            }
+            else
+            {
+
+            }
+
+
+
+
+
+
+
+        }
+
+        public async Task DeleteHome(HomeModel home)
+        {
+
+        }
     }
 }

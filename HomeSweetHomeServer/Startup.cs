@@ -14,6 +14,7 @@ using System.Text;
 using System;
 using HomeSweetHomeServer.Exceptions;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace HomeSweetHomeServer
 {
@@ -89,6 +90,11 @@ namespace HomeSweetHomeServer
                 context.Database.Migrate();
               //  context.Database.EnsureCreated();
             }
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             app.UseAuthentication();
 

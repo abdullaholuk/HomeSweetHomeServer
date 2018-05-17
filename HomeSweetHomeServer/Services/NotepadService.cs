@@ -73,11 +73,12 @@ namespace HomeSweetHomeServer.Services
             }
 
             user = await _userRepository.GetByIdAsync(user.Id, true);
-            note.Home = user.Home;
+            HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
+            note.Home = home;
 
             await _notepadRepository.InsertAsync(note);
 
-            foreach (var friend in user.Home.Users)
+            foreach (var friend in home.Users)
             {
                 FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadAdd");
                 fcm.data.Add("NewNote", note);
@@ -97,6 +98,7 @@ namespace HomeSweetHomeServer.Services
             }
 
             user = await _userRepository.GetByIdAsync(user.Id, true);
+            HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
 
             NotepadModel note = await _notepadRepository.GetNoteByIdAsync(noteId, true);
 
@@ -107,14 +109,14 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
 
-            if(note.Home != user.Home)
+            if(note.Home != home)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Note Not Belongs Home", "Note does not belong this home");
                 errors.Throw();
             }
 
-            foreach (var friend in user.Home.Users)
+            foreach (var friend in home.Users)
             {
                 FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadDelete");
                 fcm.data.Add("DeletedNote", note.Id);
@@ -142,6 +144,7 @@ namespace HomeSweetHomeServer.Services
             }
 
             user = await _userRepository.GetByIdAsync(user.Id, true);
+            HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
             NotepadModel old = await _notepadRepository.GetNoteByIdAsync(note.Id, true);
 
             if(old == null)
@@ -163,7 +166,7 @@ namespace HomeSweetHomeServer.Services
 
             await _notepadRepository.UpdateAsync(old);
             
-            foreach (var friend in user.Home.Users)
+            foreach (var friend in home.Users)
             {
                 FCMModel fcm = new FCMModel(friend.DeviceId, type: "NotepadUpdate");
                 fcm.data.Add("UpdatedNote", old);

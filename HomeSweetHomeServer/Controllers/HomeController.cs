@@ -97,6 +97,17 @@ namespace HomeSweetHomeServer.Controllers
             return Ok();
         }
 
+        //User requests to quit home
+        [HttpGet("LeaveHome", Name = "LeaveHome")]
+        public async Task<IActionResult> LeaveHome()
+        {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
+
+            await _homeService.LeaveHome(user);
+            return Ok();
+        }
+
         /*
         //User gives money to his/her friend
         [HttpGet("TransferMoneyToFriend", Name = "TransferMoneyToFriend")]

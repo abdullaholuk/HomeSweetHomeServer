@@ -47,7 +47,6 @@ namespace HomeSweetHomeServer.Services
         //User adds expense
         public async Task AddExpenseAsync(UserModel user, ExpenseModel expense, List<int> participants)
         {
-
             if(user.Position == (int)UserPosition.HasNotHome)
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
