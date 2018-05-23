@@ -20,14 +20,17 @@ namespace HomeSweetHomeServer.Services
         IShoppingListRepository _shoppingListRepository;
         IUserRepository _userRepository;
         IFCMService _fcmService;
+        IHomeRepository _homeRepository;
 
         public ShoppingListService(IShoppingListRepository shoppingListRepository,
                                    IUserRepository userRepository,
-                                   IFCMService fcmService)
+                                   IFCMService fcmService,
+                                   IHomeRepository homeRepository)
         {
             _shoppingListRepository = shoppingListRepository;
             _userRepository = userRepository;
             _fcmService = fcmService;
+            _homeRepository = homeRepository;
         }
 
         //Synchronizes clients shopping list
@@ -74,6 +77,31 @@ namespace HomeSweetHomeServer.Services
             {
                 FCMModel fcm = new FCMModel(friend.DeviceId, type: "ShoppingListUpdate");
                 fcm.data.Add("UpdatedShoppingList", old);
+                await _fcmService.SendFCMAsync(fcm);
+            }
+        }
+
+        //Sends notification to all friends for shopping
+        public async Task SendNotification(UserModel user)
+        {
+            if (user.Position == (int)UserPosition.HasNotHome)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Home Not Exist", "User is not member of a home");
+                errors.Throw();
+            }
+
+            user = await _userRepository.GetByIdAsync(user.Id, true);
+            HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
+
+            foreach(var f in home.Users)
+            {
+                if (f.Id == user.Id)
+                    continue;
+
+                FCMModel fcm = new FCMModel(f.DeviceId, new Dictionary<string, object>(), "BasicNotification");
+                fcm.notification.Add("title", "Alışveriş Talebi");
+                fcm.notification.Add("body", "Alışveriş listesindeki ürünlerin alınması isteniyor.");
                 await _fcmService.SendFCMAsync(fcm);
             }
         }

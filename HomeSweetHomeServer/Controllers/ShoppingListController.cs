@@ -53,5 +53,17 @@ namespace HomeSweetHomeServer.Controllers
 
             return Ok();
         }
+
+        //Sends notification to all friends for shopping
+        [HttpGet("SendNotification", Name = "SendNotification")]
+        public async Task<IActionResult> SendNotification()
+        {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
+
+            await _shoppingListService.SendNotification(user);
+
+            return Ok();
+        }
     }
 }

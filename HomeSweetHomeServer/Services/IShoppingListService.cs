@@ -11,5 +11,6 @@ namespace HomeSweetHomeServer.Services
     {
         Task<ShoppingListModel> SynchronizeShoppingListAsync(UserModel user);
         Task UpdateShoppingListAsync(UserModel user, ShoppingListModel shoppingList);
+        Task SendNotification(UserModel user);
     }
 }
