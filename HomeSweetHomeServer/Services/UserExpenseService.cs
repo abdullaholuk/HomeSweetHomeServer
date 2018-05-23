@@ -118,6 +118,7 @@ namespace HomeSweetHomeServer.Services
                 ExpenseModel borrowExpense = new ExpenseModel((int)ExpenseType.Borrow,
                                                                   expense.Cost / participants.Count,
                                                                   expense.Author,
+                                                                  expense.Home,
                                                                   expense.LastUpdated,
                                                                   expense.Title,
                                                                   expense.Content);
@@ -136,7 +137,7 @@ namespace HomeSweetHomeServer.Services
                     //Send fcm to other participants
                     FCMModel fcmBorrow = new FCMModel(to.DeviceId, new Dictionary<string, object>(), "Expense");
                     fcmBorrow.notification.Add("title", "Borç Para");
-                    fcmBorrow.notification.Add("body", String.Format("{{0} {1} ({2}) kişisinden {3:c} borç alındı.",
+                    fcmBorrow.notification.Add("body", String.Format("{0} {1} ({2}) kişisinden {3:c} borç alındı.",
                                                                                                     userFirstName.Value,
                                                                                                     userLastName.Value,
                                                                                                     user.Username,

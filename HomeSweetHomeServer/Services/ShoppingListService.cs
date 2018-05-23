@@ -42,7 +42,7 @@ namespace HomeSweetHomeServer.Services
             
             user = await _userRepository.GetByIdAsync(user.Id, true);
 
-            return await _shoppingListRepository.GetHomeShoppingListByIdAsync(user.Home.Id);
+            return await _shoppingListRepository.GetShoppingListByHomeIdAsync(user.Home.Id);
         }
 
         //Updates shopping list
@@ -56,7 +56,7 @@ namespace HomeSweetHomeServer.Services
             }
             
             user = await _userRepository.GetByIdAsync(user.Id, true);
-            ShoppingListModel old = await _shoppingListRepository.GetHomeShoppingListByIdAsync(user.Home.Id, true);
+            ShoppingListModel old = await _shoppingListRepository.GetShoppingListByHomeIdAsync(user.Home.Id, true);
 
             if (old == null)
             {

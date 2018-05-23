@@ -43,11 +43,12 @@ namespace HomeSweetHomeServer.Models
 
         }
 
-        public ExpenseModel(int eType, double cost, UserModel author, DateTime lastUpdated, string title, string content)
+        public ExpenseModel(int eType, double cost, UserModel author, HomeModel home, DateTime lastUpdated, string title, string content)
         {
             EType = eType;
             Cost = cost;
             Author = author;
+            Home = home;
             LastUpdated = lastUpdated;
             Title = title;
             Content = content;

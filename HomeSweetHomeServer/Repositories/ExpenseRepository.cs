@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using HomeSweetHomeServer.Models;
 using HomeSweetHomeServer.Contexts;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace HomeSweetHomeServer.Repositories
 {
@@ -18,7 +19,16 @@ namespace HomeSweetHomeServer.Repositories
             if (include == false)
                 return await Db.SingleOrDefaultAsync(e => e.Id == id);
             else
-                return await Db.Include(e => e.Author).SingleOrDefaultAsync(e => e.Id == id);
+                return await Db.Include(e => e.Author).Include(e => e.Home).SingleOrDefaultAsync(e => e.Id == id);
+        }
+
+        //Gets all home expenses
+        public async Task<List<ExpenseModel>> GetAllExpensesByHomeId(int homeId, bool include = false)
+        {
+            if (include == false)
+                return await Db.Where(e => e.Home.Id == homeId).ToListAsync();
+            else
+                return await Db.Include(e => e.Author).Include(e => e.Home).Where(e => e.Home.Id == homeId).ToListAsync();
         }
     }
 }

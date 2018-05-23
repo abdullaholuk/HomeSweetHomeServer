@@ -19,7 +19,7 @@ namespace HomeSweetHomeServer.Repositories
             if (include == false)
                 return await Db.Where(n => n.Home.Id == homeId).ToListAsync();
             else
-                return await Db.Where(n => n.Home.Id == homeId).Include(n => n.Home).ThenInclude(h => h.Users).ToListAsync(); 
+                return await Db.Where(n => n.Home.Id == homeId).Include(n => n.Home).ToListAsync(); 
         }
 
         //Gets note by note id
@@ -28,7 +28,7 @@ namespace HomeSweetHomeServer.Repositories
             if (include == false)
                 return await Db.SingleOrDefaultAsync(n => n.Id == id);
             else
-                return await Db.Include(n => n.Home).ThenInclude(h => h.Users).SingleOrDefaultAsync(n => n.Id == id);
+                return await Db.Include(n => n.Home).SingleOrDefaultAsync(n => n.Id == id);
         }
 
     }

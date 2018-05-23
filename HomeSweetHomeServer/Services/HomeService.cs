@@ -20,6 +20,9 @@ namespace HomeSweetHomeServer.Services
         IFCMService _fcmService;
         IFriendshipRepository _friendshipRepository;
         IShoppingListRepository _shoppingListRepository;
+        INotepadRepository _notepadRepository;
+        IExpenseRepository _expenseRepository;
+        IUserExpenseRepository _userExpenseRepository;
 
         public HomeService(IInformationRepository informationRepository,
                            IUserRepository userRepository,
@@ -29,7 +32,10 @@ namespace HomeSweetHomeServer.Services
                            IHomeRepository homeRepository,
                            IFCMService fcmService,
                            IFriendshipRepository friendshipRepository,
-                           IShoppingListRepository shoppingListRepository)
+                           IShoppingListRepository shoppingListRepository,
+                           INotepadRepository notepadRepository,
+                           IExpenseRepository expenseRepository,
+                           IUserExpenseRepository userExpenseRepository)
         {
             _informationRepository = informationRepository;
             _userRepository = userRepository;
@@ -40,6 +46,9 @@ namespace HomeSweetHomeServer.Services
             _fcmService = fcmService;
             _friendshipRepository = friendshipRepository;
             _shoppingListRepository = shoppingListRepository;
+            _notepadRepository = notepadRepository;
+            _expenseRepository = expenseRepository;
+            _userExpenseRepository = userExpenseRepository;
         }
 
         //Admin creates the home
@@ -400,6 +409,11 @@ namespace HomeSweetHomeServer.Services
             UserInformationModel userFirstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
             UserInformationModel userLastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
 
+            List<UserExpenseModel> userExpenses = await _userExpenseRepository.GetAllUserExpenseByUserIdAsync(user.Id);
+
+            foreach (var ue in userExpenses)
+                _userExpenseRepository.Delete(ue);
+
             if (home.Users.Count != 1)
             {
                 if (user.Position == (int)UserPosition.Admin)
@@ -415,7 +429,7 @@ namespace HomeSweetHomeServer.Services
                     newAdmin.Position = (int)UserPosition.Admin;
                     home.Admin = newAdmin;
                 }
-
+                
                 home.Users.Remove(user);
                 user.Home = null;
                 user.Position = (int)UserPosition.HasNotHome;
@@ -486,6 +500,18 @@ namespace HomeSweetHomeServer.Services
             }
             else
             {
+                ShoppingListModel getShoppingList = await _shoppingListRepository.GetShoppingListByHomeIdAsync(user.Home.Id);
+                List<NotepadModel> notepad = await _notepadRepository.GetAllNoteByHomeIdAsync(user.Home.Id);
+                List<ExpenseModel> expenses = await _expenseRepository.GetAllExpensesByHomeId(user.Home.Id);
+
+                _shoppingListRepository.Delete(getShoppingList);
+
+                foreach (var note in notepad)
+                    _notepadRepository.Delete(note);
+
+                foreach (var expense in expenses)
+                    _expenseRepository.Delete(expense);
+
                 user.Home = null;
                 user.Position = (int)UserPosition.HasNotHome;
 

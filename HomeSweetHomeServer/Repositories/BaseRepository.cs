@@ -56,15 +56,8 @@ namespace HomeSweetHomeServer.Repositories
         public async Task UpdateAsync(TEntity entity)
         {
 
-            var a = Db.Update(entity).Properties;
-
+            Db.Update(entity);
             await Context.SaveChangesAsync();
-        }
-
-        public void CloseConnection()
-        {
-            Context.Database.GetDbConnection().Close();
-            Context.Database.GetDbConnection().Open();
         }
     }
 }
