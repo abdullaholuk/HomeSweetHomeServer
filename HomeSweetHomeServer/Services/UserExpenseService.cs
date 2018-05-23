@@ -97,6 +97,7 @@ namespace HomeSweetHomeServer.Services
             user = await _userRepository.GetByIdAsync(user.Id);
 
             expense.LastUpdated = DateTime.UtcNow;
+            expense.Home = home;
             expense.Author = await _userRepository.GetByIdAsync(user.Id); ;
 
             //Author informations
@@ -134,11 +135,12 @@ namespace HomeSweetHomeServer.Services
 
                     //Send fcm to other participants
                     FCMModel fcmBorrow = new FCMModel(to.DeviceId, new Dictionary<string, object>(), "Expense");
-                    fcmBorrow.notification.Add("title", "Borrowed Money");
-                    fcmBorrow.notification.Add("body", String.Format("You borrowed {0:c} from {1} {2} ({3})", borrowExpense.Cost,
+                    fcmBorrow.notification.Add("title", "Borç Para");
+                    fcmBorrow.notification.Add("body", String.Format("{{0} {1} ({2}) kişisinden {3:c} borç alındı.",
                                                                                                     userFirstName.Value,
                                                                                                     userLastName.Value,
-                                                                                                    user.Username));
+                                                                                                    user.Username,
+                                                                                                    borrowExpense.Cost));
                     fcmBorrow.data.Add("Content", borrowExpense);
                     await _fcmService.SendFCMAsync(fcmBorrow);
                 }
@@ -170,11 +172,12 @@ namespace HomeSweetHomeServer.Services
 
                         //Send fcm to other participants
                         FCMModel fcmExpense = new FCMModel(to.DeviceId, new Dictionary<string, object>(), "Expense");
-                        fcmExpense.notification.Add("title", String.Format("New Expense : \"{0}\"", expense.Title));
-                        fcmExpense.notification.Add("body", String.Format("{0:c} paid by {1} {2} ({3})", expense.Cost,
+                        fcmExpense.notification.Add("title", String.Format("Yeni Gider : \"{0}\"", expense.Title));
+                        fcmExpense.notification.Add("body", String.Format("{0} {1} ({2}) kişisi tarafından {3:c} ödendi.", 
                                                                                                       userFirstName.Value,
                                                                                                       userLastName.Value,
-                                                                                                      user.Username));
+                                                                                                      user.Username,
+                                                                                                      expense.Cost));
                         fcmExpense.data.Add("Content", expense);
                         await _fcmService.SendFCMAsync(fcmExpense);
                     }

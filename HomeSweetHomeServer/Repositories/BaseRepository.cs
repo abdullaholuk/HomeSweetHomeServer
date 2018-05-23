@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HomeSweetHomeServer.Models;
 using HomeSweetHomeServer.Contexts;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace HomeSweetHomeServer.Repositories
 {
@@ -54,7 +55,9 @@ namespace HomeSweetHomeServer.Repositories
 
         public async Task UpdateAsync(TEntity entity)
         {
-            Db.Update(entity);
+
+            var a = Db.Update(entity).Properties;
+
             await Context.SaveChangesAsync();
         }
 

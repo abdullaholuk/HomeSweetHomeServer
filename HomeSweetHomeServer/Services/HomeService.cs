@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using HomeSweetHomeServer.Exceptions;
 using HomeSweetHomeServer.Models;
 using HomeSweetHomeServer.Repositories;
-using HomeSweetHomeServer.Services;
-using HomeSweetHomeServer.Exceptions;
-using System.Net;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace HomeSweetHomeServer.Services
 {
@@ -109,8 +104,8 @@ namespace HomeSweetHomeServer.Services
             
             FCMModel fcm = new FCMModel(home.Admin.DeviceId, new Dictionary<string, object>(), "JoinHomeRequest");
             
-            fcm.notification.Add("title", "Home Join Request");
-            fcm.notification.Add("body", String.Format("{0} {1} ({2}) requests to join your home", firstName.Value, lastName.Value, user.Username));
+            fcm.notification.Add("title", "Eve Katılma İsteği");
+            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evinize katılmak istiyor.", firstName.Value, lastName.Value, user.Username));
 
             fcm.data.Add("RequesterId", user.Id);
             fcm.data.Add("RequesterUsername", user.Username);
@@ -162,8 +157,8 @@ namespace HomeSweetHomeServer.Services
                 HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
 
                 FCMModel fcmRequester = new FCMModel(requester.DeviceId, new Dictionary<string, object>(), "AllFriends");
-                fcmRequester.notification.Add("title", "Join Home Request");
-                fcmRequester.notification.Add("body", "Your join home request is accepted by home admin");
+                fcmRequester.notification.Add("title", "Eve Katılma İsteği");
+                fcmRequester.notification.Add("body", "Eve katılma isteğiniz ev yöneticisi tarafından kabul edildi.");
 
                 List<UserBaseModel> friendsBaseModels = new List<UserBaseModel>();
                 UserBaseModel requesterBaseModel = new UserBaseModel(requester.Id, requester.Username, requester.Position, requesterFirstName.Value, requesterLastName.Value, 0);
@@ -176,8 +171,8 @@ namespace HomeSweetHomeServer.Services
                     //Sends notification to all friends 
                     FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), "NewFriend");
 
-                    fcmFriend.notification.Add("title", "New Home Friend");
-                    fcmFriend.notification.Add("body", String.Format("{0} {1} ({2}) ", requesterFirstName.Value, requesterLastName.Value, requester.Username));
+                    fcmFriend.notification.Add("title", "Yeni Ev Arkadaşı");
+                    fcmFriend.notification.Add("body", String.Format("{0} {1} ({2}) evinize katıldı.", requesterFirstName.Value, requesterLastName.Value, requester.Username));
 
                     fcmFriend.data.Add("Friend", requesterBaseModel);
 
@@ -242,8 +237,8 @@ namespace HomeSweetHomeServer.Services
 
             FCMModel fcm = new FCMModel(invitedUser.DeviceId, new Dictionary<string, object>(), "InviteHomeRequest");
 
-            fcm.notification.Add("title", "Home Invite Request");
-            fcm.notification.Add("body", String.Format("{0} {1} ({2}) invites to join his/her home", firstName.Value, lastName.Value, user.Username));
+            fcm.notification.Add("title", "Eve Katılma Daveti");
+            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evine katılmanız için davet ediyor.", firstName.Value, lastName.Value, user.Username));
 
             fcm.data.Add("InvitedHomeId", home.Id);
             fcm.data.Add("InviterUsername", user.Username);
@@ -295,8 +290,8 @@ namespace HomeSweetHomeServer.Services
                     //Sends notification to all friends 
                     FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), "NewFriend");
 
-                    fcmFriend.notification.Add("title", "New Home Friend");
-                    fcmFriend.notification.Add("body", String.Format("{0} {1} ({2}) ", userFirstName.Value, userLastName.Value, user.Username));
+                    fcmFriend.notification.Add("title", "Yeni Ev Arkadaşı");
+                    fcmFriend.notification.Add("body", String.Format("{0} {1} ({2}) evinize katıldı", userFirstName.Value, userLastName.Value, user.Username));
 
                     fcmFriend.data.Add("Friend", userBaseModel);
                     
@@ -387,7 +382,7 @@ namespace HomeSweetHomeServer.Services
         }
 
         //User request to quit home
-        public async Task LeaveHome(UserModel user)
+        public async Task LeaveHome(UserModel user, int newAdminId)
         {
             if(user.Position == (int)UserPosition.HasNotHome)
             {
@@ -396,29 +391,108 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
 
+            Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
+            Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
+
             user = await _userRepository.GetByIdAsync(user.Id, true);
             HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
-            
-            if(home.Users.Count != 1)
-            {
 
+            UserInformationModel userFirstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
+            UserInformationModel userLastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
+
+            if (home.Users.Count != 1)
+            {
+                if (user.Position == (int)UserPosition.Admin)
+                {
+                    UserModel newAdmin = await _userRepository.GetByIdAsync(newAdminId);
+
+                    if (newAdmin == null || newAdmin.Home.Id != user.Home.Id)
+                    {
+                        CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                        errors.AddError("Friendship Not Found", "Friendship not found for admin assignment");
+                        errors.Throw();
+                    }
+                    newAdmin.Position = (int)UserPosition.Admin;
+                    home.Admin = newAdmin;
+
+                   // _userRepository.Update(newAdmin);
+                }
+
+                home.Users.Remove(user);
+                user.Home = null;
+                user.Position = (int)UserPosition.HasNotHome;
+                
+                _homeRepository.Update(home);
+                _userRepository.Update(user);
+
+                foreach (var u in home.Users)
+                {
+                    FriendshipModel friendship = await _friendshipRepository.GetFriendshipByIdAsync(user.Id, u.Id);
+
+                    FCMModel fcm = new FCMModel(u.DeviceId, new Dictionary<string, object>(), "LeaveHome");
+                    fcm.notification.Add("title", "Evden Ayrılma");
+
+                    if (friendship.User1.Id == user.Id)
+                    {
+                        if(friendship.Debt > 0)
+                        {
+                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Alacağınız : {0:c}", userFirstName.Value,
+                                                                                                            userLastName.Value,
+                                                                                                            user.Username,
+                                                                                                            friendship.Debt));
+                        }
+                        else if(friendship.Debt == 0)
+                        {
+                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz veya alacağınız bulunmamaktadır.", userFirstName.Value,
+                                                                                                            userLastName.Value,
+                                                                                                            user.Username));
+                        }
+                        else
+                        {
+                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz : {0:c}", userFirstName.Value,
+                                                                                                            userLastName.Value,
+                                                                                                            user.Username,
+                                                                                                            -friendship.Debt));
+                        }
+                    }
+                    else
+                    {
+                        if (friendship.Debt > 0)
+                        {
+                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz : {0:c}", userFirstName.Value,
+                                                                                                            userLastName.Value,
+                                                                                                            user.Username,
+                                                                                                            friendship.Debt));
+                        }
+                        else if (friendship.Debt == 0)
+                        {
+                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz veya alacağınız bulunmamaktadır.", userFirstName.Value,
+                                                                                                            userLastName.Value,
+                                                                                                            user.Username));
+                        }
+                        else
+                        {
+                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Alacağınız : {0:c}", userFirstName.Value,
+                                                                                                            userLastName.Value,
+                                                                                                            user.Username,
+                                                                                                            -friendship.Debt));
+                        }
+                    }
+
+                    fcm.data.Add("LeaverId", user.Id);
+                    await _fcmService.SendFCMAsync(fcm);
+
+                    _friendshipRepository.Delete(friendship);
+                }
             }
             else
             {
+                user.Home = null;
+                user.Position = (int)UserPosition.HasNotHome;
 
+                _homeRepository.Delete(home);
+                _userRepository.Update(user);
             }
-
-
-
-
-
-
-
-        }
-
-        public async Task DeleteHome(HomeModel home)
-        {
-
         }
     }
 }

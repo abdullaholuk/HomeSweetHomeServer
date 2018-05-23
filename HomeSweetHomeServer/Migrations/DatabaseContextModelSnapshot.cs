@@ -33,6 +33,8 @@ namespace HomeSweetHomeServer.Migrations
 
                     b.Property<int>("EType");
 
+                    b.Property<int?>("HomeId");
+
                     b.Property<DateTime>("LastUpdated");
 
                     b.Property<string>("Title")
@@ -41,6 +43,8 @@ namespace HomeSweetHomeServer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
+
+                    b.HasIndex("HomeId");
 
                     b.ToTable("Expense");
                 });
@@ -207,6 +211,10 @@ namespace HomeSweetHomeServer.Migrations
                     b.HasOne("HomeSweetHomeServer.Models.UserModel", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId");
+
+                    b.HasOne("HomeSweetHomeServer.Models.HomeModel", "Home")
+                        .WithMany()
+                        .HasForeignKey("HomeId");
                 });
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.FriendshipModel", b =>

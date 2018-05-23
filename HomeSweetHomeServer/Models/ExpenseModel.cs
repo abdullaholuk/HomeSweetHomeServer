@@ -25,6 +25,9 @@ namespace HomeSweetHomeServer.Models
         [ForeignKey("AuthorId")]
         public UserModel Author { get; set; }
 
+        [ForeignKey("HomeId")]
+        public HomeModel Home { get; set; }
+        
         [DataMember]
         public DateTime LastUpdated { get; set; }
 

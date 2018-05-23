@@ -11,7 +11,7 @@ using System;
 namespace HomeSweetHomeServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20180514222301_Db_UserExpense")]
+    [Migration("20180523151213_Db_UserExpense")]
     partial class Db_UserExpense
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,8 @@ namespace HomeSweetHomeServer.Migrations
 
                     b.Property<int>("EType");
 
+                    b.Property<int?>("HomeId");
+
                     b.Property<DateTime>("LastUpdated");
 
                     b.Property<string>("Title")
@@ -42,6 +44,8 @@ namespace HomeSweetHomeServer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
+
+                    b.HasIndex("HomeId");
 
                     b.ToTable("Expense");
                 });
@@ -208,6 +212,10 @@ namespace HomeSweetHomeServer.Migrations
                     b.HasOne("HomeSweetHomeServer.Models.UserModel", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId");
+
+                    b.HasOne("HomeSweetHomeServer.Models.HomeModel", "Home")
+                        .WithMany()
+                        .HasForeignKey("HomeId");
                 });
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.FriendshipModel", b =>

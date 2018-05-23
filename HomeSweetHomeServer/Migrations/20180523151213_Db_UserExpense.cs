@@ -19,6 +19,7 @@ namespace HomeSweetHomeServer.Migrations
                     Content = table.Column<string>(nullable: true),
                     Cost = table.Column<double>(nullable: false),
                     EType = table.Column<int>(nullable: false),
+                    HomeId = table.Column<int>(nullable: true),
                     LastUpdated = table.Column<DateTime>(nullable: false),
                     Title = table.Column<string>(nullable: false)
                 },
@@ -29,6 +30,12 @@ namespace HomeSweetHomeServer.Migrations
                         name: "FK_Expense_User_AuthorId",
                         column: x => x.AuthorId,
                         principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Expense_Home_HomeId",
+                        column: x => x.HomeId,
+                        principalTable: "Home",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -63,6 +70,11 @@ namespace HomeSweetHomeServer.Migrations
                 name: "IX_Expense_AuthorId",
                 table: "Expense",
                 column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Expense_HomeId",
+                table: "Expense",
+                column: "HomeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserExpense_ExpenseId",

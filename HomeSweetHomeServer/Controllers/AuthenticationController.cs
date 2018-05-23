@@ -54,7 +54,7 @@ namespace HomeSweetHomeServer.Controllers
 
             UserModel user = await _authenticationService.LoginAsync(login);
 
-            UserFullInformationModel fullInfo = await _authenticationService.GetUserFullInformationAsync(user.Id);
+           // UserFullInformationModel fullInfo = await _authenticationService.GetUserFullInformationAsync(user.Id);
             if (user.Status == (int)UserStatus.NotValid)
             {
                // fullInfo.Token = null;
@@ -62,8 +62,8 @@ namespace HomeSweetHomeServer.Controllers
 
             if (user.Status == (int)UserStatus.NotValid)
                 //return StatusCode((int)HttpStatusCode.Accepted, user.Id);
-                return StatusCode((int)HttpStatusCode.Accepted, fullInfo);
-                //return StatusCode((int)HttpStatusCode.Accepted, user.Token);
+                //return StatusCode((int)HttpStatusCode.Accepted, fullInfo);
+                return StatusCode((int)HttpStatusCode.Accepted, user.Token);
             else
                 //return Ok(jsonInfo);
                 return Ok(user.Token);

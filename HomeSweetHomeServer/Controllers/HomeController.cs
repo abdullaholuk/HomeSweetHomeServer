@@ -99,12 +99,12 @@ namespace HomeSweetHomeServer.Controllers
 
         //User requests to quit home
         [HttpGet("LeaveHome", Name = "LeaveHome")]
-        public async Task<IActionResult> LeaveHome()
+        public async Task<IActionResult> LeaveHome([FromQuery] int newAdminId = 0)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
-            await _homeService.LeaveHome(user);
+            await _homeService.LeaveHome(user, newAdminId);
             return Ok();
         }
 
