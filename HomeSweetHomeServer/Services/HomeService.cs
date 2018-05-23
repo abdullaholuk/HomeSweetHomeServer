@@ -436,7 +436,7 @@ namespace HomeSweetHomeServer.Services
                     {
                         if(friendship.Debt > 0)
                         {
-                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Alacağınız : {0:c}", userFirstName.Value,
+                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Alacağınız : {3:c}", userFirstName.Value,
                                                                                                             userLastName.Value,
                                                                                                             user.Username,
                                                                                                             friendship.Debt));
@@ -449,7 +449,7 @@ namespace HomeSweetHomeServer.Services
                         }
                         else
                         {
-                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz : {0:c}", userFirstName.Value,
+                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz : {3:c}", userFirstName.Value,
                                                                                                             userLastName.Value,
                                                                                                             user.Username,
                                                                                                             -friendship.Debt));
@@ -459,7 +459,7 @@ namespace HomeSweetHomeServer.Services
                     {
                         if (friendship.Debt > 0)
                         {
-                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz : {0:c}", userFirstName.Value,
+                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz : {3:c}", userFirstName.Value,
                                                                                                             userLastName.Value,
                                                                                                             user.Username,
                                                                                                             friendship.Debt));
@@ -472,7 +472,7 @@ namespace HomeSweetHomeServer.Services
                         }
                         else
                         {
-                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Alacağınız : {0:c}", userFirstName.Value,
+                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Alacağınız : {3:c}", userFirstName.Value,
                                                                                                             userLastName.Value,
                                                                                                             user.Username,
                                                                                                             -friendship.Debt));
