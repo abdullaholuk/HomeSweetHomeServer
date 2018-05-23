@@ -31,7 +31,7 @@ namespace HomeSweetHomeServer.Migrations
                         column: x => x.HomeId,
                         principalTable: "Home",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateIndex(
@@ -45,7 +45,7 @@ namespace HomeSweetHomeServer.Migrations
                 column: "HomeId",
                 principalTable: "Home",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.SetNull);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

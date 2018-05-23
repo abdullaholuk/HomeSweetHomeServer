@@ -30,11 +30,11 @@ namespace HomeSweetHomeServer.Contexts
         protected override void OnModelCreating(ModelBuilder builder)
         {
             //Table names 
-            builder.Entity<UserModel>().ToTable("User").HasOne(u => u.Home).WithMany(h => h.Users);
+            builder.Entity<UserModel>().ToTable("User").HasOne(u => u.Home).WithMany(h => h.Users).OnDelete(DeleteBehavior.SetNull);
             builder.Entity<InformationModel>().ToTable("Information");
             builder.Entity<UserInformationModel>().ToTable("UserInformation");
             builder.Entity<FriendshipModel>().ToTable("Friendship");
-            builder.Entity<HomeModel>().ToTable("Home").HasMany(h => h.Users).WithOne(u => u.Home).IsRequired();
+            builder.Entity<HomeModel>().ToTable("Home").HasMany(h => h.Users).WithOne(u => u.Home).IsRequired().OnDelete(DeleteBehavior.SetNull);
             builder.Entity<NotepadModel>().ToTable("Notepad");
             builder.Entity<ShoppingListModel>().ToTable("ShoppingList");
             builder.Entity<ExpenseModel>().ToTable("Expense");

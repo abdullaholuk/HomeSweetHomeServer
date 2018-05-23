@@ -276,7 +276,7 @@ namespace HomeSweetHomeServer.Migrations
                     b.HasOne("HomeSweetHomeServer.Models.HomeModel", "Home")
                         .WithMany("Users")
                         .HasForeignKey("HomeId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 #pragma warning restore 612, 618
         }

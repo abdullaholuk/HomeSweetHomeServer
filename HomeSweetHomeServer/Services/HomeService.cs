@@ -414,8 +414,6 @@ namespace HomeSweetHomeServer.Services
                     }
                     newAdmin.Position = (int)UserPosition.Admin;
                     home.Admin = newAdmin;
-
-                   // _userRepository.Update(newAdmin);
                 }
 
                 home.Users.Remove(user);
@@ -425,6 +423,7 @@ namespace HomeSweetHomeServer.Services
                 _homeRepository.Update(home);
                 _userRepository.Update(user);
 
+                //Home friends notification
                 foreach (var u in home.Users)
                 {
                     FriendshipModel friendship = await _friendshipRepository.GetFriendshipByIdAsync(user.Id, u.Id);
@@ -490,8 +489,8 @@ namespace HomeSweetHomeServer.Services
                 user.Home = null;
                 user.Position = (int)UserPosition.HasNotHome;
 
-                _homeRepository.Delete(home);
                 _userRepository.Update(user);
+                _homeRepository.Delete(home);
             }
         }
     }

@@ -17,11 +17,11 @@ namespace HomeSweetHomeServer.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     AuthorId = table.Column<int>(nullable: true),
                     Content = table.Column<string>(nullable: true),
-                    Cost = table.Column<double>(nullable: false),
-                    EType = table.Column<int>(nullable: false),
+                    Cost = table.Column<double>(nullable: true),
+                    EType = table.Column<int>(nullable: true),
                     HomeId = table.Column<int>(nullable: true),
-                    LastUpdated = table.Column<DateTime>(nullable: false),
-                    Title = table.Column<string>(nullable: false)
+                    LastUpdated = table.Column<DateTime>(nullable: true),
+                    Title = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -31,13 +31,13 @@ namespace HomeSweetHomeServer.Migrations
                         column: x => x.AuthorId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Expense_Home_HomeId",
                         column: x => x.HomeId,
                         principalTable: "Home",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -57,13 +57,13 @@ namespace HomeSweetHomeServer.Migrations
                         column: x => x.ExpenseId,
                         principalTable: "Expense",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_UserExpense_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateIndex(

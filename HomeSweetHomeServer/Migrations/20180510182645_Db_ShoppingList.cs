@@ -27,7 +27,7 @@ namespace HomeSweetHomeServer.Migrations
                         column: x => x.HomeId,
                         principalTable: "Home",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateIndex(
