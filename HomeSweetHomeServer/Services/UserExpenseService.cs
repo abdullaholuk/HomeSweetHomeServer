@@ -174,7 +174,7 @@ namespace HomeSweetHomeServer.Services
                         //Send fcm to other participants
                         FCMModel fcmExpense = new FCMModel(to.DeviceId, new Dictionary<string, object>(), "Expense");
                         fcmExpense.notification.Add("title", String.Format("Yeni Gider : \"{0}\"", expense.Title));
-                        fcmExpense.notification.Add("body", String.Format("{0} {1} ({2}) kişisi tarafından {3:c} ödendi.", 
+                        fcmExpense.notification.Add("body", String.Format("{0} {1} ({2}) tarafından {3:c} ödendi.", 
                                                                                                       userFirstName.Value,
                                                                                                       userLastName.Value,
                                                                                                       user.Username,
