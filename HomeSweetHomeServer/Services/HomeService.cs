@@ -114,7 +114,7 @@ namespace HomeSweetHomeServer.Services
             FCMModel fcm = new FCMModel(home.Admin.DeviceId, new Dictionary<string, object>(), "JoinHomeRequest");
             
             fcm.notification.Add("title", "Eve Katılma İsteği");
-            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evinize katılmak istiyor.", firstName.Value, lastName.Value, user.Username));
+            fcm.notification.Add("body", String.Format("{0} {1}({2}) evinize katılmak istiyor.", firstName.Value, lastName.Value, user.Username));
 
             fcm.data.Add("RequesterId", user.Id);
             fcm.data.Add("RequesterUsername", user.Username);
@@ -181,7 +181,7 @@ namespace HomeSweetHomeServer.Services
                     FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), "NewFriend");
 
                     fcmFriend.notification.Add("title", "Yeni Ev Arkadaşı");
-                    fcmFriend.notification.Add("body", String.Format("{0} {1} ({2}) evinize katıldı.", requesterFirstName.Value, requesterLastName.Value, requester.Username));
+                    fcmFriend.notification.Add("body", String.Format("{0} {1}({2}) evinize katıldı.", requesterFirstName.Value, requesterLastName.Value, requester.Username));
 
                     fcmFriend.data.Add("Friend", requesterBaseModel);
 
@@ -247,7 +247,7 @@ namespace HomeSweetHomeServer.Services
             FCMModel fcm = new FCMModel(invitedUser.DeviceId, new Dictionary<string, object>(), "InviteHomeRequest");
 
             fcm.notification.Add("title", "Eve Katılma Daveti");
-            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evine katılmanız için davet ediyor.", firstName.Value, lastName.Value, user.Username));
+            fcm.notification.Add("body", String.Format("{0} {1}({2}) evine katılmanız için davet ediyor.", firstName.Value, lastName.Value, user.Username));
 
             fcm.data.Add("InvitedHomeId", home.Id);
             fcm.data.Add("InviterUsername", user.Username);
@@ -300,7 +300,7 @@ namespace HomeSweetHomeServer.Services
                     FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), "NewFriend");
 
                     fcmFriend.notification.Add("title", "Yeni Ev Arkadaşı");
-                    fcmFriend.notification.Add("body", String.Format("{0} {1} ({2}) evinize katıldı", userFirstName.Value, userLastName.Value, user.Username));
+                    fcmFriend.notification.Add("body", String.Format("{0} {1}({2}) evinize katıldı", userFirstName.Value, userLastName.Value, user.Username));
 
                     fcmFriend.data.Add("Friend", userBaseModel);
                     
@@ -449,22 +449,19 @@ namespace HomeSweetHomeServer.Services
                     {
                         if(friendship.Debt > 0)
                         {
-                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Alacağınız : {3:c}", userFirstName.Value,
+                            fcm.notification.Add("body", String.Format("{0} {1} evden ayrılıyor. Alacağınız : {2:c}", userFirstName.Value,
                                                                                                             userLastName.Value,
-                                                                                                            user.Username,
                                                                                                             friendship.Debt));
                         }
                         else if(friendship.Debt == 0)
                         {
-                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz veya alacağınız bulunmamaktadır.", userFirstName.Value,
-                                                                                                            userLastName.Value,
-                                                                                                            user.Username));
+                            fcm.notification.Add("body", String.Format("{0} {1} evden ayrılıyor. Borcunuz veya alacağınız bulunmamaktadır.", userFirstName.Value,
+                                                                                                            userLastName.Value));
                         }
                         else
                         {
-                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz : {3:c}", userFirstName.Value,
+                            fcm.notification.Add("body", String.Format("{0} {1} evden ayrılıyor. Borcunuz : {2:c}", userFirstName.Value,
                                                                                                             userLastName.Value,
-                                                                                                            user.Username,
                                                                                                             -friendship.Debt));
                         }
                     }
@@ -472,22 +469,19 @@ namespace HomeSweetHomeServer.Services
                     {
                         if (friendship.Debt > 0)
                         {
-                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz : {3:c}", userFirstName.Value,
+                            fcm.notification.Add("body", String.Format("{0} {1} evden ayrılıyor. Borcunuz : {2:c}", userFirstName.Value,
                                                                                                             userLastName.Value,
-                                                                                                            user.Username,
                                                                                                             friendship.Debt));
                         }
                         else if (friendship.Debt == 0)
                         {
-                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Borcunuz veya alacağınız bulunmamaktadır.", userFirstName.Value,
-                                                                                                            userLastName.Value,
-                                                                                                            user.Username));
+                            fcm.notification.Add("body", String.Format("{0} {1} evden ayrılıyor. Borcunuz veya alacağınız bulunmamaktadır.", userFirstName.Value,
+                                                                                                            userLastName.Value));
                         }
                         else
                         {
-                            fcm.notification.Add("body", String.Format("{0} {1} ({2}) evden ayrılıyor. Alacağınız : {3:c}", userFirstName.Value,
+                            fcm.notification.Add("body", String.Format("{0} {1} evden ayrılıyor. Alacağınız : {2:c}", userFirstName.Value,
                                                                                                             userLastName.Value,
-                                                                                                            user.Username,
                                                                                                             -friendship.Debt));
                         }
                     }

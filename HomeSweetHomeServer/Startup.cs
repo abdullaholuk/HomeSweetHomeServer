@@ -51,7 +51,8 @@ namespace HomeSweetHomeServer
             {
                 options.Filters.Add(typeof(ExceptionFilter));
                 options.Filters.Add(typeof(ModelValidationFilter));
-            }).AddJsonOptions(a => a.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
+            }).AddJsonOptions(a => a.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver())
+              .AddJsonOptions(a => a.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
             
             services.AddDbContext<DatabaseContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));

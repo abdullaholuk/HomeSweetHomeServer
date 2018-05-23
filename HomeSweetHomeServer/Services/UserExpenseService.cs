@@ -137,12 +137,12 @@ namespace HomeSweetHomeServer.Services
                     //Send fcm to other participants
                     FCMModel fcmBorrow = new FCMModel(to.DeviceId, new Dictionary<string, object>(), "Expense");
                     fcmBorrow.notification.Add("title", "Borç Para");
-                    fcmBorrow.notification.Add("body", String.Format("{0} {1} ({2}) kişisinden {3:c} borç alındı.",
+                    fcmBorrow.notification.Add("body", String.Format("{0} {1} kişisinden {2:c} borç alındı.",
                                                                                                     userFirstName.Value,
                                                                                                     userLastName.Value,
-                                                                                                    user.Username,
                                                                                                     borrowExpense.Cost));
                     fcmBorrow.data.Add("Content", borrowExpense);
+                    fcmBorrow.data.Add("Author", expense.Author.Username);
                     await _fcmService.SendFCMAsync(fcmBorrow);
                 }
                 
@@ -151,6 +151,7 @@ namespace HomeSweetHomeServer.Services
                 //Send fcm to user
                 FCMModel fcmLend = new FCMModel(user.DeviceId, type : "Expense");
                 fcmLend.data.Add("Content", expense);
+                fcmLend.data.Add("Author", expense.Author.Username);
                 await _fcmService.SendFCMAsync(fcmLend);
 
                 await insertUEL;
@@ -174,12 +175,12 @@ namespace HomeSweetHomeServer.Services
                         //Send fcm to other participants
                         FCMModel fcmExpense = new FCMModel(to.DeviceId, new Dictionary<string, object>(), "Expense");
                         fcmExpense.notification.Add("title", String.Format("Yeni Gider : \"{0}\"", expense.Title));
-                        fcmExpense.notification.Add("body", String.Format("{0} {1} ({2}) tarafından {3:c} ödendi.", 
+                        fcmExpense.notification.Add("body", String.Format("{0} {1} tarafından {2:c} ödendi.", 
                                                                                                       userFirstName.Value,
                                                                                                       userLastName.Value,
-                                                                                                      user.Username,
                                                                                                       expense.Cost));
                         fcmExpense.data.Add("Content", expense);
+                        fcmExpense.data.Add("Author", expense.Author.Username);
                         await _fcmService.SendFCMAsync(fcmExpense);
                     }
                     else
@@ -189,6 +190,7 @@ namespace HomeSweetHomeServer.Services
                         //Send fcm to user
                         FCMModel fcmExpense = new FCMModel(user.DeviceId, new Dictionary<string, object>(), "Expense");
                         fcmExpense.data.Add("Content", expense);
+                        fcmExpense.data.Add("Author", expense.Author.Username);
                         await _fcmService.SendFCMAsync(fcmExpense);
 
                         await insertUE;
