@@ -9,5 +9,6 @@ namespace HomeSweetHomeServer.Services
     //Interface about menu operations
     public interface IMenuService
     {
+        Task AddMenu(UserModel user, MenuModel menu);
     }
 }

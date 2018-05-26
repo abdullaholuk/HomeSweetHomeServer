@@ -17,30 +17,27 @@ using System.Net;
 namespace HomeSweetHomeServer.Controllers
 {
     [Produces("application/json")]
-    [Route("api/Expense")]
+    [Route("api/Menu")]
     [Authorize]
-    public class ExpenseController : Controller
+    public class MenuController : Controller
     {
         IJwtTokenService _jwtTokenService;
-        IUserExpenseService _userExpenseService;
+        IMenuService _menuService;
 
-        public ExpenseController(IJwtTokenService jwtTokenService, IUserExpenseService userExpenseService)
+        public MenuController(IJwtTokenService jwtTokenService, IMenuService menuService)
         {
             _jwtTokenService = jwtTokenService;
-            _userExpenseService = userExpenseService;
+            _menuService = menuService;
         }
 
-        //User adds expense
-        [HttpPost("AddExpense", Name = "AddExpense")]
-        public async Task<IActionResult> AddExpense([FromBody] ClientExpenseModel clientExpense)
+        //User adds menu
+        [HttpPost("AddMenu", Name = "AddMenu")]
+        public async Task<IActionResult> AddMenu(MenuModel menu)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
-            ExpenseModel expense = clientExpense.Expense;
-            List<int> participants = clientExpense.Participants;
-
-            await _userExpenseService.AddExpenseAsync(user, expense, participants);
+            await _menuService.AddMenu(user, menu);
 
             return Ok();
         }
