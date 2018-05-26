@@ -16,7 +16,6 @@ namespace HomeSweetHomeServer.Contexts
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options){ }
 
-        //DbSet<UserModel> UserModels { get; set; } //User table
         DbSet<UserModel> UserModels { get; set; } //User table
         DbSet<InformationModel> InformationModels { get; set; } //Information table
         DbSet<UserInformationModel> UserInformationModels { get; set; } //UserInformation table
@@ -26,7 +25,7 @@ namespace HomeSweetHomeServer.Contexts
         DbSet<ShoppingListModel> ShoppingModels { get; set; } //Shopping table
         DbSet<ExpenseModel> ExpenseModels { get; set; } //Expense table
         DbSet<UserExpenseModel> UserExpenseModels { get; set; } //UserExpense table
-
+        
         protected override void OnModelCreating(ModelBuilder builder)
         {
             //Table names 

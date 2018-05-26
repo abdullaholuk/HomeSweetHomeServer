@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomeSweetHomeServer.Models
 {
@@ -28,7 +29,7 @@ namespace HomeSweetHomeServer.Models
         [DataMember]
         public int Position { get; set; }
 
-        [DataMember]
+        [ForeignKey("HomeId")]
         public HomeModel Home { get; set; }
 
         [DataMember]

@@ -4,7 +4,7 @@ using HomeSweetHomeServer.Models;
 
 namespace HomeSweetHomeServer.Repositories
 {
-    //Interface about user expense operations
+    //Interface about user expense repository operations
     public interface IUserExpenseRepository : IBaseRepository<UserExpenseModel>
     {
         Task<List<UserExpenseModel>> GetAllUserExpenseByUserIdAsync(int userId, bool include = false);

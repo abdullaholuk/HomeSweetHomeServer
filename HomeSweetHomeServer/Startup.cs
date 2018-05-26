@@ -66,6 +66,7 @@ namespace HomeSweetHomeServer
             services.AddScoped<IShoppingListRepository, ShoppingListRepository>();
             services.AddScoped<IExpenseRepository, ExpenseRepository>();
             services.AddScoped<IUserExpenseRepository, UserExpenseRepository>();
+            services.AddScoped<IMenuRepository, MenuRepository>();
 
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -75,6 +76,7 @@ namespace HomeSweetHomeServer
             services.AddScoped<INotepadService, NotepadService>();
             services.AddScoped<IShoppingListService, ShoppingListService>();
             services.AddScoped<IUserExpenseService, UserExpenseService>();
+            services.AddScoped<IMenuService, MenuService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -101,6 +103,5 @@ namespace HomeSweetHomeServer
 
             app.UseMvc();
         }
-        
     }
 }
