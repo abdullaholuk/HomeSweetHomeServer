@@ -22,5 +22,8 @@ namespace HomeSweetHomeServer.Models
 
         [DataMember]
         public string Note { get; set; }
+
+        [ForeignKey("MenuId")]
+        public MenuModel Menu { get; set; }
     }
 }
