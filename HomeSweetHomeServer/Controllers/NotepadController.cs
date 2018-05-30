@@ -37,7 +37,7 @@ namespace HomeSweetHomeServer.Controllers
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
-            var res = await _notepadService.SynchronizeNotepadAsync(user);
+            List<NotepadModel> res = await _notepadService.SynchronizeNotepadAsync(user);
             
             return Ok(res);
         }

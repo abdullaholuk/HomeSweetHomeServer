@@ -37,7 +37,7 @@ namespace HomeSweetHomeServer.Controllers
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
-            var res = await _shoppingListService.SynchronizeShoppingListAsync(user);
+            ShoppingListModel res = await _shoppingListService.SynchronizeShoppingListAsync(user);
 
             return Ok(res);
         }

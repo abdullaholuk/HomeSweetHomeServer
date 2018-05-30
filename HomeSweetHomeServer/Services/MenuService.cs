@@ -38,7 +38,38 @@ namespace HomeSweetHomeServer.Services
             _fcmService = fcmService;
         }
 
-        public async Task AddMenu(UserModel user, MenuModel menu, List<int> mealIds)
+        //User synchronize home menu meals
+        public async Task<List<ClientMenuModel>> SynchronizeMenusAsync(UserModel user)
+        {
+            if (user.Position == (int)UserPosition.HasNotHome)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Home Not Exist", "User is not member of a home");
+                errors.Throw();
+            }
+
+            user = await _userRepository.GetByIdAsync(user.Id, true);
+            List<MenuModel> homeMenus = await _menuRepository.GetAllHomeMenusAsync(user.Home.Id);
+            List<ClientMenuModel> clientMenus = new List<ClientMenuModel>();
+             
+            foreach(var menu in homeMenus)
+            {
+                ClientMenuModel clientMenu = new ClientMenuModel();
+                clientMenu.Menu = menu;
+
+                List<MenuMealModel> menuMeals = await _menuMealRepository.GetAllMenuMealsByMenuIdAsync(menu.Id, true);
+
+                foreach (var menuMeal in menuMeals)
+                    clientMenu.MealIds.Add(menuMeal.Meal.Id);
+
+                clientMenus.Add(clientMenu);
+            }
+
+            return clientMenus;
+        }
+
+        //User adds menu
+        public async Task AddMenuAsync(UserModel user, MenuModel menu, List<int> mealIds)
         {
             if (user.Position == (int)UserPosition.HasNotHome)
             {
@@ -62,7 +93,7 @@ namespace HomeSweetHomeServer.Services
             user = await _userRepository.GetByIdAsync(user.Id, true);
             HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
 
-            MenuModel tmp = await _menuRepository.GetHomeMenuByDate(home.Id, menu.Date);
+            MenuModel tmp = await _menuRepository.GetHomeMenuByDateAsync(home.Id, menu.Date);
             
             if(tmp != null)
             {
@@ -85,7 +116,7 @@ namespace HomeSweetHomeServer.Services
             //Finds meals that are not related home
             foreach(var mealId in mealIds)
             {
-                MealModel meal = await _mealRepository.GetHomeMealById(mealId, true);
+                MealModel meal = await _mealRepository.GetHomeMealByIdAsync(mealId, true);
 
                 if ((meal == null) || (meal.Home.Id != home.Id))
                 {
@@ -101,7 +132,7 @@ namespace HomeSweetHomeServer.Services
             //Inserts menu meal to database
             foreach (var mealId in mealIds)
             {
-                MealModel meal = await _mealRepository.GetHomeMealById(mealId, true);
+                MealModel meal = await _mealRepository.GetHomeMealByIdAsync(mealId, true);
 
                 MenuMealModel menuMeal = new MenuMealModel(menu, meal);
 
@@ -120,8 +151,24 @@ namespace HomeSweetHomeServer.Services
             }
         }
 
+        //User synchronizes home meals
+        public async Task<List<MealModel>> SynchronizeMealsAsync(UserModel user)
+        {
+            if (user.Position == (int)UserPosition.HasNotHome)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Home Not Exist", "User is not member of a home");
+                errors.Throw();
+            }
+
+            user = await _userRepository.GetByIdAsync(user.Id, true);
+
+            return await _mealRepository.GetAllHomeMealsAsync(user.Home.Id);
+        }
+        
+
         //User adds meal
-        public async Task AddMeal(UserModel user, MealModel meal)
+        public async Task AddMealAsync(UserModel user, MealModel meal)
         {
             if (user.Position == (int)UserPosition.HasNotHome)
             {
@@ -133,7 +180,7 @@ namespace HomeSweetHomeServer.Services
             user = await _userRepository.GetByIdAsync(user.Id, true);
             HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
 
-            MealModel tmp = await _mealRepository.GetHomeMealByName(home.Id, meal.Name);
+            MealModel tmp = await _mealRepository.GetHomeMealByNameAsync(home.Id, meal.Name);
 
             if(tmp != null)
             {
@@ -155,7 +202,7 @@ namespace HomeSweetHomeServer.Services
         }
 
         //User updates meal
-        public async Task UpdateMeal(UserModel user, MealModel meal)
+        public async Task UpdateMealAsync(UserModel user, MealModel meal)
         {
             if (user.Position == (int)UserPosition.HasNotHome)
             {
@@ -167,7 +214,7 @@ namespace HomeSweetHomeServer.Services
             user = await _userRepository.GetByIdAsync(user.Id, true);
             HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
 
-            MealModel old = await _mealRepository.GetHomeMealById(meal.Id, true);
+            MealModel old = await _mealRepository.GetHomeMealByIdAsync(meal.Id, true);
 
             if (old == null)
             {
@@ -198,7 +245,7 @@ namespace HomeSweetHomeServer.Services
         }
 
         //User deletes meal
-        public async Task DeleteMeal(UserModel user, int mealId)
+        public async Task DeleteMealAsync(UserModel user, int mealId)
         {
             if (user.Position == (int)UserPosition.HasNotHome)
             {
@@ -210,7 +257,7 @@ namespace HomeSweetHomeServer.Services
             user = await _userRepository.GetByIdAsync(user.Id, true);
             HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
 
-            MealModel meal = await _mealRepository.GetHomeMealById(mealId, true);
+            MealModel meal = await _mealRepository.GetHomeMealByIdAsync(mealId, true);
 
             if (meal == null)
             {

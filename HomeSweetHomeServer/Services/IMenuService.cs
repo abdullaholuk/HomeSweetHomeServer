@@ -9,9 +9,11 @@ namespace HomeSweetHomeServer.Services
     //Interface about menu operations
     public interface IMenuService
     {
-        Task AddMenu(UserModel user, MenuModel menu, List<int> mealIds);
-        Task AddMeal(UserModel user, MealModel meal);
-        Task UpdateMeal(UserModel user, MealModel meal);
-        Task DeleteMeal(UserModel user, int mealId);
+        Task<List<ClientMenuModel>> SynchronizeMenusAsync(UserModel user);
+        Task AddMenuAsync(UserModel user, MenuModel menu, List<int> mealIds);
+        Task<List<MealModel>> SynchronizeMealsAsync(UserModel user);
+        Task AddMealAsync(UserModel user, MealModel meal);
+        Task UpdateMealAsync(UserModel user, MealModel meal);
+        Task DeleteMealAsync(UserModel user, int mealId);
     }
 }
