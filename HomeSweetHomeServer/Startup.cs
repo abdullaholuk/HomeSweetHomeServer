@@ -67,6 +67,8 @@ namespace HomeSweetHomeServer
             services.AddScoped<IExpenseRepository, ExpenseRepository>();
             services.AddScoped<IUserExpenseRepository, UserExpenseRepository>();
             services.AddScoped<IMenuRepository, MenuRepository>();
+            services.AddScoped<IMealRepository, MealRepository>();
+            services.AddScoped<IMenuMealRepository, MenuMealRepository>();
 
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();

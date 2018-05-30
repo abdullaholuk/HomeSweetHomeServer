@@ -61,7 +61,7 @@ namespace HomeSweetHomeServer.Models
         Bill = 2,
         Shopping = 3,
         Lend = 4,
-        Borrow = 5,
-        Others = 6
+        Borrow = 6,
+        Others = 5
     }
 }

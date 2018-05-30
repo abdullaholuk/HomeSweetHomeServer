@@ -12,6 +12,7 @@ namespace HomeSweetHomeServer.Models
     public class MenuModel
     {
         [DataMember]
+        [Key]
         public int Id { get; set; }
 
         [ForeignKey("HomeId")]
@@ -19,9 +20,7 @@ namespace HomeSweetHomeServer.Models
 
         [DataMember]
         [Required]
+        [DataType(DataType.DateTime)]
         public DateTime Date { get; set; }
-
-        [DataMember]
-        public List<MealModel> Meals { get; set; }
     }
 }

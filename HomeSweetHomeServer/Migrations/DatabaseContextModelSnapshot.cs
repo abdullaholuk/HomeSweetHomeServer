@@ -105,20 +105,38 @@ namespace HomeSweetHomeServer.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<int?>("HomeId");
+
                     b.Property<string>("Ingredients");
 
-                    b.Property<int?>("MenuId")
+                    b.Property<string>("Name")
                         .IsRequired();
-
-                    b.Property<string>("Name");
 
                     b.Property<string>("Note");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MenuId");
+                    b.HasIndex("HomeId");
 
                     b.ToTable("Meal");
+                });
+
+            modelBuilder.Entity("HomeSweetHomeServer.Models.MenuMealModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("MealId");
+
+                    b.Property<int?>("MenuId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MealId");
+
+                    b.HasIndex("MenuId");
+
+                    b.ToTable("MenuMeal");
                 });
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.MenuModel", b =>
@@ -274,10 +292,20 @@ namespace HomeSweetHomeServer.Migrations
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.MealModel", b =>
                 {
+                    b.HasOne("HomeSweetHomeServer.Models.HomeModel", "Home")
+                        .WithMany()
+                        .HasForeignKey("HomeId");
+                });
+
+            modelBuilder.Entity("HomeSweetHomeServer.Models.MenuMealModel", b =>
+                {
+                    b.HasOne("HomeSweetHomeServer.Models.MealModel", "Meal")
+                        .WithMany()
+                        .HasForeignKey("MealId");
+
                     b.HasOne("HomeSweetHomeServer.Models.MenuModel", "Menu")
-                        .WithMany("Meals")
-                        .HasForeignKey("MenuId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .WithMany()
+                        .HasForeignKey("MenuId");
                 });
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.MenuModel", b =>

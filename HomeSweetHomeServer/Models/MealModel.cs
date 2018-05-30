@@ -12,9 +12,11 @@ namespace HomeSweetHomeServer.Models
     public class MealModel
     {
         [DataMember]
+        [Key]
         public int Id { get; set; }
 
         [DataMember]
+        [Required]
         public string Name { get; set; }
 
         [DataMember]
@@ -23,7 +25,7 @@ namespace HomeSweetHomeServer.Models
         [DataMember]
         public string Note { get; set; }
 
-        [ForeignKey("MenuId")]
-        public MenuModel Menu { get; set; }
+        [ForeignKey("HomeId")]
+        public HomeModel Home { get; set; }
     }
 }

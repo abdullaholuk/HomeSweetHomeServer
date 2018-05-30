@@ -9,19 +9,19 @@ namespace HomeSweetHomeServer.Models
     //Client request's expense model
     [Serializable]
     [DataContract]
-    public class ClientExpenseModel
+    public class ClientMenuModel
     {
         [DataMember]
         [Required]
-        public ExpenseModel Expense { get; set; }
+        public MenuModel Menu { get; set; }
 
         [DataMember]
         [Required]
-        public List<int> Participants { get; set; }
+        public List<int> MealIds { get; set; }
 
-        public ClientExpenseModel()
+        public ClientMenuModel()
         {
-            Participants = new List<int>();
+            MealIds = new List<int>();
         }
     }
 }
