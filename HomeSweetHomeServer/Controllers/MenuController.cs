@@ -57,6 +57,33 @@ namespace HomeSweetHomeServer.Controllers
             return Ok();
         }
 
+        //User adds menu
+        [HttpPost("UpdateMenu", Name = "UpdateMenu")]
+        public async Task<IActionResult> UpdateMenu([FromBody]ClientMenuModel clientMenu)
+        {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
+
+            MenuModel menu = clientMenu.Menu;
+            List<int> mealIds = clientMenu.MealIds;
+
+            await _menuService.UpdateMenuAsync(user, menu, mealIds);
+
+            return Ok();
+        }
+
+        //User deletes menu
+        [HttpGet("DeleteMenu", Name = "DeleteMenu")]
+        public async Task<IActionResult> DeleteMenu([FromQuery]int menuId)
+        {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
+
+            await _menuService.DeleteMenuAsync(user, menuId);
+
+            return Ok();
+        }
+
         //User synchronizes home meals
         [HttpGet("SynchronizeMeals", Name = "SynchronizeMeals")]
         public async Task<IActionResult> SynchronizeMeals()

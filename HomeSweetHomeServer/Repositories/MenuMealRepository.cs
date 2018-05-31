@@ -21,6 +21,15 @@ namespace HomeSweetHomeServer.Repositories
             else
                 return await Db.Include(m => m.Menu).Include(m => m.Meal).Where(m => m.Menu.Id == menuId).ToListAsync();
         }
+        
+        //Gets all menu meals by meal id
+        public async Task<List<MenuMealModel>> GetAllMenuMealsByMealIdAsync(int mealId, bool include = false)
+        {
+            if (include == false)
+                return await Db.Where(m => m.Meal.Id == mealId).ToListAsync();
+            else
+                return await Db.Include(m => m.Menu).Include(m => m.Meal).Where(m => m.Meal.Id == mealId).ToListAsync();
+        }
 
     }
 }

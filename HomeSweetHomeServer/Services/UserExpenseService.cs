@@ -143,6 +143,8 @@ namespace HomeSweetHomeServer.Services
                                                                                                     borrowExpense.Cost));
                     fcmBorrow.data.Add("Content", borrowExpense);
                     fcmBorrow.data.Add("Author", expense.Author.Username);
+                    fcmBorrow.data.Add("Participants", participants);
+
                     await _fcmService.SendFCMAsync(fcmBorrow);
                 }
                 
@@ -152,6 +154,8 @@ namespace HomeSweetHomeServer.Services
                 FCMModel fcmLend = new FCMModel(user.DeviceId, type : "Expense");
                 fcmLend.data.Add("Content", expense);
                 fcmLend.data.Add("Author", expense.Author.Username);
+                fcmLend.data.Add("Participants", participants);
+
                 await _fcmService.SendFCMAsync(fcmLend);
 
                 await insertUEL;
@@ -181,6 +185,8 @@ namespace HomeSweetHomeServer.Services
                                                                                                       expense.Cost));
                         fcmExpense.data.Add("Content", expense);
                         fcmExpense.data.Add("Author", expense.Author.Username);
+                        fcmExpense.data.Add("Participants", participants);
+
                         await _fcmService.SendFCMAsync(fcmExpense);
                     }
                     else
@@ -191,6 +197,8 @@ namespace HomeSweetHomeServer.Services
                         FCMModel fcmExpense = new FCMModel(user.DeviceId, new Dictionary<string, object>(), "Expense");
                         fcmExpense.data.Add("Content", expense);
                         fcmExpense.data.Add("Author", expense.Author.Username);
+                        fcmExpense.data.Add("Participants", participants);
+
                         await _fcmService.SendFCMAsync(fcmExpense);
 
                         await insertUE;

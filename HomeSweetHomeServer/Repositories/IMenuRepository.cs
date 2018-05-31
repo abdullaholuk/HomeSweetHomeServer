@@ -10,5 +10,6 @@ namespace HomeSweetHomeServer.Repositories
     {
         Task<MenuModel> GetHomeMenuByDateAsync(int homeId, DateTime date, bool include = false);
         Task<List<MenuModel>> GetAllHomeMenusAsync(int homeId, bool include = false);
+        Task<MenuModel> GetHomeMenuByIdAsync(int menuId, bool include = false);
     }
 }
