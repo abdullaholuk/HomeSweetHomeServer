@@ -8,6 +8,7 @@ namespace HomeSweetHomeServer.Repositories
     public interface IExpenseRepository : IBaseRepository<ExpenseModel>
     {
         Task<ExpenseModel> GetExpenseByIdAsync(int id, bool include = false);
-        Task<List<ExpenseModel>> GetAllExpensesByHomeId(int homeId, bool include = false);
+        Task<List<ExpenseModel>> GetAllExpensesByHomeIdAsync(int homeId, bool include = false);
+        Task<ExpenseModel> GetBorrowExpenseAfterLendExpenseAsync(int authorId, int lendExpenseId, bool include = false);
     }
 }

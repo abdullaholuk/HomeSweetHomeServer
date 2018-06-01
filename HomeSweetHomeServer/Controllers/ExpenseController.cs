@@ -44,5 +44,17 @@ namespace HomeSweetHomeServer.Controllers
 
             return Ok();
         }
+
+        //User deletes menu
+        [HttpGet("DeleteExpense", Name = "DeleteExpense")]
+        public async Task<IActionResult> DeleteExpense([FromQuery]int expenseId)
+        {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
+
+            await _userExpenseService.DeleteExpenseAsync(user, expenseId);
+
+            return Ok();
+        }
     }
 }

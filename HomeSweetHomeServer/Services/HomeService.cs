@@ -494,11 +494,11 @@ namespace HomeSweetHomeServer.Services
             }
             else
             {
-                ShoppingListModel getShoppingList = await _shoppingListRepository.GetShoppingListByHomeIdAsync(user.Home.Id);
+                ShoppingListModel shoppingList = await _shoppingListRepository.GetShoppingListByHomeIdAsync(user.Home.Id);
                 List<NotepadModel> notepad = await _notepadRepository.GetAllNoteByHomeIdAsync(user.Home.Id);
-                List<ExpenseModel> expenses = await _expenseRepository.GetAllExpensesByHomeId(user.Home.Id);
+                List<ExpenseModel> expenses = await _expenseRepository.GetAllExpensesByHomeIdAsync(user.Home.Id);
 
-                _shoppingListRepository.Delete(getShoppingList);
+                _shoppingListRepository.Delete(shoppingList);
 
                 foreach (var note in notepad)
                     _notepadRepository.Delete(note);

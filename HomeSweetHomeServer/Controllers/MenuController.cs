@@ -57,7 +57,7 @@ namespace HomeSweetHomeServer.Controllers
             return Ok();
         }
 
-        //User adds menu
+        //User updates menu
         [HttpPost("UpdateMenu", Name = "UpdateMenu")]
         public async Task<IActionResult> UpdateMenu([FromBody]ClientMenuModel clientMenu)
         {
