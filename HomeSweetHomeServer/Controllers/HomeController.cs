@@ -104,22 +104,19 @@ namespace HomeSweetHomeServer.Controllers
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
-            await _homeService.LeaveHome(user, newAdminId);
+            await _homeService.LeaveHomeAsync(user, newAdminId);
             return Ok();
         }
 
-        /*
-        //User gives money to his/her friend
-        [HttpGet("TransferMoneyToFriend", Name = "TransferMoneyToFriend")]
-        public async Task<IActionResult> TransferMoneyToFriend([FromQuery] int toId, [FromQuery] double givenMoney)
+        //User requests to quit home
+        [HttpGet("BanishFromHome", Name = "BanishFromHome")]
+        public async Task<IActionResult> BanishFromHome([FromQuery] int bannedUserId)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
-            UserModel from = await _jwtTokenService.GetUserFromTokenStrAsync(token);
-            UserModel to = await _authenticationService.GetUserByIdAsync(toId);
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
-            await _homeService.TransferMoneyToFriendAsync(from, to, givenMoney);
-
+            await _homeService.BanishFromHomeAsync(user, bannedUserId);
             return Ok();
-        }*/
+        }
     }
 }

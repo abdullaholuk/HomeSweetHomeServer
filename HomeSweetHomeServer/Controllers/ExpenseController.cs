@@ -56,5 +56,20 @@ namespace HomeSweetHomeServer.Controllers
 
             return Ok();
         }
+
+        //User updates expense
+        [HttpPost("UpdateExpense", Name = "UpdateExpense")]
+        public async Task<IActionResult> UpdateExpense([FromBody] ClientExpenseModel clientExpense)
+        {
+            string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
+            UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
+
+            ExpenseModel expense = clientExpense.Expense;
+            List<int> participants = clientExpense.Participants;
+
+            await _userExpenseService.UpdateExpenseAsync(user, expense, participants);
+
+            return Ok();
+        }
     }
 }

@@ -15,6 +15,7 @@ namespace HomeSweetHomeServer.Services
         Task InviteHomeRequestAsync(UserModel user, string invitedUsername);
         Task InviteHomeAcceptAsync(UserModel user, int invitedHomeId, bool isAccepted);
         Task TransferMoneyToFriendAsync(UserModel from, UserModel to, double givenMoney);
-        Task LeaveHome(UserModel user, int newAdminId);
+        Task LeaveHomeAsync(UserModel user, int newAdminId);
+        Task BanishFromHomeAsync(UserModel user, int bannedUserId);
     }
 }

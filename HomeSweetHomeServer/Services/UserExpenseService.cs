@@ -54,7 +54,7 @@ namespace HomeSweetHomeServer.Services
                 errors.Throw();
             }
 
-            if ((expense.EType > (int)ExpenseType.Others) || (expense.EType < 0) || (expense.EType == (int)ExpenseType.Borrow))
+            if ((expense.EType > (int)ExpenseType.Others) || (expense.EType < 0))
             {
                 CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
                 errors.AddError("Expense Type Not Exist", "Expense type number not valid");
@@ -93,9 +93,7 @@ namespace HomeSweetHomeServer.Services
                     errors.Throw();
                 }
             }
-
-            //user = await _userRepository.GetByIdAsync(user.Id);
-
+            
             expense.LastUpdated = DateTime.UtcNow;
             expense.Home = home;
             expense.Author = await _userRepository.GetByIdAsync(user.Id); ;
@@ -136,8 +134,8 @@ namespace HomeSweetHomeServer.Services
 
                     //Send fcm to other participants
                     FCMModel fcmBorrow = new FCMModel(to.DeviceId, new Dictionary<string, object>(), "AddExpense");
-                    fcmBorrow.notification.Add("title", "Borç Para");
-                    fcmBorrow.notification.Add("body", String.Format("{0} {1} kişisinden {2:c} borç alındı.",
+                    fcmBorrow.notification.Add("title", "Nakit Aktarımı");
+                    fcmBorrow.notification.Add("body", String.Format("{0} {1} tarafından {2:c} nakit alındı.",
                                                                                                     userFirstName.Value,
                                                                                                     userLastName.Value,
                                                                                                     borrowExpense.Cost));
@@ -254,9 +252,9 @@ namespace HomeSweetHomeServer.Services
             {
                 ExpenseModel borrowExpense = await _expenseRepository.GetBorrowExpenseAfterLendExpenseAsync(user.Id, expense.Id);
 
-                List<UserExpenseModel> participants = await _userExpenseRepository.GetAllUserExpenseByExpenseIdAsync(borrowExpense.Id, true);
+                List<UserExpenseModel> participantsUE = await _userExpenseRepository.GetAllUserExpenseByExpenseIdAsync(borrowExpense.Id, true);
 
-                foreach (var p in participants)
+                foreach (var p in participantsUE)
                 {
                     _userExpenseRepository.Delete(p);
 
@@ -264,8 +262,8 @@ namespace HomeSweetHomeServer.Services
 
                     //Send fcm to other participants
                     FCMModel fcmBorrow = new FCMModel(p.User.DeviceId, new Dictionary<string, object>(), "DeleteExpense");
-                    fcmBorrow.notification.Add("title", String.Format("Gider Silindi : \"{0}\"", borrowExpense.Title));
-                    fcmBorrow.notification.Add("body", String.Format("{0} {1} tarafından borç verilen {2:c} geri alındı.",
+                    fcmBorrow.notification.Add("title", String.Format("Nakit Aktarımı Iptal Edildi: \"{0}\"", borrowExpense.Title));
+                    fcmBorrow.notification.Add("body", String.Format("{0} {1} tarafından verilen {2:c} geri alındı.",
                                                                                                   userFirstName.Value,
                                                                                                   userLastName.Value,
                                                                                                   borrowExpense.Cost));
@@ -302,7 +300,7 @@ namespace HomeSweetHomeServer.Services
 
                         //Send fcm to other participants
                         FCMModel fcmExpense = new FCMModel(p.User.DeviceId, new Dictionary<string, object>(), "DeleteExpense");
-                        fcmExpense.notification.Add("title", String.Format("Gider Silindi : \"{0}\"", expense.Title));
+                        fcmExpense.notification.Add("title", String.Format("Gider Iptal Edildi: \"{0}\"", expense.Title));
                         fcmExpense.notification.Add("body", String.Format("{0} {1} tarafından {2:c} iade edildi.",
                                                                                                       userFirstName.Value,
                                                                                                       userLastName.Value,
@@ -322,6 +320,312 @@ namespace HomeSweetHomeServer.Services
                 }
 
                 _expenseRepository.Delete(expense);
+            }
+        }
+
+        //User updates expense
+        public async Task UpdateExpenseAsync(UserModel user, ExpenseModel expense, List<int> participants)
+        {
+            if (user.Position == (int)UserPosition.HasNotHome)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Home Not Exist", "User is not member of a home");
+                errors.Throw();
+            }
+
+            if ((expense.EType > (int)ExpenseType.Others) || (expense.EType < 0))
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Expense Type Not Exist", "Expense type number not valid");
+                errors.Throw();
+            }
+
+            if (expense.Cost <= 0)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Expense Cost Not Valid", "The expense cost must be bigger than 0");
+                errors.Throw();
+            }
+
+            participants = participants.Distinct().ToList();
+
+            if (participants.Count == 0)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Participants Not Exist", "You must add participants for this expense");
+                errors.Throw();
+            }
+
+            Task<InformationModel> firstNameInfo = _informationRepository.GetInformationByInformationNameAsync("FirstName");
+            Task<InformationModel> lastNameInfo = _informationRepository.GetInformationByInformationNameAsync("LastName");
+
+            user = await _userRepository.GetByIdAsync(user.Id, true);
+            HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
+
+            //Friend not found
+            foreach (var p in participants)
+            {
+                if (home.Users.SingleOrDefault(u => u.Id == p) == null)
+                {
+                    CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                    errors.AddError("Friendship Not Found", "Friendship not found for lend");
+                    errors.Throw();
+                }
+            }
+                        
+            //Control old expense
+            ExpenseModel oldExpense = await _expenseRepository.GetExpenseByIdAsync(expense.Id);
+
+            if (oldExpense == null)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Expense Not Found", "Expense not found, please check the expense id");
+                errors.Throw();
+            }
+
+            if (!oldExpense.Author.Equals(user))
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Authorization Error", "User is not author of this expense and can not delete");
+                errors.Throw();
+            }
+
+            if (oldExpense.EType != expense.EType)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Expense Type Error", "Old and new expense types are not matched");
+                errors.Throw();
+            }
+
+            //Author informations
+            UserInformationModel userFirstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
+            UserInformationModel userLastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
+            
+            expense.LastUpdated = DateTime.UtcNow;
+
+            if (expense.EType == (int)ExpenseType.Lend)
+            {
+                if (participants.SingleOrDefault(p => p.Equals(user.Id)) != 0)
+                {
+                    CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                    errors.AddError("Lend Error", "You cant lend yourself");
+                    errors.Throw();
+                }
+
+                ExpenseModel oldBorrowExpense = await _expenseRepository.GetBorrowExpenseAfterLendExpenseAsync(user.Id, oldExpense.Id);
+                List<UserExpenseModel> oldParticipantsUE = await _userExpenseRepository.GetAllUserExpenseByExpenseIdAsync(oldBorrowExpense.Id, true);
+
+                ExpenseModel newBorrowExpense = new ExpenseModel((int)ExpenseType.Borrow,
+                                                                  expense.Cost / participants.Count,
+                                                                  expense.Author,
+                                                                  expense.Home,
+                                                                  expense.LastUpdated,
+                                                                  expense.Title,
+                                                                  expense.Content);
+
+                foreach (var p in oldParticipantsUE)
+                {
+                    //Old participant is not included in updated expense
+                    if (participants.SingleOrDefault(pr => pr == p.User.Id) == 0)
+                    {
+                        _userExpenseRepository.Delete(p);
+                        await _homeService.TransferMoneyToFriendAsync(user, p.User, -oldBorrowExpense.Cost);
+                        
+                        //Send fcm to participant
+                        FCMModel fcmBorrow = new FCMModel(p.User.DeviceId, new Dictionary<string, object>(), "DeleteExpense");
+                        fcmBorrow.notification.Add("title", String.Format("Gider Iptal Edildi: \"{0}\"", oldBorrowExpense.Title));
+                        fcmBorrow.notification.Add("body", String.Format("{0} {1} tarafından verilen {2:c} geri alındı.",
+                                                                                                      userFirstName.Value,
+                                                                                                      userLastName.Value,
+                                                                                                      oldBorrowExpense.Cost));
+
+                        fcmBorrow.data.Add("ExpenseId", oldBorrowExpense.Id);
+                        await _fcmService.SendFCMAsync(fcmBorrow);
+                    }
+                    //Old participant is included in updated expense
+                    else
+                    {
+                        double difference = newBorrowExpense.Cost - oldBorrowExpense.Cost;
+                        await _homeService.TransferMoneyToFriendAsync(user, p.User, difference);
+                        
+                        //Send fcm to other participants
+                        FCMModel fcmBorrow = new FCMModel(p.User.DeviceId, new Dictionary<string, object>(), "UpdateExpense");
+                        fcmBorrow.notification.Add("title", String.Format("Gider Güncellemesi : \"{0}\"", expense.Title));
+                        fcmBorrow.notification.Add("body", String.Format("{0} {1} tarafından eklenen gider güncellendi.",
+                                                                                                      userFirstName.Value,
+                                                                                                      userLastName.Value));
+                        fcmBorrow.data.Add("Content", newBorrowExpense);
+                        fcmBorrow.data.Add("Author", oldExpense.Author.Username);
+                        fcmBorrow.data.Add("Participants", participants);
+
+                        await _fcmService.SendFCMAsync(fcmBorrow);
+                    }
+                }
+
+                oldBorrowExpense.Cost = newBorrowExpense.Cost;
+                oldBorrowExpense.LastUpdated = newBorrowExpense.LastUpdated;
+                oldBorrowExpense.Title = newBorrowExpense.Title;
+                oldBorrowExpense.Content = newBorrowExpense.Content;               
+
+                _expenseRepository.Update(oldBorrowExpense);
+
+                oldExpense.Cost = expense.Cost;
+                oldExpense.LastUpdated = expense.LastUpdated;
+                oldExpense.Title = expense.Title;
+                oldExpense.Content = expense.Content;
+
+                _expenseRepository.Update(oldExpense);
+
+                //Adds new participants to database
+                List<UserExpenseModel> newParticipantsUE = await _userExpenseRepository.GetAllUserExpenseByExpenseIdAsync(oldBorrowExpense.Id, true);
+
+                foreach(var p in participants)
+                {
+                    if(newParticipantsUE.SingleOrDefault(pr => pr.User.Id == p) == null)
+                    {
+                        var to = await _userRepository.GetByIdAsync(p);
+
+                        await _homeService.TransferMoneyToFriendAsync(user, to, oldBorrowExpense.Cost);
+                        await _userExpenseRepository.InsertAsync(new UserExpenseModel(to, oldBorrowExpense));
+
+                        //Send fcm to other participants
+                        FCMModel fcmBorrow = new FCMModel(to.DeviceId, new Dictionary<string, object>(), "AddExpense");
+                        fcmBorrow.notification.Add("title", "Nakit Aktarımı");
+                        fcmBorrow.notification.Add("body", String.Format("{0} {1} tarafından {2:c} nakit alındı.",
+                                                                                                        userFirstName.Value,
+                                                                                                        userLastName.Value,
+                                                                                                        oldBorrowExpense.Cost));
+                        fcmBorrow.data.Add("Content", oldBorrowExpense);
+                        fcmBorrow.data.Add("Author", oldBorrowExpense.Author.Username);
+                        fcmBorrow.data.Add("Participants", participants);
+
+                        await _fcmService.SendFCMAsync(fcmBorrow);
+                    }
+                }
+            }
+            else
+            {
+                List<UserExpenseModel> oldParticipants = await _userExpenseRepository.GetAllUserExpenseByExpenseIdAsync(expense.Id, true);
+                
+                expense.Cost = expense.Cost / participants.Count;
+                
+                foreach (var p in oldParticipants)
+                {
+                    //Old participant is not included in updated expense
+                    if (participants.SingleOrDefault(pr => pr == p.User.Id) == 0)
+                    {
+                        _userExpenseRepository.Delete(p);
+
+                        //Other participants
+                        if (p.User.Id != user.Id)
+                        {
+                            await _homeService.TransferMoneyToFriendAsync(user, p.User, -oldExpense.Cost);
+
+                            //Send fcm to participant
+                            FCMModel fcmExpense = new FCMModel(p.User.DeviceId, new Dictionary<string, object>(), "DeleteExpense");
+                            fcmExpense.notification.Add("title", String.Format("Gider Iptal Edildi: \"{0}\"", oldExpense.Title));
+                            fcmExpense.notification.Add("body", String.Format("{0} {1} tarafından {2:c} iade edildi.",
+                                                                                                      userFirstName.Value,
+                                                                                                      userLastName.Value,
+                                                                                                      oldExpense.Cost));
+
+                            fcmExpense.data.Add("ExpenseId", oldExpense.Id);
+                            await _fcmService.SendFCMAsync(fcmExpense);
+                        }
+                        else
+                        {
+                            //Send fcm to user
+                            FCMModel fcmExpense = new FCMModel(user.DeviceId, new Dictionary<string, object>(), "DeleteExpense");
+                            fcmExpense.data.Add("ExpenseId", oldExpense.Id);
+
+                            await _fcmService.SendFCMAsync(fcmExpense);
+                        }
+                    }
+                    //Old participant is included in updated expense
+                    else
+                    {
+                        if (p.User.Id != user.Id)
+                        {
+
+                            double difference = expense.Cost - oldExpense.Cost;
+                            await _homeService.TransferMoneyToFriendAsync(user, p.User, difference);
+
+                            //Send fcm to other participants
+                            FCMModel fcmExpense = new FCMModel(p.User.DeviceId, new Dictionary<string, object>(), "UpdateExpense");
+                            fcmExpense.notification.Add("title", String.Format("Gider Güncellemesi : \"{0}\"", expense.Title));
+                            fcmExpense.notification.Add("body", String.Format("{0} {1} tarafından eklenen gider güncellendi.",
+                                                                                                          userFirstName.Value,
+                                                                                                          userLastName.Value));
+                            fcmExpense.data.Add("Content", expense);
+                            fcmExpense.data.Add("Author", oldExpense.Author.Username);
+                            fcmExpense.data.Add("Participants", participants);
+
+                            await _fcmService.SendFCMAsync(fcmExpense);
+                        }
+                        else
+                        {
+
+                            FCMModel fcmExpense = new FCMModel(p.User.DeviceId, new Dictionary<string, object>(), "UpdateExpense");
+
+                            fcmExpense.data.Add("Content", expense);
+                            fcmExpense.data.Add("Author", oldExpense.Author.Username);
+                            fcmExpense.data.Add("Participants", participants);
+
+                            await _fcmService.SendFCMAsync(fcmExpense);
+                        }
+                    }
+                }
+
+                oldExpense.Cost = expense.Cost;
+                oldExpense.LastUpdated = expense.LastUpdated;
+                oldExpense.Title = expense.Title;
+                oldExpense.Content = expense.Content;
+
+                _expenseRepository.Update(oldExpense);
+
+                //Adds new participants to database
+                List<UserExpenseModel> newParticipantsUE = await _userExpenseRepository.GetAllUserExpenseByExpenseIdAsync(oldExpense.Id, true);
+
+                foreach (var p in participants)
+                {
+                    if (newParticipantsUE.SingleOrDefault(pr => pr.User.Id == p) == null)
+                    {
+                        if (p != user.Id)
+                        {
+                            var to = await _userRepository.GetByIdAsync(p);
+
+                            await _homeService.TransferMoneyToFriendAsync(user, to, oldExpense.Cost);
+                            await _userExpenseRepository.InsertAsync(new UserExpenseModel(to, oldExpense));
+
+                            //Send fcm to other participants
+                            FCMModel fcmExpense = new FCMModel(to.DeviceId, new Dictionary<string, object>(), "AddExpense");
+                            fcmExpense.notification.Add("title", String.Format("Yeni Gider : \"{0}\"", oldExpense.Title));
+                            fcmExpense.notification.Add("body", String.Format("{0} {1} tarafından {2:c} ödendi.",
+                                                                                                          userFirstName.Value,
+                                                                                                          userLastName.Value,
+                                                                                                          oldExpense.Cost));
+                            fcmExpense.data.Add("Content", oldExpense);
+                            fcmExpense.data.Add("Author", oldExpense.Author.Username);
+                            fcmExpense.data.Add("Participants", participants);
+
+                            await _fcmService.SendFCMAsync(fcmExpense);
+                        }
+                        else
+                        {
+                            Task insertUE = _userExpenseRepository.InsertAsync(new UserExpenseModel(user, oldExpense));
+
+                            //Send fcm to user
+                            FCMModel fcmExpense = new FCMModel(user.DeviceId, new Dictionary<string, object>(), "AddExpense");
+                            fcmExpense.data.Add("Content", oldExpense);
+                            fcmExpense.data.Add("Author", oldExpense.Author.Username);
+                            fcmExpense.data.Add("Participants", participants);
+
+                            await _fcmService.SendFCMAsync(fcmExpense);
+
+                            await insertUE;
+                        }
+                    }
+                }
             }
         }
     }

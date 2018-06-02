@@ -391,7 +391,7 @@ namespace HomeSweetHomeServer.Services
         }
 
         //User request to quit home
-        public async Task LeaveHome(UserModel user, int newAdminId)
+        public async Task LeaveHomeAsync(UserModel user, int newAdminId)
         {
             if(user.Position == (int)UserPosition.HasNotHome)
             {
@@ -512,6 +512,28 @@ namespace HomeSweetHomeServer.Services
                 _userRepository.Update(user);
                 _homeRepository.Delete(home);
             }
+        }
+
+        public async Task BanishFromHomeAsync(UserModel user, int bannedUserId)
+        {
+            if (user.Position != (int)UserPosition.Admin)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Authorization Error", "User is not admin of home");
+                errors.Throw();
+            }
+
+            UserModel bannedUser = await _userRepository.GetByIdAsync(bannedUserId, true);
+
+            if(user.Id == bannedUser.Id)
+            {
+                CustomException errors = new CustomException((int)HttpStatusCode.BadRequest);
+                errors.AddError("Bad Request", "You can not bannish yourself");
+                errors.Throw();
+            }
+
+            if (user.Home.Id == bannedUser.Home.Id)
+                await LeaveHomeAsync(bannedUser, 0);
         }
     }
 }
