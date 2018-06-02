@@ -31,7 +31,7 @@ namespace HomeSweetHomeServer.Controllers
             _fcmService = fcmService;
         }
 
-        //Registers sended user
+        //Registers user
         [HttpPost("Register", Name = "Register")]
         public async Task<IActionResult> Register([FromBody] RegistrationModel registrationForm)
         {
@@ -46,7 +46,7 @@ namespace HomeSweetHomeServer.Controllers
             return Ok();
         }
 
-        //Logins to server and accepts JWT token for requests
+        //User logins to server and takes JWT for requests
         [HttpPost("Login", Name = "Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel login)
         {
