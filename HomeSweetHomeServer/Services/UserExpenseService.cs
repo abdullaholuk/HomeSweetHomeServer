@@ -202,6 +202,17 @@ namespace HomeSweetHomeServer.Services
                         await insertUE;
                     }
                 }
+                //Expense author is not exist in participants
+                if (participants.SingleOrDefault(pr => pr == user.Id) == 0)
+                {
+                    //Send fcm to user
+                    FCMModel fcmExpense = new FCMModel(user.DeviceId, new Dictionary<string, object>(), "AddExpense");
+                    fcmExpense.data.Add("Content", expense);
+                    fcmExpense.data.Add("Author", expense.Author.Username);
+                    fcmExpense.data.Add("Participants", participants);
+
+                    await _fcmService.SendFCMAsync(fcmExpense);
+                }
             }
         }
 
@@ -318,8 +329,18 @@ namespace HomeSweetHomeServer.Services
                         await _fcmService.SendFCMAsync(fcmExpense);
                     }
                 }
+                //Expense author is not exist in participants
+                if (participants.SingleOrDefault(pr => pr.User.Id == user.Id) == null)
+                {
+                    //Send fcm to user
+                    FCMModel fcmExpense = new FCMModel(user.DeviceId, new Dictionary<string, object>(), "DeleteExpense");
+                    fcmExpense.data.Add("ExpenseId", expense.Id);
+
+                    await _fcmService.SendFCMAsync(fcmExpense);
+                }
 
                 _expenseRepository.Delete(expense);
+
             }
         }
 
@@ -564,9 +585,7 @@ namespace HomeSweetHomeServer.Services
                         }
                         else
                         {
-
                             FCMModel fcmExpense = new FCMModel(p.User.DeviceId, new Dictionary<string, object>(), "UpdateExpense");
-
                             fcmExpense.data.Add("Content", expense);
                             fcmExpense.data.Add("Author", oldExpense.Author.Username);
                             fcmExpense.data.Add("Participants", participants);
@@ -625,6 +644,16 @@ namespace HomeSweetHomeServer.Services
                             await insertUE;
                         }
                     }
+                }
+                //Expense author is not exist in participants
+                if(participants.SingleOrDefault(pr => pr.Equals(user.Id)) == 0)
+                {
+                    FCMModel fcmExpense = new FCMModel(user.DeviceId, new Dictionary<string, object>(), "UpdateExpense");
+                    fcmExpense.data.Add("Content", expense);
+                    fcmExpense.data.Add("Author", oldExpense.Author.Username);
+                    fcmExpense.data.Add("Participants", participants);
+
+                    await _fcmService.SendFCMAsync(fcmExpense);
                 }
             }
         }
