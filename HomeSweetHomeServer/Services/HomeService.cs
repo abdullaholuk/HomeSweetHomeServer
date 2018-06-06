@@ -111,11 +111,15 @@ namespace HomeSweetHomeServer.Services
             UserInformationModel firstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
             UserInformationModel lastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
             
-            FCMModel fcm = new FCMModel(home.Admin.DeviceId, new Dictionary<string, object>(), "JoinHomeRequest");
+            FCMModel fcm = new FCMModel(home.Admin.DeviceId, new Dictionary<string, object>());
             
             fcm.notification.Add("title", "Eve Katılma İsteği");
             fcm.notification.Add("body", String.Format("{0} {1}({2}) evinize katılmak istiyor.", firstName.Value, lastName.Value, user.Username));
 
+            await _fcmService.SendFCMAsync(fcm);
+
+            fcm = new FCMModel(home.Admin.DeviceId, type : "JoinHomeRequest");
+           
             fcm.data.Add("RequesterId", user.Id);
             fcm.data.Add("RequesterUsername", user.Username);
             fcm.data.Add("RequesterName", firstName.Value);
@@ -165,9 +169,12 @@ namespace HomeSweetHomeServer.Services
 
                 HomeModel home = await _homeRepository.GetByIdAsync(user.Home.Id, true);
 
-                FCMModel fcmRequester = new FCMModel(requester.DeviceId, new Dictionary<string, object>(), "AllFriends");
+                FCMModel fcmRequester = new FCMModel(requester.DeviceId, new Dictionary<string, object>());
+
                 fcmRequester.notification.Add("title", "Eve Katılma İsteği");
                 fcmRequester.notification.Add("body", "Eve katılma isteğiniz ev yöneticisi tarafından kabul edildi.");
+
+                await _fcmService.SendFCMAsync(fcmRequester);
 
                 List<UserBaseModel> friendsBaseModels = new List<UserBaseModel>();
                 UserBaseModel requesterBaseModel = new UserBaseModel(requester.Id, requester.Username, requester.Position, requesterFirstName.Value, requesterLastName.Value, 0);
@@ -178,11 +185,15 @@ namespace HomeSweetHomeServer.Services
                     Task insertFriendship = _friendshipRepository.InsertAsync(friendship);
 
                     //Sends notification to all friends 
-                    FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), "NewFriend");
+                    FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>());
 
                     fcmFriend.notification.Add("title", "Yeni Ev Arkadaşı");
                     fcmFriend.notification.Add("body", String.Format("{0} {1}({2}) evinize katıldı.", requesterFirstName.Value, requesterLastName.Value, requester.Username));
 
+                    await _fcmService.SendFCMAsync(fcmFriend);
+
+                    //Sends notification to all friends 
+                    fcmFriend = new FCMModel(friend.DeviceId, type : "NewFriend");
                     fcmFriend.data.Add("Friend", requesterBaseModel);
 
                     await _fcmService.SendFCMAsync(fcmFriend);
@@ -202,6 +213,8 @@ namespace HomeSweetHomeServer.Services
                 requester.Home = home;
                 _userRepository.Update(requester);
 
+                fcmRequester = new FCMModel(requester.DeviceId, type : "AllFriends");
+                
                 fcmRequester.data.Add("NumberOfFriends", home.Users.Count - 1);
                 fcmRequester.data.Add("Friends", friendsBaseModels);
                 await _fcmService.SendFCMAsync(fcmRequester);
@@ -244,10 +257,14 @@ namespace HomeSweetHomeServer.Services
             UserInformationModel firstName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await firstNameInfo).Id);
             UserInformationModel lastName = await _userInformationRepository.GetUserInformationByIdAsync(user.Id, (await lastNameInfo).Id);
 
-            FCMModel fcm = new FCMModel(invitedUser.DeviceId, new Dictionary<string, object>(), "InviteHomeRequest");
+            FCMModel fcm = new FCMModel(invitedUser.DeviceId, new Dictionary<string, object>());
 
             fcm.notification.Add("title", "Eve Katılma Daveti");
             fcm.notification.Add("body", String.Format("{0} {1}({2}) evine katılmanız için davet ediyor.", firstName.Value, lastName.Value, user.Username));
+
+            await _fcmService.SendFCMAsync(fcm);
+
+            fcm = new FCMModel(invitedUser.DeviceId, type : "InviteHomeRequest");            
 
             fcm.data.Add("InvitedHomeId", home.Id);
             fcm.data.Add("InviterUsername", user.Username);
@@ -297,11 +314,15 @@ namespace HomeSweetHomeServer.Services
                     Task insertFriendship = _friendshipRepository.InsertAsync(friendship);
                     
                     //Sends notification to all friends 
-                    FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), "NewFriend");
+                    FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>());
 
                     fcmFriend.notification.Add("title", "Yeni Ev Arkadaşı");
                     fcmFriend.notification.Add("body", String.Format("{0} {1}({2}) evinize katıldı", userFirstName.Value, userLastName.Value, user.Username));
+                                        
+                    await _fcmService.SendFCMAsync(fcmFriend);
 
+                    //Sends notification to all friends 
+                    fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>(), "NewFriend");
                     fcmFriend.data.Add("Friend", userBaseModel);
                     
                     await _fcmService.SendFCMAsync(fcmFriend);
@@ -442,7 +463,7 @@ namespace HomeSweetHomeServer.Services
                 {
                     FriendshipModel friendship = await _friendshipRepository.GetFriendshipByIdAsync(user.Id, u.Id);
 
-                    FCMModel fcm = new FCMModel(u.DeviceId, new Dictionary<string, object>(), "LeaveHome");
+                    FCMModel fcm = new FCMModel(u.DeviceId, new Dictionary<string, object>());
                     fcm.notification.Add("title", "Evden Ayrılma");
 
                     if (friendship.User1.Id == user.Id)
@@ -486,9 +507,13 @@ namespace HomeSweetHomeServer.Services
                         }
                     }
 
+                    await _fcmService.SendFCMAsync(fcm);
+                    
+                    fcm = new FCMModel(u.DeviceId, type : "LeaveHome");
+
                     fcm.data.Add("LeaverId", user.Id);
                     await _fcmService.SendFCMAsync(fcm);
-
+                    
                     _friendshipRepository.Delete(friendship);
                 }
             }

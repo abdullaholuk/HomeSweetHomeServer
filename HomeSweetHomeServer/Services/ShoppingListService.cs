@@ -99,7 +99,7 @@ namespace HomeSweetHomeServer.Services
                 if (f.Id == user.Id)
                     continue;
 
-                FCMModel fcm = new FCMModel(f.DeviceId, new Dictionary<string, object>(), "BasicNotification");
+                FCMModel fcm = new FCMModel(f.DeviceId, new Dictionary<string, object>());
                 fcm.notification.Add("title", "Alışveriş Talebi");
                 fcm.notification.Add("body", "Alışveriş listesindeki ürünlerin alınması isteniyor.");
                 await _fcmService.SendFCMAsync(fcm);
