@@ -88,6 +88,13 @@ namespace HomeSweetHomeServer.Services
 
             _houseworkRepository.Insert(housework);
 
+            //Sends fcm to assigned friend
+            FCMModel fcmFriend = new FCMModel(friend.DeviceId, new Dictionary<string, object>());
+            fcmFriend.notification.Add("title", "Yeni Ev İşi");
+            fcmFriend.notification.Add("body", String.Format("Ayın {0}. günü {1} yapmanız gerekmektedir.", housework.Day, housework.Work));
+
+            await _fcmService.SendFCMAsync(fcmFriend);
+
             //Sends fcm to all friends
             foreach(var f in home.Users)
             {
@@ -127,8 +134,18 @@ namespace HomeSweetHomeServer.Services
                 errors.AddError("Housework Not Belongs Home", "Housework not belongs for this home");
                 errors.Throw();
             }
+            
+            //Sends fcm to assigned friend
+            FCMModel fcmFriend = new FCMModel(housework.User.DeviceId, new Dictionary<string, object>());
+            fcmFriend.notification.Add("title", "Ev İşi İptal Edildi");
+            fcmFriend.notification.Add("body", String.Format("Ayın {0}. yapmanız gereken {1} işi iptal edildi.", housework.Day, housework.Work));
+
+            await _fcmService.SendFCMAsync(fcmFriend);
 
             _houseworkRepository.Delete(housework);
+
+           
+            await _fcmService.SendFCMAsync(fcmFriend);
 
             //Sends fcm to all friends
             foreach (var f in home.Users)
@@ -188,6 +205,13 @@ namespace HomeSweetHomeServer.Services
             oldHousework.Work = housework.Work;
 
             _houseworkRepository.Update(oldHousework);
+            
+            //Sends fcm to assigned friend
+            FCMModel fcmFriend = new FCMModel(housework.User.DeviceId, new Dictionary<string, object>());
+            fcmFriend.notification.Add("title", "Ev İşi Güncellendi");
+            fcmFriend.notification.Add("body", "Yapmanız gereken bir ev işi güncellendi.");
+
+            await _fcmService.SendFCMAsync(fcmFriend);
 
             //Sends fcm to all friends
             foreach (var f in home.Users)
