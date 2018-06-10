@@ -607,14 +607,6 @@ namespace HomeSweetHomeServer.Services
                             fcmExpense.data.Add("ExpenseId", oldExpense.Id);
                             await _fcmService.SendFCMAsync(fcmExpense);
                         }
-                        else
-                        {/*
-                            //Send fcm to user
-                            FCMModel fcmExpense = new FCMModel(user.DeviceId, new Dictionary<string, object>(), "DeleteExpense");
-                            fcmExpense.data.Add("ExpenseId", oldExpense.Id);
-
-                            await _fcmService.SendFCMAsync(fcmExpense);*/
-                        }
                     }
                     //Old participant is included in updated expense
                     else

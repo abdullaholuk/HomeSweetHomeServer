@@ -55,9 +55,9 @@ namespace HomeSweetHomeServer.Controllers
             UserModel user = await _authenticationService.LoginAsync(login);
 
             UserFullInformationModel fullInfo = await _authenticationService.GetUserFullInformationAsync(user.Id);
-
+            /*
             if (user.Status == (int)UserStatus.NotValid)
-                fullInfo.Token = null;
+                fullInfo.Token = null;*/
 
             if (user.Status == (int)UserStatus.NotValid)
                 return StatusCode((int)HttpStatusCode.Accepted, fullInfo);

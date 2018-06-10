@@ -11,9 +11,10 @@ using System;
 namespace HomeSweetHomeServer.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20180606192413_Db_Housework")]
+    partial class Db_Housework
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,7 +96,7 @@ namespace HomeSweetHomeServer.Migrations
 
                     b.Property<int?>("HomeId");
 
-                    b.Property<int?>("UserId");
+                    b.Property<int?>("UserID");
 
                     b.Property<string>("Work")
                         .IsRequired();
@@ -321,7 +322,7 @@ namespace HomeSweetHomeServer.Migrations
 
                     b.HasOne("HomeSweetHomeServer.Models.UserModel", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserID");
                 });
 
             modelBuilder.Entity("HomeSweetHomeServer.Models.MealModel", b =>

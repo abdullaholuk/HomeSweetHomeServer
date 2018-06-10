@@ -17,63 +17,69 @@ using System.Net;
 namespace HomeSweetHomeServer.Controllers
 {
     [Produces("application/json")]
-    [Route("api/Notepad")]
+    [Route("api/Housework")]
     [Authorize]
-    public class NotepadController : Controller
+    public class HouseworkController : Controller
     {
         IJwtTokenService _jwtTokenService;
-        INotepadService _notepadService;
+        IHouseworkService _houseworkService;
 
-        public NotepadController(IJwtTokenService jwtTokenService, INotepadService notepadService)
+        public HouseworkController(IJwtTokenService jwtTokenService, IHouseworkService houseworkService)
         {
             _jwtTokenService = jwtTokenService;
-            _notepadService = notepadService;
+            _houseworkService = houseworkService;
         }
 
-        //Synchronizes clients notepad
-        [HttpGet("Synchronize", Name = "SynchronizeNotepad")]
+        //Synchronizes clients houseworks
+        [HttpGet("Synchronize", Name = "SynchronizeHouseworks")]
         public async Task<IActionResult> Synchronize()
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
-            List<NotepadModel> res = await _notepadService.SynchronizeNotepadAsync(user);
-            
+            List<ClientHouseworkModel> res = await _houseworkService.SynchronizeHouseworksAsync(user);
+
             return Ok(res);
         }
 
-        //User adds note
-        [HttpPost("AddNote", Name = "AddNote")]
-        public async Task<IActionResult> AddNote([FromBody] NotepadModel note)
+        //Admin adds a housework assign
+        [HttpPost("AddHousework", Name = "AddHousework")]
+        public async Task<IActionResult> AddHousework([FromBody] ClientHouseworkModel clientHousework)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
-            
-            await _notepadService.AddNoteAsync(user, note);
+
+            HouseworkModel housework = clientHousework.Housework;
+            int friendId = clientHousework.FriendId;
+
+            await _houseworkService.AddHouseworkAsync(user, housework, friendId);
 
             return Ok();
         }
 
-        //User deletes note
-        [HttpGet("DeleteNote", Name = "DeleteNote")]
-        public async Task<IActionResult> DeleteNote([FromQuery] int noteId)
+        //Admin deletes a housework assign
+        [HttpGet("DeleteHousework", Name = "DeleteHousework")]
+        public async Task<IActionResult> DeleteHousework([FromQuery] int houseworkId)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
-            await _notepadService.DeleteNoteAsync(user, noteId);
+            await _houseworkService.DeleteHouseworkAsync(user, houseworkId);
 
             return Ok();
         }
 
-        //User updates note
-        [HttpPost("UpdateNote", Name = "UpdateNote")]
-        public async Task<IActionResult> UpdateNote([FromBody] NotepadModel note)
+        //Admin updates a housework assign
+        [HttpPost("UpdateHousework", Name = "UpdateHousework")]
+        public async Task<IActionResult> UpdateHousework([FromBody] ClientHouseworkModel clientHousework)
         {
             string token = Request.Headers["Authorization"].ToString().Substring("Bearer ".Length).Trim();
             UserModel user = await _jwtTokenService.GetUserFromTokenStrAsync(token);
 
-            await _notepadService.UpdateNoteAsync(user, note);
+            HouseworkModel housework = clientHousework.Housework;
+            int friendId = clientHousework.FriendId;
+
+            await _houseworkService.UpdateHouseworkAsync(user, housework, friendId);
 
             return Ok();
         }

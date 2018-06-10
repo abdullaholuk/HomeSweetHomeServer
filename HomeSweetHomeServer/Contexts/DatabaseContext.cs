@@ -28,6 +28,7 @@ namespace HomeSweetHomeServer.Contexts
         DbSet<MealModel> MealModels { get; set; } //Meal table
         DbSet<MenuModel> MenuModels { get; set; } //Menu table
         DbSet<MenuMealModel> MenuMeals { get; set; } //MenuMeal table
+        DbSet<HouseworkModel> HouseworkModels { get; set; } //Housework table
         
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -44,6 +45,7 @@ namespace HomeSweetHomeServer.Contexts
             builder.Entity<MealModel>().ToTable("Meal");
             builder.Entity<MenuModel>().ToTable("Menu");
             builder.Entity<MenuMealModel>().ToTable("MenuMeal");
+            builder.Entity<HouseworkModel>().ToTable("Housework");
         }
     }
 }

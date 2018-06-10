@@ -69,6 +69,7 @@ namespace HomeSweetHomeServer
             services.AddScoped<IMenuRepository, MenuRepository>();
             services.AddScoped<IMealRepository, MealRepository>();
             services.AddScoped<IMenuMealRepository, MenuMealRepository>();
+            services.AddScoped<IHouseworkRepository, HouseworkRepository>();
 
             services.AddScoped<IJwtTokenService, JwtTokenService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
@@ -79,6 +80,7 @@ namespace HomeSweetHomeServer
             services.AddScoped<IShoppingListService, ShoppingListService>();
             services.AddScoped<IUserExpenseService, UserExpenseService>();
             services.AddScoped<IMenuService, MenuService>();
+            services.AddScoped<IHouseworkService, HouseworkService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
